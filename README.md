@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/favicon.svg" alt="Kakatua Logo" width="120" />
+<img src="https://raw.githubusercontent.com/soms3r/kakatua/main/public/favicon.svg" alt="Kakatua Logo" width="120" />
 
 # Kakatua
 
@@ -226,6 +226,42 @@ Contributions are welcome! Whether it's a bug fix, a new feature, or a cultural 
 5. **Open** a Pull Request
 
 Please read [DEVELOPMENT_CONSTITUTION.md](DEVELOPMENT_CONSTITUTION.md) for architecture guidelines and business logic rules.
+
+---
+
+## Credits
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### The Nest Builder
+
+**Somser Ali**
+Human Developer & Creator — Every line of code, every pixel, every metaphor — built with care, curiosity, and a deep love for language.
+
+</td>
+<td width="50%" valign="top">
+
+### Inspired By
+
+- **Duolingo** — For proving language learning can be gamified and fun for millions
+- **Tandem & HelloTalk** — For pioneering the language exchange model
+
+</td>
+</tr>
+</table>
+
+### Built With
+
+| Category | Technology | License |
+|----------|-----------|---------|
+| **Frameworks** | [Next.js 15](https://nextjs.org), [React 19](https://react.dev), [TypeScript 5.7](https://typescriptlang.org), [Node.js 22](https://nodejs.org) | MIT / Apache 2.0 |
+| **Database** | [Prisma 6](https://prisma.io), [PostgreSQL 16](https://postgresql.org) | Apache 2.0 / PostgreSQL License |
+| **Styling** | [Tailwind CSS 3.4](https://tailwindcss.com), [Material Symbols](https://fonts.google.com/icons) | MIT / SIL OFL |
+| **Development** | [OpenCode](https://opencode.ai), [Git](https://git-scm.com), [Vercel](https://vercel.com) | Various |
+
+> Kakatua is built on open-source software distributed under MIT, Apache 2.0, BSD-3-Clause, and SIL Open Font License. We comply with all attribution requirements. If you are a maintainer of a project listed above and believe the attribution could be improved, please reach out.
 
 ---
 
