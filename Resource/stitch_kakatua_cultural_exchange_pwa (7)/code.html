@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .backdrop-blur-nest {
+            backdrop-filter: blur(12px) saturate(140%);
+            -webkit-backdrop-filter: blur(12px) saturate(140%);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#6d1d06",
+                        "background": "#fbf9f5",
+                        "outline": "#72796e",
+                        "surface-container-highest": "#e4e2de",
+                        "on-background": "#1b1c1a",
+                        "on-tertiary-container": "#ffaf9a",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#fdbb24",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2d5a27",
+                        "secondary-fixed-dim": "#fdbb24",
+                        "on-surface": "#1b1c1a",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#3b6934",
+                        "tertiary-fixed": "#ffdbd1",
+                        "surface-variant": "#e4e2de",
+                        "primary": "#154212",
+                        "tertiary-fixed-dim": "#ffb5a1",
+                        "inverse-on-surface": "#f2f0ed",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#7b5800",
+                        "surface-dim": "#dbdad6",
+                        "secondary-fixed": "#ffdea5",
+                        "primary-fixed-dim": "#a1d494",
+                        "on-tertiary-fixed-variant": "#7f2a12",
+                        "surface": "#fbf9f5",
+                        "inverse-primary": "#a1d494",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#fbf9f5",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#30312e",
+                        "tertiary-container": "#8c331b",
+                        "surface-container-low": "#f5f3ef",
+                        "on-tertiary-fixed": "#3b0800",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-primary-container": "#9dd090",
+                        "primary-fixed": "#bcf0ae",
+                        "outline-variant": "#c2c9bb",
+                        "on-surface-variant": "#42493e",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-primary-fixed": "#002201",
+                        "on-secondary-container": "#6c4d00",
+                        "surface-container": "#efeeea",
+                        "on-secondary-fixed": "#271900",
+                        "surface-container-high": "#eae8e4",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "section-gap": "48px",
+                        "element-gap": "12px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-fixed-dim overflow-hidden">
+<!-- WebGL Shader Background -->
+<div class="fixed inset-0 z-0">
+<!-- STITCH_SHADER_START:ANIMATION_15 class="absolute inset-0 w-full h-full opacity-60" -->
+<div class="absolute inset-0 w-full h-full opacity-60" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_15" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_15');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+
+varying vec2 v_texCoord;
+
+// Simplex noise function for organic movement
+vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+float snoise(vec2 v) {
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                        -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy) );
+    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 i1;
+    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod289(i);
+    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+        + i.x + vec3(0.0, i1.x, 1.0 ));
+    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+        dot(x12.zw,x12.zw)), 0.0);
+    m = m*m ;
+    m = m*m ;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    vec3 g;
+    g.x  = a0.x  * x0.x  + h.x  * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 center = vec2(0.5, 0.5);
+    float dist = distance(uv, center);
+    
+    // Kakatua Earthy Green: #2d5a27 -> rgb(45, 90, 39) -> vec3(0.176, 0.353, 0.153)
+    // Kakatua Warm Yellow: #ffb800 -> rgb(255, 184, 0) -> vec3(1.0, 0.722, 0.0)
+    vec3 color1 = vec3(0.176, 0.353, 0.153); 
+    vec3 color2 = vec3(1.0, 0.722, 0.0);
+    vec3 bgColor = vec3(0.984, 0.976, 0.961); // Surface color #fbf9f5
+    
+    // Create organic pulsing circles
+    float noise = snoise(uv * 3.0 + u_time * 0.5) * 0.1;
+    float pulse = 0.2 + 0.05 * sin(u_time * 2.0);
+    
+    float circle1 = smoothstep(pulse + noise, pulse + noise - 0.1, dist);
+    float circle2 = smoothstep(pulse * 1.5 + noise, pulse * 1.5 + noise - 0.1, dist);
+    
+    vec3 finalColor = mix(bgColor, color1, circle2 * 0.3);
+    finalColor = mix(finalColor, color2, circle1 * 0.5);
+    
+    // Vignette
+    finalColor *= 1.0 - smoothstep(0.4, 0.8, dist) * 0.2;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_15 -->
+<!-- Overlay to ensure readability and "Nest" warmth -->
+<div class="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background/80"></div>
+</div>
+<!-- Top Navigation (Standard Component, Dimmed for Focus) -->
+<header class="w-full top-0 sticky z-50 bg-surface/40 backdrop-blur-md shadow-sm flex items-center justify-between px-gutter h-16 w-full opacity-60 pointer-events-none transition-opacity duration-500">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="menu">menu</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold">Kakatua</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A professional headshot of a friendly user with soft, warm studio lighting. The person has a kind expression, representing a member of a global community. The background is a soft, out-of-focus interior with neutral sand tones, matching the organic and minimalist Nest aesthetic of the application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRoW3GP2gy7bv8glw3VCBzHM7-YGAzHJIiWOkYkblohlS1DBAgxsR-SwanKLuw-vI3FB2N8LEz5mlaq-ul214RhyuPJXDdUIcuMtdAwIZXvWLrKfXxgM66EgwAyS0lJWTdRQE4G230tNmmnEKKR5Dp04hgAjbcKPAjAje2BY3La8ukNiAJaiMDUqBUB0racx2_ImI2ra841bBuMkaTV1xcpfrjXdSlhkP9FF2iMUHPaeR87rKEL4bYJ4B65kax9FpthmIkKGI5IZjs"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-128px)] px-container-margin text-center">
+<!-- Animated Mascot/Icon Placeholder -->
+<div class="mb-element-gap animate-float">
+<div class="w-24 h-24 bg-primary-container/20 rounded-full flex items-center justify-center backdrop-blur-md border border-primary/10">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">diversity_1</span>
+</div>
+</div>
+<!-- Headline & Content -->
+<div class="max-w-md space-y-4">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-xl md:text-headline-xl text-primary drop-shadow-sm">
+                The flock is gathering...
+            </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[280px] mx-auto">
+                Finding your perfect language partner...
+            </p>
+</div>
+<!-- Progress Indicator -->
+<div class="mt-section-gap w-full max-w-[240px]">
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/3 rounded-full animate-[loading_2s_infinite_ease-in-out]"></div>
+</div>
+</div>
+<!-- Action Button -->
+<div class="mt-section-gap">
+<button class="px-8 py-4 rounded-full border-2 border-outline text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low active:scale-95 transition-all duration-200 flex items-center gap-2 group">
+<span class="material-symbols-outlined text-xl group-hover:rotate-90 transition-transform duration-300" data-icon="close">close</span>
+                Cancel Search
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation (Standard Component, Dimmed for Focus) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/40 dark:bg-surface-container-highest/40 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.04)] rounded-t-lg opacity-40 pointer-events-none transition-opacity duration-500">
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-label-md text-label-md">Discover</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="diversity_1">diversity_1</span>
+<span class="font-label-md text-label-md">Connect</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</nav>
+<script>
+        // Custom progress bar animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes loading {
+                0% { transform: translateX(-100%); }
+                50% { transform: translateX(100%); }
+                100% { transform: translateX(-100%); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Simple interaction to "wake up" the nav for demonstration or feedback
+        document.addEventListener('mousemove', (e) => {
+            const header = document.querySelector('header');
+            const nav = document.querySelector('nav');
+            if (e.clientY < 80 || e.clientY > window.innerHeight - 80) {
+                header.style.opacity = '0.9';
+                nav.style.opacity = '0.9';
+            } else {
+                header.style.opacity = '0.4';
+                nav.style.opacity = '0.4';
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,145 @@
+// Prisma schema for Kakatua (prisma/schema.prisma)
+
+// Provider: "sqlite" for local dev, switch to "postgresql" for production deploy.
+// Run `prisma migrate deploy` after switching.
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Users Table
+model User {
+  id                String        @id @default(uuid())
+  email             String        @unique
+  name              String
+  avatarUrl         String?       @map("avatar_url")
+  
+  // SQLite: arrays stored as JSON strings
+  nativeLanguages   String        @map("native_languages") @default("[]")
+  learningLanguages String        @map("learning_languages") @default("[]")
+  interests         String        @default("[]")
+  
+  timezoneOffset    Decimal       @map("timezone_offset")
+  status            String        @default("active") // active, searching, suspended, banned
+  suspensionUntil   DateTime?     @map("suspension_until")
+  reportCount       Int           @default(0) @map("report_count")
+  ipAddress         String?       @map("ip_address")
+  
+  password          String?       // bcrypt-hashed password for credential auth
+  isAmbassador      Boolean       @default(false) @map("is_ambassador")
+  ambassadorRole    String?       @map("ambassador_role") // GUIDE, MATCHMAKER, CULTURAL_ADVISOR — immutable system bots
+  countrySlug       String?       @map("country_slug") // URL slug for country detail pages (e.g. "bangladesh", "japan")
+  
+  // Profile enrichment fields
+  bio               String?       // Short personal bio
+  traditions        String?       // Cultural traditions or customs
+  favoriteFood      String?       @map("favorite_food") // Favourite dish or cuisine
+  historyInterest   String?       @map("history_interest") // What history/culture fascinates you
+  
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  // Relationships
+  cultureCard       CultureCard?
+  cultureCardLikes  CultureCardLike[]
+  userMissions      UserMission[]
+  reportsFiled      Report[]      @relation("Reporter")
+  reportsReceived   Report[]      @relation("Reported")
+
+  @@map("users")
+}
+
+// 2. Culture Cards Table (1:1 with User)
+model CultureCard {
+  id              String            @id @default(uuid())
+  userId          String            @unique @map("user_id")
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  data            String            // JSON stored as text in SQLite
+  detailedContent String?           @map("detailed_content") // Extended cultural library JSON (languageInfo, rituals, cuisine, history, etiquette)
+  loveCount       Int               @default(0) @map("love_count")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  // Relationships
+  likes           CultureCardLike[]
+
+  @@map("culture_cards")
+}
+
+// 7. Culture Card Likes (unique user-card love reactions)
+model CultureCardLike {
+  id            String      @id @default(uuid())
+  userId        String      @map("user_id")
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cultureCardId String      @map("culture_card_id")
+  cultureCard   CultureCard @relation(fields: [cultureCardId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@unique([userId, cultureCardId])
+  @@map("culture_card_likes")
+}
+
+// 3. Missions Table (Master Data)
+model Mission {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  expReward    Int           @map("exp_reward")
+  type         String        // daily, weekly, milestone
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  
+  userMissions UserMission[]
+
+  @@map("missions")
+}
+
+// 4. User Missions Table (1:M tracking progress)
+model UserMission {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  missionId   String    @map("mission_id")
+  mission     Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  progress    Int       @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@unique([userId, missionId])
+  @@map("user_missions")
+}
+
+// 5. Reports Table (Spam-blocked audit trail)
+model Report {
+  id         String   @id @default(uuid())
+  reporterId String   @map("reporter_id")
+  reporter   User     @relation("Reporter", fields: [reporterId], references: [id], onDelete: Restrict)
+  reportedId String   @map("reported_id")
+  reported   User     @relation("Reported", fields: [reportedId], references: [id], onDelete: Cascade)
+  reason     String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([reporterId, reportedId])
+  @@map("reports")
+}
+
+// 6. Feedbacks Table (Flock Feedback system)
+model Feedback {
+  id             String   @id @default(uuid())
+  userId         String?  @map("user_id")
+  message        String
+  category       String   // Bug, Idea, FeatureRequest, Other
+  contactInfo    String?  @map("contact_info")
+  status         String   @default("New") // New, Reviewing, Resolved
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("feedbacks")
+}

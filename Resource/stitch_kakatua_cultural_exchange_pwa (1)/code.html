@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Geist', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .nest-card-shadow {
+      box-shadow: 0 20px 40px -15px rgba(21, 66, 18, 0.08);
+    }
+    .soft-glow {
+      box-shadow: 0 0 30px rgba(157, 208, 144, 0.3);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "tertiary-fixed": "#ffdbd1",
+                  "secondary-container": "#fdbb24",
+                  "primary-fixed": "#bcf0ae",
+                  "on-error-container": "#93000a",
+                  "surface": "#fbf9f5",
+                  "on-tertiary": "#ffffff",
+                  "on-error": "#ffffff",
+                  "inverse-primary": "#a1d494",
+                  "on-secondary": "#ffffff",
+                  "surface-container-high": "#eae8e4",
+                  "primary-container": "#2d5a27",
+                  "secondary-fixed": "#ffdea5",
+                  "tertiary": "#6d1d06",
+                  "tertiary-fixed-dim": "#ffb5a1",
+                  "on-tertiary-fixed": "#3b0800",
+                  "on-secondary-container": "#6c4d00",
+                  "on-primary-fixed-variant": "#23501e",
+                  "surface-bright": "#fbf9f5",
+                  "surface-container": "#efeeea",
+                  "on-secondary-fixed-variant": "#5d4200",
+                  "on-tertiary-fixed-variant": "#7f2a12",
+                  "surface-container-lowest": "#ffffff",
+                  "primary-fixed-dim": "#a1d494",
+                  "inverse-surface": "#30312e",
+                  "background": "#fbf9f5",
+                  "surface-variant": "#e4e2de",
+                  "surface-container-low": "#f5f3ef",
+                  "error-container": "#ffdad6",
+                  "on-surface-variant": "#42493e",
+                  "surface-container-highest": "#e4e2de",
+                  "on-background": "#1b1c1a",
+                  "secondary": "#7b5800",
+                  "on-surface": "#1b1c1a",
+                  "on-primary-container": "#9dd090",
+                  "on-primary": "#ffffff",
+                  "primary": "#154212",
+                  "inverse-on-surface": "#f2f0ed",
+                  "error": "#ba1a1a",
+                  "outline": "#72796e",
+                  "on-primary-fixed": "#002201",
+                  "on-secondary-fixed": "#271900",
+                  "tertiary-container": "#8c331b",
+                  "surface-tint": "#3b6934",
+                  "outline-variant": "#c2c9bb",
+                  "secondary-fixed-dim": "#fdbb24",
+                  "on-tertiary-container": "#ffaf9a",
+                  "surface-dim": "#dbdad6"
+          },
+          "borderRadius": {
+                  "DEFAULT": "1rem",
+                  "lg": "2rem",
+                  "xl": "3rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "element-gap": "12px",
+                  "container-margin": "24px",
+                  "gutter": "16px",
+                  "section-gap": "48px",
+                  "unit": "4px"
+          },
+          "fontFamily": {
+                  "headline-lg-mobile": ["Geist"],
+                  "label-md": ["Geist"],
+                  "label-sm": ["Geist"],
+                  "headline-md": ["Geist"],
+                  "headline-lg": ["Geist"],
+                  "body-md": ["Geist"],
+                  "body-lg": ["Geist"],
+                  "headline-xl": ["Geist"]
+          },
+          "fontSize": {
+                  "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                  "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                  "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                  "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                  "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                  "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                  "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                  "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface/80 backdrop-blur-md fixed top-0 w-full z-50 flex justify-between items-center px-container-margin py-element-gap">
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-surface-container-high/50 transition-all active:scale-95 duration-200 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Kakatua</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container-high/50 transition-all active:scale-95 duration-200 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full border-2 border-primary-fixed overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional and friendly headshot of a young adult with a warm smile, set against a soft-focus garden background. The lighting is bright and natural, reflecting a high-end digital portrait style with clean lines and soft textures. The overall aesthetic is calm, professional, and integrates seamlessly with a nature-inspired UI theme featuring greens and earthy tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3GzR_IQNzAKAXTlHtaVE8Hoa6zlXHoNLCLs1NNO2cdp5-am46RGGOWp-EvySQH1kUQv_ruEI3sdP9eMlTX8Ozm7mEXjsuuuMmSwwHI7C_Mh9NWC-4KL6jXv1uldRYpWKYBq4pTF5hdKyMMMQZe4C-mHaI-RF6DitDfXaCXINblErNzPuMAO70Hd2yVadvvK57VJJIbgyzmzn28b2F34Y9kjIAXINMOWkjhOQsH4-S_xCTif1Y546f2a0QlOcPnbFBosghJrcbGpL-"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-container-margin max-w-2xl mx-auto space-y-section-gap">
+<!-- Hero / Find a Kakatua -->
+<section class="flex flex-col items-center justify-center py-element-gap text-center space-y-8">
+<div class="relative">
+<!-- Pulse effect -->
+<div class="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
+<button class="relative w-48 h-48 rounded-full bg-primary text-on-primary flex flex-col items-center justify-center gap-2 nest-card-shadow active:scale-90 transition-transform duration-300">
+<span class="material-symbols-outlined text-5xl" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label-md text-label-md">Find a Kakatua</span>
+</button>
+</div>
+<div class="space-y-2">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">The Flock Dashboard</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs mx-auto">Your sanctuary for growth and community navigation.</p>
+</div>
+</section>
+<!-- My Daily Flights -->
+<section class="space-y-gutter">
+<div class="flex justify-between items-end px-2">
+<h3 class="font-headline-md text-headline-md text-on-surface">My Daily Flights</h3>
+<button class="font-label-sm text-label-sm text-primary hover:underline">View All</button>
+</div>
+<div class="grid grid-cols-1 gap-gutter">
+<!-- Progress Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl nest-card-shadow border border-surface-container-high flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="p-3 bg-primary-fixed rounded-full text-primary">
+<span class="material-symbols-outlined" data-icon="translate">translate</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Daily Language Chain</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Level 4 Hummingbird</p>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary">85%</span>
+</div>
+<div class="w-full bg-surface-container h-4 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-700" style="width: 85%;"></div>
+</div>
+</div>
+<!-- Progress Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl nest-card-shadow border border-surface-container-high flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="p-3 bg-secondary-fixed rounded-full text-secondary">
+<span class="material-symbols-outlined" data-icon="park">park</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Nature Preservation Mission</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Community Goal</p>
+</div>
+</div>
+<span class="font-label-md text-label-md text-secondary">42%</span>
+</div>
+<div class="w-full bg-surface-container h-4 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-700" style="width: 42%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions Bento -->
+<section class="grid grid-cols-2 gap-gutter">
+<div class="bg-tertiary-fixed p-6 rounded-xl flex flex-col justify-between min-h-[160px] active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-tertiary text-3xl" data-icon="auto_awesome">auto_awesome</span>
+<div class="space-y-1">
+<h4 class="font-label-md text-label-md text-on-tertiary-fixed">Flock Insight</h4>
+<p class="font-label-sm text-label-sm text-on-tertiary-fixed-variant opacity-80">New matches nearby</p>
+</div>
+</div>
+<div class="bg-surface-container p-6 rounded-xl flex flex-col justify-between min-h-[160px] active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="groups">groups</span>
+<div class="space-y-1">
+<h4 class="font-label-md text-label-md text-on-surface">Community</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-80">Join a local nest</p>
+</div>
+</div>
+</section>
+<!-- Visual Anchor / Atmosphere -->
+<section class="relative h-64 rounded-xl overflow-hidden nest-card-shadow">
+<img alt="Serene Landscape" class="w-full h-full object-cover" data-alt="A breathtaking, wide-angle shot of a misty mountain range during golden hour. The landscape is filled with lush greenery and soft, glowing light that filters through ancient trees. The atmosphere is peaceful and sanctuary-like, with a color palette of deep forest greens, warm ambers, and soft morning mists. This image captures the essence of a 'Nest' aesthetic—protective, organic, and serene." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBA2tOlRZfEJwHWk_OMd4Dl2MAE0VVNSWlR1cLKPdoeTAR3_IAhtz-hXMgCSnwML_5SnUhiSnjywWtHL6Y_D7gtD2nGlMcRuIYi_rNQmHEfVf2yoiG6uI_I4X70A9zzm7KdXAYw3xeZq291_LOm3XGdgXHbgP1r3PkbyDYA08sA9xrKl6qPKr58yKGEp-Awc2ucLcVy5SRaTpxRql2MwEnTdD9q05tmdRead9HWITxY72JBeqxqi2UOzqck4N8fsU4HBzGd4RPLzRj-"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent flex flex-col justify-end p-6">
+<h3 class="font-headline-md text-headline-md text-white">Find Your Peace</h3>
+<p class="font-body-md text-body-md text-white/90">Connect with local Kakatua experts today.</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-center items-center pb-8 px-container-margin">
+<div class="bg-surface/90 backdrop-blur-lg shadow-lg shadow-primary/5 fixed bottom-container-margin left-container-margin right-container-margin rounded-full flex justify-between items-center px-4 py-2">
+<!-- Flock (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-6 py-2 scale-90 duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="home_max" style="font-variation-settings: 'FILL' 1;">home_max</span>
+<span class="font-label-sm text-label-sm">Flock</span>
+</a>
+<!-- Discover -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-label-sm text-label-sm">Discover</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</div>
+</nav>
+<script>
+    // Simple micro-interaction for cards
+    document.querySelectorAll('.nest-card-shadow').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-4px)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0)';
+      });
+    });
+
+    // Theme detection logic (defaults to light as per prompt)
+    document.documentElement.classList.add('light');
+  </script>
+</body></html>

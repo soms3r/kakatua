@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kakatua - My Nest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+        
+        body {
+            font-family: 'Geist', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-container": "#ffaf9a",
+                      "on-secondary": "#ffffff",
+                      "outline": "#72796e",
+                      "surface-container": "#efeeea",
+                      "surface-container-highest": "#e4e2de",
+                      "on-tertiary": "#ffffff",
+                      "primary": "#154212",
+                      "secondary-container": "#fdbb24",
+                      "background": "#fbf9f5",
+                      "inverse-surface": "#30312e",
+                      "on-surface": "#1b1c1a",
+                      "on-primary-fixed-variant": "#23501e",
+                      "error-container": "#ffdad6",
+                      "tertiary": "#6d1d06",
+                      "surface-container-high": "#eae8e4",
+                      "inverse-on-surface": "#f2f0ed",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#7f2a12",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#a1d494",
+                      "tertiary-fixed-dim": "#ffb5a1",
+                      "on-secondary-fixed": "#271900",
+                      "on-background": "#1b1c1a",
+                      "tertiary-container": "#8c331b",
+                      "surface-variant": "#e4e2de",
+                      "outline-variant": "#c2c9bb",
+                      "surface-container-low": "#f5f3ef",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#fbf9f5",
+                      "primary-fixed": "#bcf0ae",
+                      "on-secondary-fixed-variant": "#5d4200",
+                      "surface-dim": "#dbdad6",
+                      "on-primary-fixed": "#002201",
+                      "on-primary-container": "#9dd090",
+                      "on-secondary-container": "#6c4d00",
+                      "surface": "#fbf9f5",
+                      "inverse-primary": "#a1d494",
+                      "secondary-fixed": "#ffdea5",
+                      "tertiary-fixed": "#ffdbd1",
+                      "secondary-fixed-dim": "#fdbb24",
+                      "on-surface-variant": "#42493e",
+                      "secondary": "#7b5800",
+                      "on-tertiary-fixed": "#3b0800",
+                      "on-error-container": "#93000a",
+                      "surface-tint": "#3b6934",
+                      "primary-container": "#2d5a27",
+                      "on-primary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "element-gap": "12px",
+                      "unit": "4px",
+                      "container-margin": "24px",
+                      "gutter": "16px",
+                      "section-gap": "48px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "label-sm": ["Geist"],
+                      "headline-lg-mobile": ["Geist"],
+                      "body-md": ["Geist"],
+                      "body-lg": ["Geist"],
+                      "label-md": ["Geist"],
+                      "headline-xl": ["Geist"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="flex items-center justify-between px-container-margin h-16 w-full sticky top-0 z-40 glass-panel">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">menu</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Kakatua</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:opacity-80 cursor-pointer transition-opacity">settings</span>
+</div>
+</header>
+<main class="max-w-xl mx-auto px-container-margin mt-8 space-y-section-gap">
+<!-- Profile Header -->
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative group">
+<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+<img alt="User Avatar" class="w-full h-full object-cover bg-primary-fixed" data-alt="A detailed digital portrait of a diverse, stylish young woman with a friendly smile, set against a soft nature-green background. The visual style is modern, minimalist, and uses a warm, earthy color palette with soft lighting and organic textures typical of high-end app design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEUu0aaWG-2PBDLJ4q0YdfaUII2qbgzMd_cnKiSegrC2VUFIO8wuyyM6vywR_iiX6534Cwv9vYN2OH0IjMFdEntldNhLfOo8F2HOycuJOoRXpANpVK_dRyzWYr4XT8cMzVJwsP5B3CXeRW43z9oRtdMgzJYkxTL4FUSfBxvxtV2H5MUzlsVv3cujkmdmeenpCGPNid7M1BoF3jIm6Msb4Pff2YcQMawXJO58v2IZH2CjXPOpD1ehZnpliilncm6wSfSjU40QTeMRqU"/>
+</div>
+<div class="absolute bottom-1 right-1 bg-secondary-container p-2 rounded-full shadow-md cursor-pointer hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-secondary-container text-sm">edit</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Aria Chen</h2>
+<p class="font-body-md text-body-md text-on-surface-variant opacity-70">Exploring the world, one nest at a time.</p>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-full font-label-md hover:shadow-xl hover:translate-y-[-2px] active:scale-95 transition-all">
+                Edit My Nest
+            </button>
+</section>
+<!-- Culture Card -->
+<section>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm relative overflow-hidden group">
+<!-- Decorative element -->
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary p-2 bg-primary-fixed rounded-full">public</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Culture Card</h3>
+</div>
+<div class="space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Native Language</p>
+<p class="font-body-lg text-body-lg font-medium text-on-surface">Mandarin Chinese</p>
+</div>
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Learning</p>
+<div class="flex items-center gap-2">
+<p class="font-body-lg text-body-lg font-medium text-on-surface">Nature Green</p>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold">Lvl 4</span>
+</div>
+</div>
+</div>
+<div class="space-y-4 pt-4 border-t border-outline-variant/30">
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-tertiary-container mt-1">restaurant</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Favorite Food</p>
+<p class="font-body-md text-body-md text-on-surface">Soup Dumplings (Xiao Long Bao)</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary-container mt-1">front_hand</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Traditional Greeting</p>
+<p class="font-body-md text-body-md text-on-surface">"Nǐ hǎo" (A gentle head nod)</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-secondary-fixed-dim mt-1">auto_awesome</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Interesting Fact</p>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed italic">"The red envelope tradition isn't just about the money, it's about the luck and protection it represents!"</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Badges Section -->
+<section class="space-y-gutter">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md text-on-surface">My Badges</h3>
+<button class="text-primary font-label-md hover:underline">View All</button>
+</div>
+<div class="flex gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-2">
+<!-- Badge 1 -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 snap-center group">
+<div class="w-20 h-20 rounded-full bg-primary-fixed flex items-center justify-center shadow-md group-hover:scale-110 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-on-primary-fixed text-4xl" style="font-variation-settings: 'FILL' 1;">handshake</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center w-24">Bridge Builder</span>
+</div>
+<!-- Badge 2 -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 snap-center group">
+<div class="w-20 h-20 rounded-full bg-secondary-fixed flex items-center justify-center shadow-md group-hover:scale-110 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-on-secondary-fixed text-4xl" style="font-variation-settings: 'FILL' 1;">flight_takeoff</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center w-24">First Flight</span>
+</div>
+<!-- Badge 3 -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 snap-center group">
+<div class="w-20 h-20 rounded-full bg-tertiary-fixed flex items-center justify-center shadow-md group-hover:scale-110 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-on-tertiary-fixed text-4xl" style="font-variation-settings: 'FILL' 1;">castle</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center w-24">Culture Keeper</span>
+</div>
+<!-- Badge 4 -->
+<div class="flex-shrink-0 flex flex-col items-center gap-3 snap-center group opacity-40 grayscale">
+<div class="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-outline text-4xl">lock</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center w-24">Polyglot</span>
+</div>
+</div>
+</section>
+<!-- Daily Flights Section -->
+<section class="space-y-gutter pb-8">
+<h3 class="font-headline-md text-headline-md text-on-surface">Daily Flights</h3>
+<div class="bg-surface-container p-6 rounded-xl space-y-8">
+<!-- Streak Display -->
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+<div class="flex items-center gap-4">
+<div class="bg-secondary-container p-3 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-on-surface leading-none">7 Days</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Daily Streak Active!</p>
+</div>
+</div>
+<div class="flex gap-1">
+<!-- Tiny dots for streak -->
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+</div>
+</div>
+<!-- Progress Missions -->
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<p class="font-label-md text-label-md text-on-surface">Vocab Voyage</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">12 / 20 words</p>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 60%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<p class="font-label-md text-label-md text-on-surface">Social Nesting</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">2 / 3 connections</p>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 66.6%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<p class="font-label-md text-label-md text-on-surface">Listening Loop</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">100% Complete</p>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-4 border-2 border-primary text-primary font-label-md rounded-full hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined">rocket_launch</span>
+                    Start Next Mission
+                </button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-6 backdrop-blur-xl bg-surface/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-sm text-label-sm">Flock</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-5 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for mission progress bars on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.h-full');
+            bars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+        });
+
+        // Simple scroll parallax for culture card decoration
+        window.addEventListener('scroll', () => {
+            const decoration = document.querySelector('.absolute.-top-12');
+            const scrolled = window.pageYOffset;
+            if (decoration) {
+                decoration.style.transform = `translateY(${scrolled * 0.1}px)`;
+            }
+        });
+    </script>
+</body></html>

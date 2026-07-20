@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kakatua | Alert the Flock</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffdbd1",
+                    "secondary-container": "#fdbb24",
+                    "primary-fixed": "#bcf0ae",
+                    "on-error-container": "#93000a",
+                    "surface": "#fbf9f5",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#a1d494",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#eae8e4",
+                    "primary-container": "#2d5a27",
+                    "secondary-fixed": "#ffdea5",
+                    "tertiary": "#6d1d06",
+                    "tertiary-fixed-dim": "#ffb5a1",
+                    "on-tertiary-fixed": "#3b0800",
+                    "on-secondary-container": "#6c4d00",
+                    "on-primary-fixed-variant": "#23501e",
+                    "surface-bright": "#fbf9f5",
+                    "surface-container": "#efeeea",
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "on-tertiary-fixed-variant": "#7f2a12",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#a1d494",
+                    "inverse-surface": "#30312e",
+                    "background": "#fbf9f5",
+                    "surface-variant": "#e4e2de",
+                    "surface-container-low": "#f5f3ef",
+                    "error-container": "#ffdad6",
+                    "on-surface-variant": "#42493e",
+                    "surface-container-highest": "#e4e2de",
+                    "on-background": "#1b1c1a",
+                    "secondary": "#7b5800",
+                    "on-surface": "#1b1c1a",
+                    "on-primary-container": "#9dd090",
+                    "on-primary": "#ffffff",
+                    "primary": "#154212",
+                    "inverse-on-surface": "#f2f0ed",
+                    "error": "#ba1a1a",
+                    "outline": "#72796e",
+                    "on-primary-fixed": "#002201",
+                    "on-secondary-fixed": "#271900",
+                    "tertiary-container": "#8c331b",
+                    "surface-tint": "#3b6934",
+                    "outline-variant": "#c2c9bb",
+                    "secondary-fixed-dim": "#fdbb24",
+                    "on-tertiary-container": "#ffaf9a",
+                    "surface-dim": "#dbdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "element-gap": "12px",
+                    "container-margin": "24px",
+                    "gutter": "16px",
+                    "section-gap": "48px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Geist"],
+                    "label-md": ["Geist"],
+                    "label-sm": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "body-md": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "headline-xl": ["Geist"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .modal-blur {
+            backdrop-filter: blur(12px);
+        }
+        .custom-radio:checked + label {
+            background-color: #2d5a27; /* primary-container */
+            color: #9dd090; /* on-primary-container */
+            border-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-hidden">
+<!-- Conversation Background (Contextual Layer) -->
+<div class="fixed inset-0 z-0 flex flex-col p-container-margin">
+<header class="flex items-center justify-between py-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-container-high">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A portrait illustration of a friendly digital character with a soft artistic style. The character has warm, expressive features and is set against a gentle, light-colored pastel background that matches the Nest aesthetic. The lighting is soft and diffused, highlighting a sense of friendly community engagement and safety." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb0q47fxLUUKtCEX_3TfWq219zT5c2_XOKMKCl1qPc9asF0N28pBn6wX5NNoWhvHuLIZPyHSszi4Ewvw-uICjfmle9bo4jTjJFU7jqX4qeqAzthkyG093aMo4o0WJGcGT3uOHbwNE1YkuiKonptmwq_O1ppgbIx8iIW2_wlHDqUqUGd2YRpHhVryW48ehstXA5uD-H03Mm2G9k7TJAcaKVcHrarrMNe_v9v7sDXqOLyI4pzmKMzK5_8j_3bsE5R-Q7M-suv2xYnqdr"/>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Feather Chat</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Active now in The Canopy</p>
+</div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</header>
+<main class="flex-1 flex flex-col gap-6 py-6 overflow-y-auto">
+<div class="self-start max-w-[80%] bg-surface-container-low p-4 rounded-lg rounded-tl-none">
+<p class="text-body-md">Has anyone seen the latest migration patterns? It's getting crowded over by the Northern Peak.</p>
+</div>
+<div class="self-end max-w-[80%] bg-primary-container text-on-primary-container p-4 rounded-lg rounded-tr-none shadow-sm">
+<p class="text-body-md">I noticed that too! I think we might need to alert the flock soon if it gets any tighter.</p>
+</div>
+<div class="self-start max-w-[80%] bg-surface-container-low p-4 rounded-lg rounded-tl-none">
+<p class="text-body-md text-error">Wait, did you see what User78 just posted? That doesn't seem very kind.</p>
+</div>
+</main>
+<footer class="mt-auto py-4">
+<div class="flex items-center gap-3 bg-surface-container rounded-full px-6 py-3">
+<span class="material-symbols-outlined text-outline">sentiment_satisfied</span>
+<input class="bg-transparent border-none focus:ring-0 flex-1 text-body-md" disabled="" placeholder="Type a message..." type="text"/>
+<span class="material-symbols-outlined text-primary">send</span>
+</div>
+</footer>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center px-container-margin transition-opacity duration-300" id="reportModal">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-on-background/40 modal-blur"></div>
+<!-- Modal Card -->
+<div class="relative w-full max-w-md bg-surface border border-outline-variant shadow-2xl rounded-xl overflow-hidden transform transition-all duration-300 scale-100 opacity-100">
+<!-- Header -->
+<div class="p-6 pb-0 flex flex-col items-center text-center">
+<div class="w-16 h-16 bg-tertiary-fixed rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-tertiary text-4xl" data-weight="fill">campaign</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Alert the Flock</h3>
+<p class="font-body-md text-on-surface-variant px-4">Keeping our community safe and welcoming for everyone.</p>
+</div>
+<!-- Form Content -->
+<div class="p-6">
+<p class="font-label-md text-label-md text-primary mb-4">What's happening?</p>
+<div class="flex flex-col gap-3">
+<!-- Option 1 -->
+<div class="relative">
+<input checked="" class="peer hidden" id="behavior" name="report_reason" type="radio" value="Inappropriate behavior"/>
+<label class="flex items-center gap-3 p-4 bg-surface-container-low border border-outline-variant rounded-2xl cursor-pointer hover:bg-surface-container-high transition-all active:scale-[0.98] peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-transparent" for="behavior">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-body-md">Inappropriate behavior</span>
+</label>
+</div>
+<!-- Option 2 -->
+<div class="relative">
+<input class="peer hidden" id="spam" name="report_reason" type="radio" value="Spam"/>
+<label class="flex items-center gap-3 p-4 bg-surface-container-low border border-outline-variant rounded-2xl cursor-pointer hover:bg-surface-container-high transition-all active:scale-[0.98] peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-transparent" for="spam">
+<span class="material-symbols-outlined">block</span>
+<span class="font-body-md">Spam</span>
+</label>
+</div>
+<!-- Option 3 -->
+<div class="relative">
+<input class="peer hidden" id="language" name="report_reason" type="radio" value="Unkind language"/>
+<label class="flex items-center gap-3 p-4 bg-surface-container-low border border-outline-variant rounded-2xl cursor-pointer hover:bg-surface-container-high transition-all active:scale-[0.98] peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-transparent" for="language">
+<span class="material-symbols-outlined">sentiment_very_dissatisfied</span>
+<span class="font-body-md">Unkind language</span>
+</label>
+</div>
+</div>
+<p class="mt-6 text-sm text-center text-on-surface-variant/80 italic">
+                    Our moderators will review this report as soon as possible.
+                </p>
+</div>
+<!-- Footer Actions -->
+<div class="p-6 pt-2 flex flex-col gap-3">
+<button class="w-full h-14 bg-primary text-on-primary rounded-full font-label-md text-label-md shadow-lg shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-95 duration-200" onclick="confirmAlert()">
+                    Confirm Alert
+                </button>
+<button class="w-full h-12 text-on-surface-variant font-label-md text-label-md rounded-full hover:bg-surface-container-highest transition-all active:scale-95" onclick="closeModal()">
+                    Cancel
+                </button>
+</div>
+</div>
+</div>
+<!-- Toast Notification (Hidden by default) -->
+<div class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[60] bg-inverse-surface text-inverse-on-surface px-6 py-3 rounded-full shadow-xl opacity-0 translate-y-10 transition-all duration-500 pointer-events-none flex items-center gap-3" id="successToast">
+<span class="material-symbols-outlined text-primary-fixed">check_circle</span>
+<span class="font-label-md text-label-md">Report sent. Thank you for protecting the flock.</span>
+</div>
+<script>
+        const modal = document.getElementById('reportModal');
+        const toast = document.getElementById('successToast');
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.relative').classList.add('scale-90');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function confirmAlert() {
+            // Success animation
+            modal.classList.add('opacity-0');
+            modal.querySelector('.relative').classList.add('scale-90');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                
+                // Show toast
+                toast.classList.remove('opacity-0', 'translate-y-10');
+                toast.classList.add('opacity-100', '-translate-y-4');
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-10');
+                    toast.classList.remove('opacity-100', '-translate-y-4');
+                }, 4000);
+            }, 300);
+        }
+
+        // Close on backdrop click
+        modal.querySelector('.bg-on-background\\/40').addEventListener('click', closeModal);
+    </script>
+</body></html>

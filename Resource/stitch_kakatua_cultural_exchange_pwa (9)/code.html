@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mission Control - Nest</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#6c4d00",
+                        "surface-dim": "#dbdad6",
+                        "primary-fixed-dim": "#a1d494",
+                        "on-surface-variant": "#42493e",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdbd1",
+                        "surface-container": "#efeeea",
+                        "secondary-container": "#fdbb24",
+                        "primary": "#154212",
+                        "surface-variant": "#e4e2de",
+                        "surface-tint": "#3b6934",
+                        "secondary": "#7b5800",
+                        "surface": "#fbf9f5",
+                        "on-tertiary-container": "#ffaf9a",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "tertiary-container": "#8c331b",
+                        "surface-container-highest": "#e4e2de",
+                        "inverse-primary": "#a1d494",
+                        "surface-bright": "#fbf9f5",
+                        "on-primary-fixed-variant": "#23501e",
+                        "surface-container-low": "#f5f3ef",
+                        "on-tertiary-fixed": "#3b0800",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2d5a27",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#9dd090",
+                        "secondary-fixed": "#ffdea5",
+                        "on-primary-fixed": "#002201",
+                        "tertiary": "#6d1d06",
+                        "primary-fixed": "#bcf0ae",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#ffb5a1",
+                        "on-tertiary-fixed-variant": "#7f2a12",
+                        "inverse-surface": "#30312e",
+                        "outline": "#72796e",
+                        "on-surface": "#1b1c1a",
+                        "on-secondary-fixed": "#271900",
+                        "outline-variant": "#c2c9bb",
+                        "secondary-fixed-dim": "#fdbb24",
+                        "on-background": "#1b1c1a",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#eae8e4",
+                        "inverse-on-surface": "#f2f0ed",
+                        "background": "#fbf9f5",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "element-gap": "12px",
+                        "container-margin": "24px",
+                        "section-gap": "48px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "headline-xl": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f5;
+            color: #1b1c1a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .nest-card {
+            box-shadow: 0 10px 40px -12px rgba(21, 66, 18, 0.08);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        }
+        .nest-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 50px -15px rgba(21, 66, 18, 0.12);
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-surface shadow-sm">
+<div class="flex items-center justify-between px-container-margin py-unit w-full h-16">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="nest_eco_leaf">nest_eco_leaf</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Mission Control</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:opacity-80 transition-opacity active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-primary overflow-hidden border-2 border-primary-fixed">
+<img class="w-full h-full object-cover" data-alt="A professional and friendly portrait of a young person in a brightly lit, minimalist office setting. The lighting is soft and natural, reflecting the warm nature-inspired aesthetic of the Nest app. The background is a clean, off-white surface with subtle organic textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkc4r1Fu4jTuEkCgJlwCfujDO-dFyEawzA2yEXEcNUJ63ey5-tofexj9BTU3iKPQzjjdrGVuCnUpaLnTm5XAw5iR4qsppIE5-BS8Ff7wOz_FlD5_Qf9p8GFFf2uB1ZsQyYzG2F26jvBFJ07FYCnO0kLSk-Yy11kUUAAQVeAS2DSvCpeRn_YG15Lwh_0t0wGUNKZv8ZLY-DUyEvVE1fuU-KDyy4xcXe7zDP-xc2FkROupFQXAKWmFjRUhu2iQ6PPx4-jKEK2jCNDVFc"/>
+</div>
+</div>
+</div>
+</header>
+<main class="px-container-margin mt-8">
+<!-- Hero Section -->
+<section class="mb-section-gap relative overflow-hidden rounded-xl p-8 bg-primary text-on-primary">
+<div class="relative z-10 max-w-xs">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-2">Ready for takeoff?</h2>
+<p class="text-on-primary-container opacity-90 font-body-md mb-6">Complete your daily flights to nurture your language nest and unlock new territories.</p>
+<button class="bg-secondary-container text-on-secondary-container font-label-md text-label-md px-6 py-3 rounded-full hover:opacity-90 transition-all active:scale-95 shadow-lg">
+                    View Flight Log
+                </button>
+</div>
+<div class="absolute right-[-10%] bottom-[-20%] w-64 h-64 bg-primary-container rounded-full opacity-30 blur-3xl"></div>
+<div class="absolute right-4 bottom-4 opacity-20">
+<span class="material-symbols-outlined !text-[120px]" data-icon="rocket_launch">rocket_launch</span>
+</div>
+</section>
+<!-- Daily Flights Section -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">Daily Flights</h3>
+<span class="text-label-md font-label-md text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">4 Active</span>
+</div>
+<!-- Bento Grid of Mission Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Mission 1: Vocab Voyage -->
+<div class="nest-card bg-surface-container-lowest border border-surface-variant p-6 rounded-xl flex flex-col justify-between min-h-[180px]">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary-fixed rounded-2xl">
+<span class="material-symbols-outlined text-primary" data-icon="menu_book">menu_book</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Exp: +150</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-1">Vocab Voyage</h4>
+<div class="flex items-center justify-between mb-2">
+<span class="text-label-sm font-label-sm text-primary">60% Complete</span>
+</div>
+<div class="w-full bg-surface-variant h-3 rounded-full overflow-hidden mb-4">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 60%"></div>
+</div>
+<a class="text-label-md font-label-md text-secondary hover:underline flex items-center gap-1 group" href="#">
+                            Learn More 
+                            <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Mission 2: Social Nesting (Completed) -->
+<div class="nest-card bg-secondary-fixed border border-secondary-container/30 p-6 rounded-xl flex flex-col justify-between min-h-[180px] relative overflow-hidden">
+<div class="absolute -right-4 -top-4 opacity-10">
+<span class="material-symbols-outlined !text-[100px]" data-icon="verified">verified</span>
+</div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-on-secondary-container rounded-2xl">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="groups">groups</span>
+</div>
+<div class="flex items-center gap-1 bg-on-secondary-container text-white px-3 py-1 rounded-full animate-bounce">
+<span class="material-symbols-outlined text-[14px]" data-icon="verified" data-weight="fill">verified</span>
+<span class="text-[10px] font-bold tracking-wider uppercase">Mission Accomplished</span>
+</div>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-secondary-fixed mb-1">Social Nesting</h4>
+<p class="text-label-sm font-label-sm text-on-secondary-fixed-variant mb-4">You've mastered this flock's dialect!</p>
+<a class="text-label-md font-label-md text-secondary hover:underline flex items-center gap-1 group" href="#">
+                            View Badge
+                            <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform" data-icon="workspace_premium">workspace_premium</span>
+</a>
+</div>
+</div>
+<!-- Mission 3: Culture Keeper -->
+<div class="nest-card bg-surface-container-lowest border border-surface-variant p-6 rounded-xl flex flex-col justify-between min-h-[180px]">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-tertiary-fixed rounded-2xl">
+<span class="material-symbols-outlined text-tertiary" data-icon="castle">castle</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Exp: +300</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-1">Culture Keeper</h4>
+<div class="flex items-center justify-between mb-2">
+<span class="text-label-sm font-label-sm text-tertiary">25% Complete</span>
+</div>
+<div class="w-full bg-surface-variant h-3 rounded-full overflow-hidden mb-4">
+<div class="bg-tertiary-container h-full rounded-full transition-all duration-1000 ease-out" style="width: 25%"></div>
+</div>
+<a class="text-label-md font-label-md text-secondary hover:underline flex items-center gap-1 group" href="#">
+                            Learn More 
+                            <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Mission 4: Listening Loop -->
+<div class="nest-card bg-surface-container-lowest border border-surface-variant p-6 rounded-xl flex flex-col justify-between min-h-[180px]">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary-fixed rounded-2xl">
+<span class="material-symbols-outlined text-primary" data-icon="headphones">headphones</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Exp: +200</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-1">Listening Loop</h4>
+<div class="flex items-center justify-between mb-2">
+<span class="text-label-sm font-label-sm text-primary">80% Complete</span>
+</div>
+<div class="w-full bg-surface-variant h-3 rounded-full overflow-hidden mb-4">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 80%"></div>
+</div>
+<a class="text-label-md font-label-md text-secondary hover:underline flex items-center gap-1 group" href="#">
+                            Learn More 
+                            <span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Atmospheric Secondary Section -->
+<section class="mt-section-gap">
+<h3 class="font-headline-md text-headline-md text-primary mb-6">Nearby Territories</h3>
+<div class="flex gap-gutter overflow-x-auto scroll-hide pb-4">
+<div class="flex-none w-64 bg-surface-container-high rounded-xl overflow-hidden nest-card">
+<img class="w-full h-32 object-cover" data-alt="A lush tropical jungle at sunrise with golden rays of light filtering through large organic leaves. The scene uses a deep Nature Green and Earthy Terracotta palette to evoke a sense of peaceful exploration and growth within a safe digital environment. Professional photography style with shallow depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW5F4KDjoNCOw4N53WLvn0BCVkF9oZrAt9tf-IqQrIpySzTaC5jTtUxAkzt7KCKp7Wvtm9obdkbZL2ZoH1pJj1qaMYFoBFgg9bL6L4jCWkgjJlR5ev182GJ5_actK9J7iVouJ8k9uBzwILalDcT5TBiHx9UJI5u5ZD8q8a7xb-sntFCnE_UH7aG7xW4yLGQ36i6gkxO_cZ7Tiua1JXkSQgwE6nWEYYP065wXpatVRNVscE6KmdZUQoHdwQTgI_XY4ir5-p4OgUGO3I"/>
+<div class="p-4">
+<h5 class="font-label-md text-label-md text-on-surface">Amazonian Echoes</h5>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Unlock at Level 10</p>
+</div>
+</div>
+<div class="flex-none w-64 bg-surface-container-high rounded-xl overflow-hidden nest-card">
+<img class="w-full h-32 object-cover" data-alt="The Taj Mahal captured from a unique, minimalist perspective with warm, sunset lighting washing over the white marble. Soft terracotta hues fill the sky, maintaining the brand's organic and welcoming visual identity. High-key aesthetic that emphasizes purity and cultural heritage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoBe0trp28OzXDBShA8XVqsgjrz3uHf4aVGs1tzwIkRaZOh_pgAmko5dnA8PmQbzc_KuNKeSI7xGGGB99kVPbG4Lun4YKd9gMUSgQnoT4cxDG8p-lkOKQegK45-YY-Xr9Zy7trjGpaHZFQ9cycZ4Io9idiz61BNu3pDEr7jeXvI-lmqiILeraqY5Mm1rVsZz-otV7RJIx59HTMjBv0BKnDr8YX8rbUFm2BoAHWkpzU3fZmh_s-TQNxwRMB4nsfQRcsr_EoqcbIWSnB"/>
+<div class="p-4">
+<h5 class="font-label-md text-label-md text-on-surface">Ganges Whispers</h5>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Unlock at Level 15</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface/80 backdrop-blur-xl shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-variant/50 transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Nest</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="rocket_launch" data-weight="fill">rocket_launch</span>
+<span class="font-label-md text-label-md">Missions</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-variant/50 transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="equalizer">equalizer</span>
+<span class="font-label-md text-label-md">Stats</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-variant/50 transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</button>
+</nav>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.nest-card').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1.02)';
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#1b1c1a",
+                        "background": "#fbf9f5",
+                        "tertiary": "#6d1d06",
+                        "surface-container-high": "#eae8e4",
+                        "surface": "#fbf9f5",
+                        "surface-container-highest": "#e4e2de",
+                        "primary-fixed-dim": "#a1d494",
+                        "outline-variant": "#c2c9bb",
+                        "on-primary-fixed": "#002201",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#efeeea",
+                        "primary-container": "#2d5a27",
+                        "secondary-container": "#fdbb24",
+                        "primary": "#154212",
+                        "on-surface-variant": "#42493e",
+                        "on-tertiary-container": "#ffaf9a",
+                        "on-tertiary-fixed-variant": "#7f2a12",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#23501e",
+                        "inverse-surface": "#30312e",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#3b6934",
+                        "tertiary-fixed": "#ffdbd1",
+                        "secondary": "#7b5800",
+                        "on-error": "#ffffff",
+                        "on-background": "#1b1c1a",
+                        "inverse-primary": "#a1d494",
+                        "surface-bright": "#fbf9f5",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#bcf0ae",
+                        "surface-variant": "#e4e2de",
+                        "on-secondary-fixed": "#271900",
+                        "surface-dim": "#dbdad6",
+                        "surface-container-low": "#f5f3ef",
+                        "on-tertiary-fixed": "#3b0800",
+                        "tertiary-fixed-dim": "#ffb5a1",
+                        "on-primary-container": "#9dd090",
+                        "tertiary-container": "#8c331b",
+                        "on-secondary-container": "#6c4d00",
+                        "outline": "#72796e",
+                        "inverse-on-surface": "#f2f0ed",
+                        "secondary-fixed-dim": "#fdbb24",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#ffdea5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "section-gap": "48px",
+                        "container-margin": "24px",
+                        "element-gap": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f5;
+            font-family: 'Geist', sans-serif;
+            color: #1b1c1a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .nest-card {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        }
+        .nest-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col">
+<!-- TopAppBar (Transactional: Back priority) -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-container-margin py-unit w-full shadow-sm">
+<button aria-label="Go back" class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high transition-colors active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Kakatua</h1>
+<div class="w-10"></div> <!-- Spacer for balance -->
+</header>
+<main class="flex-grow px-container-margin py-gutter max-w-2xl mx-auto w-full">
+<!-- Header Section -->
+<section class="mb-section-gap text-center">
+<h2 class="font-headline-xl text-headline-xl text-on-surface mb-2">Flock Rules</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">
+                Welcome to our digital sanctuary. These rules help us keep the Kakatua community a safe, warm, and growing space for everyone.
+            </p>
+</section>
+<!-- Rules Grid -->
+<div class="space-y-gutter">
+<!-- Rule 1: Be Kind -->
+<article class="nest-card bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-variant/30 flex gap-gutter">
+<div class="flex-shrink-0 w-14 h-14 bg-secondary-container/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Be Kind</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Kindness is our currency. We encourage positive communication, active empathy, and constructive feedback. Think of how your words land before you speak.
+                    </p>
+</div>
+</article>
+<!-- Rule 2: Respect Others -->
+<article class="nest-card bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-variant/30 flex gap-gutter">
+<div class="flex-shrink-0 w-14 h-14 bg-primary-container/10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="public">public</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Respect Others</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Our flock comes from many lands. Practice cultural sensitivity and respect personal privacy. No doxxing, harassment, or non-consensual sharing of data.
+                    </p>
+</div>
+</article>
+<!-- Rule 3: Moderation Policy -->
+<article class="nest-card bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-surface-variant/30 flex gap-gutter">
+<div class="flex-shrink-0 w-14 h-14 bg-tertiary-fixed/40 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary-container text-3xl" data-icon="shield" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Moderation Policy</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">
+                        To maintain order, we follow a strict "Three-Strike" policy for minor infractions:
+                    </p>
+<ul class="space-y-3">
+<li class="flex items-center gap-3">
+<span class="flex-shrink-0 w-6 h-6 bg-secondary-container text-on-secondary-container font-label-sm text-label-sm rounded-full flex items-center justify-center">1</span>
+<span class="font-body-md text-body-md text-on-surface">Formal warning & educational resource</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="flex-shrink-0 w-6 h-6 bg-secondary text-on-secondary font-label-sm text-label-sm rounded-full flex items-center justify-center">2</span>
+<span class="font-body-md text-body-md text-on-surface">48-hour temporary nest suspension</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="flex-shrink-0 w-6 h-6 bg-tertiary text-on-tertiary font-label-sm text-label-sm rounded-full flex items-center justify-center">3</span>
+<span class="font-body-md text-body-md text-on-surface font-bold">Permanent removal from the flock</span>
+</li>
+</ul>
+</div>
+</article>
+</div>
+<!-- Visual Anchor / Decorative Element -->
+<div class="my-section-gap relative h-64 w-full rounded-xl overflow-hidden group">
+<img alt="Community sanctuary" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" data-alt="A serene and artistic digital photograph of a stylized modern bird nest crafted from woven polished light wood and soft green moss. The nest is placed in the center of a minimal white room with warm morning sunlight streaming through a window, creating soft long shadows. The color palette is nature-inspired with deep forest greens, warm wheat yellows, and creamy whites, reflecting a professional yet whimsical sanctuary atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvKCsjU_zdcgohXFHZ0fvMfpiRcbBN53S2xdY5E7ZrQ7ZHkmkn4_dXJ76l7u-ADGzLgBnZjhIR79sbJY9MxYgVIUhVYJzrJC8gzIIdhSM1_Pu2yw_9qgZTEM_eqiaq0jFiHPy2p9Sl47D10E3CL2R6a34oDfbmRk4LkjunlzbZ1JyDshKBJWFgi0Pe26aRHcLtFwriZpy4Po7t2dinsvZLlcd3_kb2ll7ViUPU22tVcvae9-mNkbH0uo9Kzbxa7Touo3LPywwbFwn8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6">
+<p class="text-white font-headline-md text-headline-md leading-tight">Together, we build a better space.</p>
+</div>
+</div>
+<!-- Footer Section -->
+<footer class="text-center pb-32">
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-gutter">
+                Thank you for being a part of Kakatua. Your presence makes our community complete.
+            </p>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-full font-label-md text-label-md shadow-lg active:scale-95 transition-all hover:bg-primary-container hover:text-on-primary-container">
+                Back to My Nest
+            </button>
+</footer>
+</main>
+<!-- Interactive script for card entry animation -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.nest-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+</body></html>

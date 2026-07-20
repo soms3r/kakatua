@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Conversation Nest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#eae8e4",
+                      "surface-container-highest": "#e4e2de",
+                      "surface-bright": "#fbf9f5",
+                      "outline-variant": "#c2c9bb",
+                      "on-surface-variant": "#42493e",
+                      "surface": "#fbf9f5",
+                      "tertiary-container": "#8c331b",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed": "#3b0800",
+                      "tertiary-fixed": "#ffdbd1",
+                      "primary-fixed-dim": "#a1d494",
+                      "on-secondary-fixed": "#271900",
+                      "on-tertiary-fixed-variant": "#7f2a12",
+                      "primary-fixed": "#bcf0ae",
+                      "background": "#fbf9f5",
+                      "inverse-primary": "#a1d494",
+                      "secondary-fixed-dim": "#fdbb24",
+                      "inverse-on-surface": "#f2f0ed",
+                      "on-primary-fixed-variant": "#23501e",
+                      "on-background": "#1b1c1a",
+                      "inverse-surface": "#30312e",
+                      "on-primary-fixed": "#002201",
+                      "surface-container-lowest": "#ffffff",
+                      "primary": "#154212",
+                      "surface-tint": "#3b6934",
+                      "secondary": "#7b5800",
+                      "secondary-fixed": "#ffdea5",
+                      "on-surface": "#1b1c1a",
+                      "on-tertiary-container": "#ffaf9a",
+                      "tertiary-fixed-dim": "#ffb5a1",
+                      "on-primary-container": "#9dd090",
+                      "outline": "#72796e",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#6c4d00",
+                      "on-secondary-fixed-variant": "#5d4200",
+                      "surface-container": "#efeeea",
+                      "secondary-container": "#fdbb24",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#e4e2de",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#dbdad6",
+                      "surface-container-low": "#f5f3ef",
+                      "error-container": "#ffdad6",
+                      "primary-container": "#2d5a27",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#6d1d06",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "4px",
+                      "container-margin": "24px",
+                      "gutter": "16px",
+                      "section-gap": "48px",
+                      "element-gap": "12px"
+              },
+              "fontFamily": {
+                      "body-md": ["Geist"],
+                      "body-lg": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "headline-lg-mobile": ["Geist"],
+                      "label-sm": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "headline-xl": ["Geist"],
+                      "label-md": ["Geist"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f5;
+            font-family: 'Geist', sans-serif;
+            overflow: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .video-container {
+            height: calc(100vh - 180px);
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .drawer-transition {
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .active-ring {
+            box-shadow: 0 0 0 4px #2d5a27;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex items-center justify-center min-h-screen">
+<div class="relative w-full max-w-md h-[844px] bg-surface overflow-hidden flex flex-col shadow-2xl border border-outline-variant/30 sm:rounded-xl">
+<!-- Header: Participant Info -->
+<header class="z-20 p-container-margin flex items-center justify-between">
+<div class="flex flex-col">
+<h1 class="text-headline-md text-on-background font-semibold">Amina</h1>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-label-sm text-outline uppercase tracking-wider">Live Connection</span>
+</div>
+</div>
+<button class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-full flex items-center gap-2 shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">temp_preferences_custom</span>
+<span class="text-label-md font-bold">Polishing My Wings</span>
+</button>
+</header>
+<!-- Video Feeds Section -->
+<main class="flex-1 px-4 flex flex-col gap-gutter justify-center items-center">
+<!-- Remote Participant (Amina) -->
+<div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-lg border-2 border-white/50 active-ring">
+<div class="absolute inset-0 bg-surface-container">
+<div class="w-full h-full" data-alt="A close-up portrait of a woman with a warm, serene expression, participating in a high-quality video call. The lighting is soft and natural, emphasizing a calm and supportive atmosphere. The background is a soft-focus minimalist interior with earthy tones of terracotta and sage green, reflecting a professional yet whimsical aesthetic of organic growth and connection." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC357i0y0KwkwNr1CUnOP4OqKS_D1aZc-jevdnzM_imElTatkW-shzwAm-1YhLGuPMLHX9r6K6dO0wiz9SePXXnvi1Ti6lc8jhGjZ0H_-uKWhXY1-vjgx5bG6uTzkBAP5ZMKRIKi5bY7JTRmZUWi2NXodX43Pq2kPPwgB7ccDqWzKmLK1E-sps7iKQ0jDZ-dmelP5CCZotx5vfuUygWSZPwtAFeTIYsvllRIqtOUaK6hqzKG24CncNfS-RhAusQTt77Ps_gFCd0XLj5'); background-size: cover; background-position: center;">
+</div>
+</div>
+<div class="absolute bottom-4 left-4 glass-panel px-3 py-1 rounded-full border border-white/20">
+<span class="text-label-sm text-on-surface">Amina • London</span>
+</div>
+</div>
+<!-- Self Feed (Small Overlay Style) -->
+<div class="relative w-40 aspect-square rounded-full overflow-hidden border-4 border-white shadow-xl -mt-20 self-end mr-4 z-10 hover:scale-105 transition-transform duration-300">
+<div class="w-full h-full bg-surface-container-highest" data-alt="A portrait of a young person smiling during a video conversation, framed in a perfectly circular, organic shape. The lighting is bright and cheerful, suggesting a sunny, sun-drenched meadow environment. The style is soft minimalism with a paper-like texture, utilizing warm sand and cream tones to create a sense of safety and professional warmth in a digital sanctuary." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBRaD_l0mXF25aZjIU9Si9NPwHp0tKhqfpuVy2r4utZJyqJdONflud50UtmD_sLCTDEFpTH3P-B6VtrzonASWfdYTXU_GIhrDXhjJ-nY9LndlF62T6JHgI05SuafJtcDqpupoDcA-6Y6RKsUxHbGOeHdbeQoB-RCN1URMauo6a-EM96xXwFPk8W_4hXA7ZJhTIllHVnuxznFnEUAqT3WUFryKyEb5vhl-Y4bR3y6V2Ieojuh2g48llocudfKCwm6Z2blBQ_jGyXeGkY'); background-size: cover; background-position: center;">
+</div>
+<div class="absolute inset-0 bg-black/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-white/40">person</span>
+</div>
+</div>
+</main>
+<!-- Bottom Controls -->
+<footer class="z-20 p-6 flex items-center justify-between bg-gradient-to-t from-surface via-surface/80 to-transparent">
+<div class="flex gap-4">
+<button class="size-14 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors shadow-sm" onclick="toggleControl(this)">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+<button class="size-14 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors shadow-sm" onclick="toggleControl(this)">
+<span class="material-symbols-outlined" data-icon="videocam">videocam</span>
+</button>
+<button class="size-14 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors shadow-sm" onclick="toggleChat()">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+</div>
+<button class="bg-tertiary-container text-on-tertiary px-6 h-14 rounded-full flex items-center gap-3 shadow-lg active:scale-95 transition-transform hover:bg-tertiary duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">call_end</span>
+<span class="font-bold tracking-wide">Fly Home</span>
+</button>
+</footer>
+<!-- Text Chat Drawer Overlay -->
+<div class="absolute inset-x-0 bottom-0 z-30 h-[70%] bg-surface-container-lowest rounded-t-[3rem] shadow-[0_-8px_40px_rgba(0,0,0,0.08)] translate-y-full drawer-transition flex flex-col" id="chat-drawer">
+<!-- Drawer Handle -->
+<div class="h-10 w-full flex items-center justify-center cursor-pointer" onclick="toggleChat()">
+<div class="w-12 h-1.5 bg-outline-variant rounded-full"></div>
+</div>
+<div class="px-container-margin pb-4 flex items-center justify-between border-b border-outline-variant/20">
+<h3 class="text-headline-md font-medium text-on-surface">Whispers</h3>
+<button class="p-2 text-outline" onclick="toggleChat()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Chat Content -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<div class="flex flex-col items-start max-w-[85%]">
+<div class="bg-surface-container-high p-4 rounded-2xl rounded-tl-sm">
+<p class="text-body-md text-on-surface">How are you feeling about the progress so far? Your wings look much brighter today.</p>
+</div>
+<span class="text-label-sm text-outline mt-1 ml-1">Amina • 2:14 PM</span>
+</div>
+<div class="flex flex-col items-end max-w-[85%] ml-auto">
+<div class="bg-primary-container p-4 rounded-2xl rounded-tr-sm text-on-primary">
+<p class="text-body-md">Feeling much lighter. I think the grounding exercises are finally helping.</p>
+</div>
+<span class="text-label-sm text-outline mt-1 mr-1">You • 2:15 PM</span>
+</div>
+</div>
+<!-- Chat Input -->
+<div class="p-6 border-t border-outline-variant/20">
+<div class="flex items-center gap-3 bg-surface-container-low p-2 pr-4 rounded-full border border-outline-variant/30">
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline/50 ml-4 py-3" placeholder="Send a feather..." type="text"/>
+<button class="bg-primary size-10 rounded-full flex items-center justify-center text-white shadow-md active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Atmospheric Background Shaders -->
+<div class="absolute inset-0 pointer-events-none opacity-20 -z-10">
+<webgl-shader class="w-full h-full" src="{{DATA:ANIMATION:ANIMATION_1}}"></webgl-shader>
+</div>
+</div>
+<script>
+        function toggleChat() {
+            const drawer = document.getElementById('chat-drawer');
+            if (drawer.classList.contains('translate-y-full')) {
+                drawer.classList.remove('translate-y-full');
+            } else {
+                drawer.classList.add('translate-y-full');
+            }
+        }
+
+        function toggleControl(btn) {
+            const icon = btn.querySelector('.material-symbols-outlined');
+            const dataIcon = icon.getAttribute('data-icon');
+            
+            if (btn.classList.contains('bg-error-container')) {
+                // Return to normal
+                btn.classList.remove('bg-error-container', 'text-on-error-container');
+                btn.classList.add('bg-surface-container-high', 'text-on-surface');
+                icon.style.fontVariationSettings = "'FILL' 0";
+                
+                // Restore icon string based on what it was
+                if (dataIcon === 'mic') icon.textContent = 'mic';
+                if (dataIcon === 'videocam') icon.textContent = 'videocam';
+            } else {
+                // Toggle off
+                btn.classList.remove('bg-surface-container-high', 'text-on-surface');
+                btn.classList.add('bg-error-container', 'text-on-error-container');
+                icon.style.fontVariationSettings = "'FILL' 1";
+                
+                // Change icon string to off state
+                if (dataIcon === 'mic') icon.textContent = 'mic_off';
+                if (dataIcon === 'videocam') icon.textContent = 'videocam_off';
+            }
+        }
+        
+        // Mocking a gentle movement for the self-video
+        const selfFeed = document.querySelector('.self-end');
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) / 100;
+            const moveY = (e.clientY - window.innerHeight / 2) / 100;
+            selfFeed.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        });
+    </script>
+</body></html>

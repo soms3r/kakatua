@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .step-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdbd1",
+                        "secondary-container": "#fdbb24",
+                        "primary-fixed": "#bcf0ae",
+                        "on-error-container": "#93000a",
+                        "surface": "#fbf9f5",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#a1d494",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae8e4",
+                        "primary-container": "#2d5a27",
+                        "secondary-fixed": "#ffdea5",
+                        "tertiary": "#6d1d06",
+                        "tertiary-fixed-dim": "#ffb5a1",
+                        "on-tertiary-fixed": "#3b0800",
+                        "on-secondary-container": "#6c4d00",
+                        "on-primary-fixed-variant": "#23501e",
+                        "surface-bright": "#fbf9f5",
+                        "surface-container": "#efeeea",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-tertiary-fixed-variant": "#7f2a12",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#a1d494",
+                        "inverse-surface": "#30312e",
+                        "background": "#fbf9f5",
+                        "surface-variant": "#e4e2de",
+                        "surface-container-low": "#f5f3ef",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#42493e",
+                        "surface-container-highest": "#e4e2de",
+                        "on-background": "#1b1c1a",
+                        "secondary": "#7b5800",
+                        "on-surface": "#1b1c1a",
+                        "on-primary-container": "#9dd090",
+                        "on-primary": "#ffffff",
+                        "primary": "#154212",
+                        "inverse-on-surface": "#f2f0ed",
+                        "error": "#ba1a1a",
+                        "outline": "#72796e",
+                        "on-primary-fixed": "#002201",
+                        "on-secondary-fixed": "#271900",
+                        "tertiary-container": "#8c331b",
+                        "surface-tint": "#3b6934",
+                        "outline-variant": "#c2c9bb",
+                        "secondary-fixed-dim": "#fdbb24",
+                        "on-tertiary-container": "#ffaf9a",
+                        "surface-dim": "#dbdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "element-gap": "12px",
+                        "container-margin": "24px",
+                        "gutter": "16px",
+                        "section-gap": "48px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Geist"],
+                        "label-md": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-xl": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top AppBar (From Shared Components) -->
+<header class="bg-surface/80 backdrop-blur-md fixed top-0 w-full z-50 flex justify-between items-center px-container-margin py-element-gap">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="nest_eco_leaf">nest_eco_leaf</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Kakatua</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-high/50 transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+</header>
+<main class="flex-grow flex flex-col items-center justify-center pt-24 pb-32 px-container-margin relative">
+<!-- Background Animation -->
+<div class="fixed inset-0 pointer-events-none -z-10 opacity-40">
+
+</div>
+<div class="w-full max-w-xl">
+<!-- Progress Tracker -->
+<div class="mb-section-gap px-4">
+<div class="flex justify-between mb-element-gap items-end">
+<div>
+<p class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Step <span id="current-step-label">1</span> of 2</p>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Build My Nest</h2>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-on-surface-variant" id="progress-percentage">50%</span>
+</div>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-700 ease-in-out" id="progress-bar" style="width: 50%;"></div>
+</div>
+</div>
+<!-- Form Container -->
+<div class="relative min-h-[500px]">
+<!-- Step 1: User Profile Basics -->
+<div class="step-transition opacity-100 translate-x-0" id="step-1">
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-lg shadow-primary/5 border border-surface-container-high space-y-8">
+<!-- Avatar Picker -->
+<div class="flex flex-col items-center space-y-4">
+<div class="relative group">
+<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-primary-fixed bg-surface-container-high flex items-center justify-center cursor-pointer">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="A warm and friendly close-up portrait of a diverse person smiling softly. The lighting is golden-hour soft and natural, emphasizing a sense of community and welcome. The background is a blurred lush green garden, maintaining the nature-focused organic aesthetic of the brand with soft bokeh effects." id="avatar-preview" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJZtiLoIOEkxX7C4KlkCJe4EhvWOB3MFNb03K8UpP5ZUWD5bTnngZJ5sdKDCMjxcpbuGxL99jYZ_wtQ9HzOBtr7UokIHb-B7qB538T0gfkCJFsTcCVDXaqOBundZC6T0rniSvCfjx9HL-Mk2EG6i3j2_eUa-1RYQ0CzCySEeUpfv6TDKqEdZ9dxhI3RsLo0uObaIEgFGi456QOWV9p5C81vlcqh6gbvrWJKqNU_zi0mO78ksiDW8ZQx6FOfQiwAhX7qYkD2_embYI2"/>
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="photo_camera">photo_camera</span>
+</div>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary p-2 rounded-full shadow-md">
+<span class="material-symbols-outlined text-white text-body-md" data-icon="edit">edit</span>
+</div>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant">Choose your nest avatar</p>
+</div>
+<!-- Basic Info -->
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-primary ml-1">Full Name</label>
+<input class="w-full bg-surface-container px-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-primary-fixed-dim transition-all text-body-md placeholder:text-on-surface-variant/50" placeholder="How should we call you?" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-primary ml-1">Native Language</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container px-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-primary-fixed-dim transition-all text-body-md">
+<option>English</option>
+<option>Spanish</option>
+<option>French</option>
+<option>Mandarin</option>
+<option>Indonesian</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-primary ml-1">Learning Language</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container px-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-primary-fixed-dim transition-all text-body-md">
+<option>Indonesian</option>
+<option>Spanish</option>
+<option>Japanese</option>
+<option>Swahili</option>
+<option>Portuguese</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full bg-primary text-white py-5 rounded-full font-label-md text-label-md flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95" onclick="nextStep()">
+                                Continue to Culture Card
+                                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Step 2: Culture Card Creation -->
+<div class="step-transition hidden opacity-0 translate-x-12 absolute inset-0" id="step-2">
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-lg shadow-primary/5 border border-surface-container-high space-y-8">
+<div class="flex items-center gap-4 p-4 bg-tertiary-fixed/30 rounded-2xl border border-tertiary-fixed/50">
+<span class="material-symbols-outlined text-tertiary" data-icon="diversity_3">diversity_3</span>
+<p class="font-body-md text-on-tertiary-fixed-variant">Let's build your culture card to help others connect with your unique world.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-primary ml-1">Favorite Food</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary" data-icon="restaurant">restaurant</span>
+<input class="w-full bg-surface-container pl-12 pr-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-primary-fixed-dim transition-all text-body-md" placeholder="e.g. Nasi Goreng" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-primary ml-1">Traditional Greeting</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary" data-icon="front_hand">front_hand</span>
+<input class="w-full bg-surface-container pl-12 pr-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-primary-fixed-dim transition-all text-body-md" placeholder="e.g. Namaste" type="text"/>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-primary ml-1">An Interesting Fact</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-4 text-secondary" data-icon="lightbulb">lightbulb</span>
+<input class="w-full bg-surface-container pl-12 pr-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-primary-fixed-dim transition-all text-body-md" placeholder="Tell us something surprising about your home..." type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-primary ml-1">More about my culture</label>
+<textarea class="w-full bg-surface-container px-6 py-4 rounded-2xl border-none focus:ring-2 focus:ring-primary-fixed-dim transition-all text-body-md resize-none" placeholder="Share anything from local traditions to your favorite festivals..." rows="4"></textarea>
+</div>
+<div class="flex gap-4 pt-4">
+<button class="px-8 py-5 rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all active:scale-95" onclick="prevStep()">
+                                Back
+                            </button>
+<button class="flex-grow bg-primary text-white py-5 rounded-full font-label-md text-label-md flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95" onclick="finishOnboarding()">
+                                Share My World
+                                <span class="material-symbols-outlined" data-icon="public">public</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Success Splash (Hidden) -->
+<div class="step-transition hidden opacity-0 flex flex-col items-center text-center space-y-8 py-12" id="success-state">
+<div class="w-48 h-48 bg-primary-fixed rounded-full flex items-center justify-center shadow-xl shadow-primary/10 relative">
+<span class="material-symbols-outlined text-primary text-[80px]" data-icon="celebration">celebration</span>
+<div class="absolute -top-4 -right-4 bg-secondary-container p-4 rounded-full animate-bounce">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="sparkles">spark</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-xl text-headline-xl text-primary mb-2">Welcome to the Flock!</h2>
+<p class="text-body-lg text-on-surface-variant max-w-sm mx-auto">Your nest is ready and your culture card has been shared with the community.</p>
+</div>
+<button class="bg-primary text-white px-12 py-5 rounded-full font-label-md text-label-md hover:shadow-lg transition-all active:scale-95">
+                        Start Exploring
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Hidden on transaction/onboarding as per instructions but kept structure for logic if needed later) -->
+<!-- The prompt implies Onboarding, which is a transactional task. Suppressing Navbar for focused journey. -->
+<script>
+        let currentStep = 1;
+        const totalSteps = 2;
+
+        function updateUI() {
+            const step1 = document.getElementById('step-1');
+            const step2 = document.getElementById('step-2');
+            const success = document.getElementById('success-state');
+            const progressBar = document.getElementById('progress-bar');
+            const progressLabel = document.getElementById('progress-percentage');
+            const currentLabel = document.getElementById('current-step-label');
+
+            // Handle Transitions
+            if (currentStep === 1) {
+                step1.classList.remove('hidden');
+                setTimeout(() => {
+                    step1.classList.remove('opacity-0', 'translate-x-12');
+                    step1.classList.add('opacity-100', 'translate-x-0');
+                }, 10);
+                step2.classList.add('hidden', 'opacity-0', 'translate-x-12');
+                
+                progressBar.style.width = '50%';
+                progressLabel.textContent = '50%';
+                currentLabel.textContent = '1';
+            } else if (currentStep === 2) {
+                step1.classList.add('opacity-0', '-translate-x-12');
+                setTimeout(() => step1.classList.add('hidden'), 400);
+
+                step2.classList.remove('hidden');
+                setTimeout(() => {
+                    step2.classList.remove('opacity-0', 'translate-x-12');
+                    step2.classList.add('opacity-100', 'translate-x-0');
+                }, 10);
+                
+                progressBar.style.width = '100%';
+                progressLabel.textContent = '100%';
+                currentLabel.textContent = '2';
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUI();
+            }
+        }
+
+        function finishOnboarding() {
+            const step2 = document.getElementById('step-2');
+            const success = document.getElementById('success-state');
+            const progressContainer = document.querySelector('.mb-section-gap');
+            
+            step2.classList.add('opacity-0', '-translate-x-12');
+            setTimeout(() => {
+                step2.classList.add('hidden');
+                progressContainer.classList.add('opacity-0');
+                success.classList.remove('hidden');
+                setTimeout(() => {
+                    success.classList.remove('opacity-0');
+                }, 10);
+            }, 400);
+        }
+
+        // Simple animation trigger for the avatar placeholder click
+        document.getElementById('avatar-preview').parentElement.addEventListener('click', () => {
+            alert('Image picker would open here in the full app!');
+        });
+    </script>
+</body></html>

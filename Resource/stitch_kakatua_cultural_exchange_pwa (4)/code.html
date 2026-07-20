@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Discovery Hub - Kakatua</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#3b6934",
+                        "inverse-surface": "#30312e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#6c4d00",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e4e2de",
+                        "outline-variant": "#c2c9bb",
+                        "on-secondary-fixed": "#271900",
+                        "on-primary-fixed": "#002201",
+                        "on-primary-fixed-variant": "#23501e",
+                        "on-background": "#1b1c1a",
+                        "primary-fixed": "#bcf0ae",
+                        "secondary": "#7b5800",
+                        "surface": "#fbf9f5",
+                        "error-container": "#ffdad6",
+                        "primary": "#154212",
+                        "surface-dim": "#dbdad6",
+                        "background": "#fbf9f5",
+                        "primary-container": "#2d5a27",
+                        "on-surface-variant": "#42493e",
+                        "surface-container": "#efeeea",
+                        "surface-container-low": "#f5f3ef",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "secondary-fixed-dim": "#fdbb24",
+                        "secondary-fixed": "#ffdea5",
+                        "outline": "#72796e",
+                        "surface-container-high": "#eae8e4",
+                        "on-tertiary-container": "#ffaf9a",
+                        "on-primary-container": "#9dd090",
+                        "tertiary-fixed-dim": "#ffb5a1",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffdbd1",
+                        "inverse-on-surface": "#f2f0ed",
+                        "tertiary-container": "#8c331b",
+                        "tertiary": "#6d1d06",
+                        "on-surface": "#1b1c1a",
+                        "secondary-container": "#fdbb24",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e4e2de",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#a1d494",
+                        "surface-bright": "#fbf9f5",
+                        "primary-fixed-dim": "#a1d494",
+                        "on-tertiary-fixed-variant": "#7f2a12",
+                        "on-tertiary-fixed": "#3b0800"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "section-gap": "48px",
+                        "container-margin": "24px",
+                        "gutter": "16px",
+                        "element-gap": "12px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-md": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-lg-mobile": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md shadow-sm flex items-center justify-between px-container-margin py-unit w-full sticky top-0 z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="park">park</span>
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Kakatua</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container-high transition-colors p-2 rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-screen-xl mx-auto px-container-margin mt-6">
+<!-- Search & Filter Section -->
+<section class="space-y-4 mb-section-gap">
+<div class="flex gap-3">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-surface-container border-none rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/60 font-body-md text-body-md" placeholder="Search cultures, languages, interests..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary rounded-2xl px-4 flex items-center justify-center hover:shadow-lg transition-shadow active:scale-95">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+<!-- Horizontal Chips -->
+<div class="flex flex-col gap-3">
+<div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+<span class="bg-primary-container text-on-primary-container px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer">Spanish</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">Indonesian</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">Japanese</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">French</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">Korean</span>
+</div>
+<div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+<span class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer">Cooking</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">Nature</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">Music</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">Art</span>
+<span class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full font-label-md text-label-md flex-shrink-0 cursor-pointer hover:bg-surface-variant transition-colors">History</span>
+</div>
+</div>
+</section>
+<!-- Discovery Content: Culture Cards -->
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-6 text-on-surface">Explore Nests</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-variant/40 hover:shadow-md transition-shadow group">
+<div class="relative w-full h-48 rounded-2xl overflow-hidden mb-6">
+<img alt="Rendang Dish" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A lush, high-angle close-up of traditional Indonesian Beef Rendang, rich in dark spices and toasted coconut, served in a ceramic bowl on a wooden table. The lighting is warm and golden, reminiscent of a tropical afternoon. The aesthetic is clean and organic, highlighting the deep browns and greens of the culinary presentation in the Kakatua brand style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCgqKM_PMkZ8dIj9xdySI_r9vBc9LRdTDi-fxCLc2o5SzhnAddJIbV3aQ5ie7Rq1kzstBqRLyylkMdRnEI9arCYcT4CN-YE3WI8iZUMWJMjR5QouJTmOvbSaRaZUv_YtBGslRH60ycaxShun1v6SrwUDRjY2r_PblZo4-o5HngbT6AMFCPU1em168S2LMOQWuGloak6ZpjZJwrNEx6vfW2wL7Rghc8T2ugjbjjoZlSMR_2AeihRoN_i_YED6BG9ruICLdDRW-CZB4B"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm p-2 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="favorite">favorite</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Amina" class="w-full h-full object-cover" data-alt="A professional and friendly portrait of a young Indonesian woman named Amina, smiling warmly at the camera. She is in a bright, modern studio with soft green accents. The lighting is even and soft, reflecting a welcoming and safe digital atmosphere. The overall mood is approachable and kind, consistent with the Kakatua nest aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0Hl63VhDJMO8un9fYvm84aoCVGfFgafugIYOgLBILp38z7n37l7UZ0ikC9jW64xRbDXHzTfHKCGpOii9L12fgl-WTTwe663da9ojbeJ4kj2sEeDLE-m8_RfyuoTFxjdxja4jm1puRdTq5dShDf5qYYdLr6kMmySh3J6KzdogDy6zb8ULn60JdDML5ZuSMNAEQRqiAp9LK-HUkiu34dRe2J7zIoRKt36C0HwohaNYf14487G576X489QPUhTmVnOj364sE3Ot9Ep0L"/>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold leading-tight">Amina</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Indonesian to English</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-3 italic">
+                    "My favorite traditional food is Rendang. It takes hours to cook, but the blend of spices represents our patient and layered culture..."
+                </p>
+<div class="flex gap-2">
+<button class="flex-grow bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:shadow-lg transition-all active:scale-95">
+                        Visit Nest
+                    </button>
+<button class="px-4 bg-primary-container text-on-primary-container rounded-full hover:bg-primary-container/80 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-variant/40 hover:shadow-md transition-shadow group">
+<div class="relative w-full h-48 rounded-2xl overflow-hidden mb-6">
+<img alt="Kyoto Temple" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A serene, minimalist view of a traditional Zen garden in Kyoto, Japan, during the soft blue hour of dawn. Mossy stones and raked sand create a calming geometric pattern. The lighting is ethereal and cool, with soft morning mist. The visual style is peaceful and structured, perfectly aligning with the soft minimalism of the Kakatua design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjc63e1pEBGJ7PG2zcWdj5X2-UCYbQQusGmAsxzk0O4bWBDYwRelNSNkBupGjqtayzS-XzblsYqBHNN7ySCxVn1rtfTz-FsVeCysK7L-rjr3NHA_4S-2NtP4A2qlHicUyx1Us8nfPZ3mHjHta-fmkh4e_dnMM3e3P2mfFtWXkGWRwaw3i-QDQt6BAhbIoVdFra4_zARBVmOLIWSAiG528g20COAdgJFArFfQaTNxSq8M13rgi-DNTlBfa0Kcy70g4-OZ2LpbDBuyId"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm p-2 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="favorite">favorite</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-secondary-container">
+<img alt="Hiro" class="w-full h-full object-cover" data-alt="A portrait of a Japanese man named Hiro with a calm and contemplative expression. He is dressed in a simple earth-toned linen shirt, sitting in a bright room with natural wood textures. The lighting is soft and natural, emphasizing a sense of tranquility and wisdom. The aesthetic is clean, warm, and highly professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEDPIgh5MhxVHt5jlCTCp5pDD3xGtKzHbHCX0irPhri53pf0PHYxEJxTMI4tKA4XQ1eFLjPX0UQL8aoymtbc9_F7bibJV3Ptq61RsCIVmhzeg9NAin_2zhC7lnjbeHeFZnB7yZ02N2-mYVz8BjVpi3VTsYaL14tHrej1aUfNYQ9PdyHaXAeVZA6HCIlKpFoAf3Dz0CKUxwNx2NASRcSjcACRQuNXMOvHntxx4vJo16T2TsoIzm-XfVX25fOkhdU1q6DqOEtr16bVM8"/>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold leading-tight">Hiro</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Japanese to Spanish</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-3 italic">
+                    "The concept of 'Ma' or negative space is essential in our architecture. It's not about what is there, but what isn't..."
+                </p>
+<div class="flex gap-2">
+<button class="flex-grow bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:shadow-lg transition-all active:scale-95">
+                        Visit Nest
+                    </button>
+<button class="px-4 bg-primary-container text-on-primary-container rounded-full hover:bg-primary-container/80 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-variant/40 hover:shadow-md transition-shadow group">
+<div class="relative w-full h-48 rounded-2xl overflow-hidden mb-6">
+<img alt="Amazon Rain Forest" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vibrant, atmospheric shot of the deep Amazon rainforest at sunrise, with light rays piercing through the thick canopy of emerald leaves. The color palette is dominated by rich, earthy greens and deep forest shadows. The lighting is dramatic yet soft, creating a sense of natural protection and organic growth, core to the Kakatua brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbigFn6MtqteG6DxCiSG3bIcS7qR26KyUjhGGG7Vp3C0rlq1LP4bNPBaEMtI5QlbqkOrkcswjhgtJVLo1sZrrpD58jF-I7VHDplOn8SPAz1waBzNrA55L7J0erp77s0qgc7eijep_T1lezyUGYgQ5j8UChs0Fv--b_sDAZqY5FJuZOjP5xXPLKKAhmWQKKakely-ll3wndRXdTn8F8Qb7rg8YBlLlealuMCJA5EUKMpAhHgOZBdgVY1KhefS5dL5fDE6MP9PalABd6"/>
+<div class="absolute top-3 right-3 bg-surface/90 backdrop-blur-sm p-2 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="favorite">favorite</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Mateo" class="w-full h-full object-cover" data-alt="A cheerful and bright portrait of a Brazilian man named Mateo, with a background of lush tropical plants. The lighting is vibrant and sunny, reflecting a high-energy yet warm personality. The aesthetic focuses on natural textures and a bright, modern color palette with deep greens and golden yellows, maintaining a sanctuary-like feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4Ph-lAdHfgw-beVNqQYd96DDGiK7rRx19vzskZFtMZaoWNKpfTe3kM2WdNvrY8BWlOj3QkciZhrfP8fbMZwYRIrS1om7fDSU4ynVBJvyb-xN19I-bL59fgoPHpAlDx-KOhd2utDakVFqm39WPNHvsce--8sHyy0I3-faxAI5T5mIZQdgJo4lCF4IqmUQOabaNn6iFd9piMqeyff4rhUNA82whcKYtDGtokJAIkUaIH2l9htFgudSvTs5tWXGa8fZkeySZbkfdPga1"/>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold leading-tight">Mateo</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Portuguese to Japanese</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-3 italic">
+                    "Nature isn't just around us, it's in our language. We have dozens of words for the sound of rain on different types of leaves..."
+                </p>
+<div class="flex gap-2">
+<button class="flex-grow bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:shadow-lg transition-all active:scale-95">
+                        Visit Nest
+                    </button>
+<button class="px-4 bg-primary-container text-on-primary-container rounded-full hover:bg-primary-container/80 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating FAB for Quick Action -->
+<button class="fixed bottom-28 right-6 bg-secondary text-on-secondary w-14 h-14 rounded-full shadow-xl flex items-center justify-center active:scale-90 transition-transform z-40">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container/90 dark:bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] rounded-t-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-all duration-300 ease-out active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="home_health">home_health</span>
+<span class="font-label-md text-label-md">Flock</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-5 py-1 transition-all duration-300 ease-out active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="explore" data-weight="fill">explore</span>
+<span class="font-label-md text-label-md font-bold">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-all duration-300 ease-out active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for filter chips
+        document.querySelectorAll('.flex-shrink-0').forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Determine if it's a language or interest chip based on sibling colors
+                const isLanguage = this.classList.contains('bg-primary-container') || this.parentElement.firstChild.nextSibling.classList.contains('bg-primary-container');
+                
+                this.parentElement.querySelectorAll('.flex-shrink-0').forEach(c => {
+                    c.classList.remove('bg-primary-container', 'text-on-primary-container', 'bg-secondary-container', 'text-on-secondary-container');
+                    c.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+                });
+
+                this.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+                if (this.innerText === 'Spanish' || this.innerText === 'Indonesian' || this.innerText === 'Japanese' || this.innerText === 'French' || this.innerText === 'Korean') {
+                    this.classList.add('bg-primary-container', 'text-on-primary-container');
+                } else {
+                    this.classList.add('bg-secondary-container', 'text-on-secondary-container');
+                }
+            });
+        });
+    </script>
+</body></html>

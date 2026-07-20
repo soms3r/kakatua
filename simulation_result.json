@@ -1,0 +1,119 @@
+{
+  "timestamp": "2026-06-14T18:39:58.817Z",
+  "matchingResult": {
+    "totalUsers": 1000,
+    "matchedCount": 948,
+    "unmatchedCount": 52,
+    "matchSuccessRate": 94.8,
+    "averageWaitTimeSeconds": 4.330274261603376,
+    "averageScore": 31.647679324894515,
+    "matchesSample": [
+      {
+        "userA": "user_11",
+        "userB": "user_7",
+        "languages": "German <-> Spanish",
+        "score": 18,
+        "wait_time_A": 0,
+        "wait_time_B": 400
+      },
+      {
+        "userA": "user_13",
+        "userB": "user_5",
+        "languages": "French <-> Japanese",
+        "score": 21,
+        "wait_time_A": 0,
+        "wait_time_B": 800
+      },
+      {
+        "userA": "user_15",
+        "userB": "user_10",
+        "languages": "English <-> French",
+        "score": 41,
+        "wait_time_A": 0,
+        "wait_time_B": 500
+      },
+      {
+        "userA": "user_18",
+        "userB": "user_8",
+        "languages": "English <-> French",
+        "score": 32,
+        "wait_time_A": 0,
+        "wait_time_B": 1000
+      },
+      {
+        "userA": "user_24",
+        "userB": "user_19",
+        "languages": "Spanish <-> French",
+        "score": 22,
+        "wait_time_A": 0,
+        "wait_time_B": 500
+      }
+    ]
+  },
+  "moderationResult": {
+    "naive": {
+      "final_report_count": 1,
+      "status": "active",
+      "ip_banned": false,
+      "log_summary": [
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 1. No bans triggered."
+      ]
+    },
+    "atomic": {
+      "final_report_count": 25,
+      "status": "banned",
+      "ip_banned": true,
+      "log_summary": [
+        "[REPORT RECORDED] Report count is now 1. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 2. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 3. No bans triggered.",
+        "[REPORT RECORDED] Report count is now 4. No bans triggered.",
+        "[RULE TRIGGERED] 5 Reports reached (5). 15-day suspension applied until 2026-06-29T18:39:57.988Z.",
+        "[RULE TRIGGERED] 5 Reports reached (6). 15-day suspension applied until 2026-06-29T18:39:58.048Z.",
+        "[RULE TRIGGERED] 5 Reports reached (7). 15-day suspension applied until 2026-06-29T18:39:58.079Z.",
+        "[RULE TRIGGERED] 5 Reports reached (8). 15-day suspension applied until 2026-06-29T18:39:58.125Z.",
+        "[RULE TRIGGERED] 5 Reports reached (9). 15-day suspension applied until 2026-06-29T18:39:58.156Z.",
+        "[RULE TRIGGERED] 10 Reports reached (10). 30-day suspension applied until 2026-07-14T18:39:58.203Z.",
+        "[RULE TRIGGERED] 10 Reports reached (11). 30-day suspension applied until 2026-07-14T18:39:58.235Z.",
+        "[RULE TRIGGERED] 10 Reports reached (12). 30-day suspension applied until 2026-07-14T18:39:58.266Z.",
+        "[RULE TRIGGERED] 10 Reports reached (13). 30-day suspension applied until 2026-07-14T18:39:58.314Z.",
+        "[RULE TRIGGERED] 10 Reports reached (14). 30-day suspension applied until 2026-07-14T18:39:58.362Z.",
+        "[RULE TRIGGERED] 10 Reports reached (15). 30-day suspension applied until 2026-07-14T18:39:58.408Z.",
+        "[RULE TRIGGERED] 10 Reports reached (16). 30-day suspension applied until 2026-07-14T18:39:58.439Z.",
+        "[RULE TRIGGERED] 10 Reports reached (17). 30-day suspension applied until 2026-07-14T18:39:58.470Z.",
+        "[RULE TRIGGERED] 10 Reports reached (18). 30-day suspension applied until 2026-07-14T18:39:58.518Z.",
+        "[RULE TRIGGERED] 10 Reports reached (19). 30-day suspension applied until 2026-07-14T18:39:58.566Z.",
+        "[RULE TRIGGERED] 20+ Reports reached (20). Permanent Account & IP Ban applied.",
+        "[RULE TRIGGERED] 20+ Reports reached (21). Permanent Account & IP Ban applied.",
+        "[RULE TRIGGERED] 20+ Reports reached (22). Permanent Account & IP Ban applied.",
+        "[RULE TRIGGERED] 20+ Reports reached (23). Permanent Account & IP Ban applied.",
+        "[RULE TRIGGERED] 20+ Reports reached (24). Permanent Account & IP Ban applied.",
+        "[RULE TRIGGERED] 20+ Reports reached (25). Permanent Account & IP Ban applied."
+      ]
+    }
+  }
+}

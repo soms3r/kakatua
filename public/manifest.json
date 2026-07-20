@@ -1,0 +1,27 @@
+{
+  "name": "Kakatua — Language & Culture Exchange",
+  "short_name": "Kakatua",
+  "description": "Everyone belongs here. Find a language partner, share your culture, and explore the world.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf9f5",
+  "theme_color": "#2D5A27",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "social", "communication"],
+  "lang": "en"
+}
