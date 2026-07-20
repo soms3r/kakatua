@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/soms3r/kakatua/main/public/favicon.svg" alt="Kakatua Logo" width="120" />
-
 # Kakatua
 
 ### Language & Culture Exchange
