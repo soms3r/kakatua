@@ -513,10 +513,90 @@ const COUNTRIES: CountrySeed[] = [
   },
 ];
 
+// ─── Master Data Catalog (languages & interests) ──────────────────────────────
+
+const LANGUAGES = [
+  { code: 'en', name: 'English', flagEmoji: '🇬🇧' },
+  { code: 'bn', name: 'Bengali', flagEmoji: '🇧🇩' },
+  { code: 'ja', name: 'Japanese', flagEmoji: '🇯🇵' },
+  { code: 'hi', name: 'Hindi', flagEmoji: '🇮🇳' },
+  { code: 'th', name: 'Thai', flagEmoji: '🇹🇭' },
+  { code: 'ko', name: 'Korean', flagEmoji: '🇰🇷' },
+  { code: 'pt', name: 'Portuguese', flagEmoji: '🇧🇷' },
+  { code: 'de', name: 'German', flagEmoji: '🇩🇪' },
+  { code: 'es', name: 'Spanish', flagEmoji: '🇪🇸' },
+  { code: 'fr', name: 'French', flagEmoji: '🇫🇷' },
+  { code: 'ar', name: 'Arabic', flagEmoji: '🇸🇦' },
+  { code: 'ur', name: 'Urdu', flagEmoji: '🇵🇰' },
+  { code: 'zh', name: 'Mandarin Chinese', flagEmoji: '🇨🇳' },
+  { code: 'ru', name: 'Russian', flagEmoji: '🇷🇺' },
+  { code: 'it', name: 'Italian', flagEmoji: '🇮🇹' },
+  { code: 'id', name: 'Indonesian', flagEmoji: '🇮🇩' },
+];
+
+const INTERESTS = [
+  'Language Learning', 'Travel', 'Food & Cooking', 'Music', 'Movies', 'Books',
+  'Photography', 'Technology', 'Gaming', 'Sports', 'Art & Design', 'History',
+  'Culture', 'Poetry', 'Fitness & Wellness', 'Nature', 'Entrepreneurship',
+  'Dance', 'Chess', 'Climate & Environment', 'Volunteering', 'Meditation', 'Startups',
+];
+
+async function linkLanguages(
+  userId: string,
+  native: string[],
+  learning: string[]
+) {
+  const langs = await prisma.language.findMany({ select: { id: true, name: true } });
+  const byName = new Map(langs.map((l) => [l.name.toLowerCase(), l.id]));
+  const entries = [];
+
+  for (const name of native) {
+    const languageId = byName.get(name.toLowerCase());
+    if (languageId) {
+      entries.push({ userId, languageId, type: 'NATIVE', proficiency: 'Fluent', isPrimary: true });
+    }
+  }
+  for (const name of learning) {
+    const languageId = byName.get(name.toLowerCase());
+    if (languageId) {
+      entries.push({ userId, languageId, type: 'LEARNING', proficiency: 'Intermediate', isPrimary: false });
+    }
+  }
+
+  if (entries.length > 0) {
+    await prisma.userLanguage.createMany({ data: entries });
+  }
+}
+
+async function linkInterests(userId: string, names: string[]) {
+  const interests = await prisma.interest.findMany({ select: { id: true, name: true } });
+  const byName = new Map(interests.map((i) => [i.name.toLowerCase(), i.id]));
+
+  const entries = [];
+  for (const name of names) {
+    const interestId = byName.get(name.toLowerCase());
+    if (interestId) entries.push({ userId, interestId });
+  }
+
+  if (entries.length > 0) {
+    await prisma.userInterest.createMany({ data: entries });
+  }
+}
+
 // ─── Seed Function ────────────────────────────────────────────────────────────
 
 async function main() {
   console.log('Seeding Kakatua database...\n');
+
+  // 0. Master data catalog (languages & interests)
+  console.log('  ── Catalog (languages & interests) ──────────────');
+  for (const lang of LANGUAGES) {
+    await prisma.language.upsert({ where: { code: lang.code }, create: lang, update: {} });
+  }
+  for (const name of INTERESTS) {
+    await prisma.interest.upsert({ where: { name }, create: { name }, update: {} });
+  }
+  console.log(`    PASS ${LANGUAGES.length} languages, ${INTERESTS.length} interests`);
 
   // 1. Clear all existing system bots + country ambassadors
   const allEmails = [...SYSTEM_EMAILS, ...COUNTRIES.map((c) => c.email)];
@@ -530,7 +610,7 @@ async function main() {
   // 2. System Bots ──────────────────────────────────────────────────────────
   console.log('\n  ── System Bots ─────────────────────────────────────');
 
-  await prisma.user.create({
+  const guide = await prisma.user.create({
     data: {
       email: 'guide@kakatua.app',
       name: 'Kakatua Guide',
@@ -542,6 +622,16 @@ async function main() {
       interests: JSON.stringify(['Language Learning', 'Community']),
       timezoneOffset: 0,
       status: 'active',
+      profile: {
+        create: {
+          username: 'guide',
+          displayName: 'Kakatua Guide',
+          bio: 'Weekly welcome circles where newcomers share a greeting from their mother tongue.',
+          country: 'Global',
+          nativeLanguage: 'English',
+          interfaceLanguage: 'English',
+        },
+      },
       cultureCard: {
         create: {
           data: JSON.stringify({
@@ -554,9 +644,11 @@ async function main() {
       },
     },
   });
+  await linkLanguages(guide.id, ['English'], ['Spanish']);
+  await linkInterests(guide.id, ['Language Learning', 'Community']);
   console.log('    PASS Kakatua Guide (GUIDE)');
 
-  await prisma.user.create({
+  const buddy = await prisma.user.create({
     data: {
       email: 'buddy@kakatua.app',
       name: 'Global Buddy',
@@ -568,6 +660,18 @@ async function main() {
       interests: JSON.stringify(['Technology', 'Solar Energy', 'Poetry']),
       timezoneOffset: 6,
       status: 'active',
+      profile: {
+        create: {
+          username: 'buddy',
+          displayName: 'Global Buddy',
+          bio: 'Evening poetry readings on the rooftop, sharing verses in Bengali and English.',
+          country: 'Bangladesh',
+          city: 'Dhaka',
+          nativeLanguage: 'Bengali',
+          interfaceLanguage: 'English',
+          timezone: 'Asia/Dhaka',
+        },
+      },
       cultureCard: {
         create: {
           data: JSON.stringify({
@@ -580,10 +684,12 @@ async function main() {
       },
     },
   });
+  await linkLanguages(buddy.id, ['Bengali'], ['English']);
+  await linkInterests(buddy.id, ['Technology', 'Poetry']);
   console.log('    PASS Global Buddy (MATCHMAKER)');
 
   // Dhaka Local — CULTURAL_ADVISOR (also Bangladesh country ambassador)
-  await prisma.user.create({
+  const dhaka = await prisma.user.create({
     data: {
       email: 'dhaka@kakatua.app',
       name: 'Dhaka Local',
@@ -595,6 +701,18 @@ async function main() {
       interests: JSON.stringify(['Digital Marketing', 'Dhaka Life', 'Startups']),
       timezoneOffset: 6,
       status: 'active',
+      profile: {
+        create: {
+          username: 'dhaka-local',
+          displayName: 'Dhaka Local',
+          bio: 'Rickshaw art is a living tradition — every cycle is a canvas of vibrant folk storytelling.',
+          country: 'Bangladesh',
+          city: 'Dhaka',
+          nativeLanguage: 'Bengali',
+          interfaceLanguage: 'English',
+          timezone: 'Asia/Dhaka',
+        },
+      },
       cultureCard: {
         create: {
           data: JSON.stringify({
@@ -607,13 +725,15 @@ async function main() {
       },
     },
   });
+  await linkLanguages(dhaka.id, ['Bengali'], ['English']);
+  await linkInterests(dhaka.id, ['Startups', 'Culture']);
   console.log('    PASS Dhaka Local (CULTURAL_ADVISOR)');
 
   // 3. Country Ambassadors ─────────────────────────────────────────────────
   console.log('\n  ── Country Ambassadors (Flock Library) ────────────');
 
   for (const country of COUNTRIES) {
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email: country.email,
         name: country.name,
@@ -626,6 +746,16 @@ async function main() {
         interests: JSON.stringify(country.interests),
         timezoneOffset: country.timezoneOffset,
         status: 'active',
+        profile: {
+          create: {
+            username: country.countrySlug,
+            displayName: country.name,
+            bio: country.card.history,
+            country: country.name,
+            nativeLanguage: country.nativeLanguages[0],
+            interfaceLanguage: 'English',
+          },
+        },
         cultureCard: {
           create: {
             data: JSON.stringify(country.card),
@@ -634,6 +764,8 @@ async function main() {
         },
       },
     });
+    await linkLanguages(user.id, country.nativeLanguages, country.learningLanguages);
+    await linkInterests(user.id, country.interests);
     console.log(`    PASS ${country.name} (${country.countrySlug})`);
   }
 

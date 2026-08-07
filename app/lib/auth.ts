@@ -2,6 +2,7 @@ import { NextAuthOptions, getServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '../actions/db';
 import bcrypt from 'bcryptjs';
+import { sendVerificationForUser } from './email';
 
 declare module 'next-auth' {
   interface Session {
@@ -9,6 +10,7 @@ declare module 'next-auth' {
       id: string;
       name?: string | null;
       email?: string | null;
+      emailVerified?: boolean | null;
     };
   }
 }
@@ -62,6 +64,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error('This nest is no longer part of the canopy.');
         }
 
+        // Unverified birds get a fresh confirmation link on every login attempt.
+        const verification = await prisma.verification.findUnique({
+          where: { userId: user.id },
+          select: { emailVerified: true },
+        });
+        if (verification && !verification.emailVerified) {
+          void sendVerificationForUser(user.id, user.email, user.name);
+        }
+
         return {
           id: user.id,
           email: user.email,
@@ -88,6 +99,11 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
+        const verification = await prisma.verification.findUnique({
+          where: { userId: token.id },
+          select: { emailVerified: true },
+        });
+        session.user.emailVerified = verification?.emailVerified ?? null;
       }
       return session;
     },

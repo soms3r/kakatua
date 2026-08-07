@@ -36,7 +36,7 @@ export async function reportUserAction(
     const result = await prisma.$transaction(async (tx) => {
       // 1. Record the report log (unique constraint prevents duplicates)
       try {
-        await tx.report.create({
+        await tx.userReport.create({
           data: { reporterId, reportedId, reason },
         });
       } catch (err: any) {

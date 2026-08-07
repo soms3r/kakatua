@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../actions/db';
 import bcrypt from 'bcryptjs';
+import {
+  createEmailVerificationToken,
+  sendVerificationEmail,
+} from '../../lib/email';
 
 // Reserved ambassador emails — cannot be registered by public users.
 const RESERVED_EMAILS = [
@@ -63,6 +67,23 @@ export async function POST(request: Request) {
         status: 'active',
       },
     });
+
+    // Create an unverified verification record and fire off the confirmation email.
+    // Email delivery must never block registration.
+    await prisma.verification.upsert({
+      where: { userId: user.id },
+      create: { userId: user.id, emailVerified: false, method: 'EMAIL' },
+      update: {},
+    });
+
+    const token = createEmailVerificationToken(user.id);
+    void sendVerificationEmail({ email: user.email, name: user.name, token }).then(
+      (result) => {
+        if (!result.ok && !result.skipped) {
+          console.error(`[email] Verification email delivery failed for ${user.email}:`, result.error);
+        }
+      }
+    );
 
     return NextResponse.json(
       {

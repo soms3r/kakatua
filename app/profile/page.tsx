@@ -357,6 +357,21 @@ export default function ProfilePage() {
               <span className="material-symbols-outlined text-[#c2c9bb] group-hover:text-[#2D5A27] transition-colors ml-auto">arrow_forward</span>
             </button>
 
+            {/* Nest Settings CTA */}
+            <Link
+              href="/profile/settings"
+              className="w-full bg-[#ffffff] border border-[#dbdad6] hover:border-[#a1d494]/50 rounded-[20px] p-4 shadow-sm flex items-center gap-3 transition-all hover:shadow-md group"
+            >
+              <div className="w-10 h-10 rounded-full bg-[#bcf0ae]/40 flex items-center justify-center flex-shrink-0 group-hover:bg-[#bcf0ae]/60 transition-colors">
+                <span className="material-symbols-outlined text-lg text-[#2D5A27]">tune</span>
+              </div>
+              <div className="text-left min-w-0">
+                <h3 className="text-xs font-bold text-[#154212]">Nest Settings</h3>
+                <p className="text-[10px] text-[#72796e] mt-0.5">Languages, availability, privacy & profile photo</p>
+              </div>
+              <span className="material-symbols-outlined text-[#c2c9bb] group-hover:text-[#2D5A27] transition-colors ml-auto">arrow_forward</span>
+            </Link>
+
             {/* Quick Info */}
             <div className="bg-[#ffffff] border border-[#efeeea] rounded-2xl p-4 shadow-sm">
               <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[#72796e] mb-3">Quick Info</h3>
