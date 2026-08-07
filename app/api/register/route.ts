@@ -79,10 +79,14 @@ export async function POST(request: Request) {
     console.error('Meta:', error.meta);
     console.error('Stack:', error.stack);
     console.error('==========================');
+
+    const code = error?.code ?? null;
+    const message = error?.message ?? 'Unknown database or runtime error.';
+
     return NextResponse.json(
       {
         error: 'The nest builder encountered an unexpected error. Please try again.',
-        _debug: process.env.NODE_ENV !== 'production' ? { code: error.code, message: error.message } : undefined,
+        _debug: { code, message },
       },
       { status: 500 }
     );

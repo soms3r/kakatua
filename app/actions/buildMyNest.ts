@@ -64,6 +64,11 @@ export async function buildMyNestAction(
       data: result,
     };
   } catch (error: any) {
+    console.error('=== BUILD MY NEST ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Code:', error.code);
+    console.error('Meta:', error.meta);
+    console.error('===========================');
     if (error.code === 'P2025') {
       return {
         success: false,

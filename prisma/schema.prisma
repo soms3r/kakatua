@@ -3,7 +3,7 @@
 // Provider: "sqlite" for local dev, switch to "postgresql" for production deploy.
 // Run `prisma migrate deploy` after switching.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
