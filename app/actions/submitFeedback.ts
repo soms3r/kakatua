@@ -3,10 +3,7 @@
 // Next.js Server Action: submitFeedback (app/actions/submitFeedback.ts)
 
 import { prisma } from './db';
-import { ActionResponse } from './types';
-
-export type FeedbackCategory = 'Bug' | 'Idea' | 'FeatureRequest' | 'Other';
-export type FeedbackStatus = 'New' | 'Reviewing' | 'Resolved';
+import { ActionResponse, FeedbackCategory } from './types';
 
 interface FeedbackInput {
   message: string;

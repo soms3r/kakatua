@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import LayoutShell from '../components/LayoutShell';
 import CultureCard from '../components/CultureCard';
-import { getDiscoverFeed, DiscoverAmbassador } from '../actions/ambassadors';
+import { getDiscoverFeed } from '../actions/ambassadors';
+import type { DiscoverAmbassador } from '../actions/types';
 
 export default function DiscoverPage() {
   const { data: session } = useSession();

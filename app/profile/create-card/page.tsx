@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { createUserCultureCardAction, WizardFormData } from '../../actions/createCard';
+import { createUserCultureCardAction } from '../../actions/createCard';
+import type { WizardFormData } from '../../actions/types';
 
 // ─── Step Definitions ─────────────────────────────────────────────────────────
 

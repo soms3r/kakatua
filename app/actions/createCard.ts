@@ -4,27 +4,8 @@
 'use server';
 
 import { prisma } from './db';
-import { ActionResponse } from './types';
+import { ActionResponse, WizardFormData } from './types';
 import { guardAgainstAmbassadorMutation } from './ambassadors';
-
-export interface WizardFormData {
-  // Step 1: Language & Roots
-  primaryLanguage: string;
-  keyPhrases: string[];         // e.g. ["Shukriya (Thank you)", "Kya haal hai? (How are you?)"]
-
-  // Step 2: Traditions & Rituals
-  traditionsSummary: string;    // free-text overview of traditions
-  rituals: { festivalName: string; description: string }[];
-
-  // Step 3: Culinary Narrative
-  foodSummary: string;          // free-text overview of cuisine
-  dishes: { dishName: string; historicalOrigin: string; culturalSignificance: string }[];
-
-  // Step 4: History & Etiquette
-  historySummary: string;       // poetic history
-  funFact: string;              // one memorable fact
-  socialEtiquette: string[];    // dos and don'ts
-}
 
 export async function createUserCultureCardAction(
   userId: string,

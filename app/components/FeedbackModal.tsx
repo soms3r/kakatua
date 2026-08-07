@@ -2,7 +2,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { submitFeedbackAction, FeedbackCategory } from '../actions/submitFeedback';
+import { submitFeedbackAction } from '../actions/submitFeedback';
+import type { FeedbackCategory } from '../actions/types';
 
 interface FeedbackModalProps {
   isOpen: boolean;

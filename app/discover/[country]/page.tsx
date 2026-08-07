@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import LayoutShell from '../../components/LayoutShell';
-import { getCountryBySlug, DetailedContent } from '../../actions/ambassadors';
+import { getCountryBySlug } from '../../actions/ambassadors';
+import type { DetailedContent } from '../../actions/types';
 import { toggleLoveAction, getUserLoveStatus } from '../../actions/loveCard';
 
 interface CountryData {

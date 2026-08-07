@@ -4,33 +4,8 @@
 'use server';
 
 import { prisma } from './db';
-import { ActionResponse } from './types';
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-export const AMBASSADOR_ROLES = {
-  GUIDE: 'GUIDE',
-  MATCHMAKER: 'MATCHMAKER',
-  CULTURAL_ADVISOR: 'CULTURAL_ADVISOR',
-} as const;
-
-export type AmbassadorRole = typeof AMBASSADOR_ROLES[keyof typeof AMBASSADOR_ROLES];
-
-const AMBASSADOR_EMAILS: Record<AmbassadorRole, string> = {
-  GUIDE: 'guide@kakatua.app',
-  MATCHMAKER: 'buddy@kakatua.app',
-  CULTURAL_ADVISOR: 'dhaka@kakatua.app',
-};
-
-// ─── Detailed Content Types ──────────────────────────────────────────────────
-
-export interface DetailedContent {
-  languageInfo: { primaryLanguage: string; majorDialects: string[]; keyPhrases: string[] };
-  culturalRituals: { festivalName: string; description: string }[];
-  culinaryNarrative: { dishName: string; historicalOrigin: string; culturalSignificance: string }[];
-  historicalContext: string;
-  socialEtiquette: string[];
-}
+import { ActionResponse, CountryDetailData, DetailedContent, DiscoverAmbassador } from './types';
+import { AmbassadorRole } from './roles';
 
 // ─── Role Queries ─────────────────────────────────────────────────────────────
 
@@ -53,28 +28,6 @@ export async function getMatchmaker() { return getAmbassadorByRole('MATCHMAKER')
 export async function getCulturalAdvisor() { return getAmbassadorByRole('CULTURAL_ADVISOR'); }
 
 // ─── Discover Feed ────────────────────────────────────────────────────────────
-
-export interface DiscoverAmbassador {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string | null;
-  nativeLanguages: string[];
-  learningLanguages: string[];
-  interests: string[];
-  timezoneOffset: number;
-  ambassadorRole: string | null;
-  countrySlug: string | null;
-  cultureCardId: string | null;
-  loveCount: number;
-  isUserCreated: boolean;
-  cultureCard: {
-    traditions: string;
-    food: string;
-    history: string;
-    funFact: string;
-  } | null;
-}
 
 export async function getDiscoverFeed(): Promise<ActionResponse<DiscoverAmbassador[]>> {
   try {
@@ -162,25 +115,6 @@ export async function getDiscoverFeed(): Promise<ActionResponse<DiscoverAmbassad
 }
 
 // ─── Country Detail Page Query ────────────────────────────────────────────────
-
-export interface CountryDetailData {
-  id: string;
-  name: string;
-  countrySlug: string;
-  nativeLanguages: string[];
-  learningLanguages: string[];
-  interests: string[];
-  timezoneOffset: number;
-  cultureCardId: string | null;
-  loveCount: number;
-  cultureCard: {
-    traditions: string;
-    food: string;
-    history: string;
-    funFact: string;
-  } | null;
-  detailedContent: DetailedContent | null;
-}
 
 export async function getCountryBySlug(
   slug: string
