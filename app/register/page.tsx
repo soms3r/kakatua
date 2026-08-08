@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get('ref') || '';
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +24,12 @@ export default function RegisterPage() {
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          referralCode: refCode || undefined,
+        }),
       });
 
       const data = await res.json();
@@ -67,6 +74,12 @@ export default function RegisterPage() {
           <p className="text-xs text-[#72796e] mt-1 max-w-[80%] leading-relaxed">
             A new home in the canopy awaits. Join the flock and find your place.
           </p>
+          {refCode && (
+            <span className="mt-3 bg-[#e8f2df] text-[#2D5A27] text-[11px] font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-sm">nest_eco_leaf</span>
+              Invited by the flock · code “{refCode}”
+            </span>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="px-8 pb-8 flex flex-col gap-4">
@@ -157,5 +170,13 @@ export default function RegisterPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }

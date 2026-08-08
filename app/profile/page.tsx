@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import LayoutShell from '../components/LayoutShell';
 import GrammarCheckModal from '../components/GrammarCheckModal';
 import { getUserProfileAction, updateUserProfileAction } from '../actions/getData';
+import { getReferralStatsAction } from '../actions/referrals';
 
 interface UserProfile {
   id: string;
@@ -35,7 +36,7 @@ interface UserProfile {
 const ROLE_LABELS: Record<string, { label: string; icon: string; color: string; bg: string }> = {
   GUIDE: { label: 'Kakatua Guide', icon: 'menu_book', color: '#3f5a2e', bg: '#e8efda' },
   MATCHMAKER: { label: 'Global Buddy', icon: 'handshake', color: '#8a6d4d', bg: '#f4e2b8' },
-  CULTURAL_ADVISOR: { label: 'Dhaka Local', icon: 'location_on', color: '#b26a3a', bg: '#f7e0ce' },
+  CULTURAL_ADVISOR: { label: 'Cultural Advisor', icon: 'location_on', color: '#b26a3a', bg: '#f7e0ce' },
 };
 
 // ─── Nest "floor" backdrop ────────────────────────────────────────────────────
@@ -47,6 +48,7 @@ const TWIG_TILE = `<svg xmlns="http://www.w3.org/2000/svg" width="140" height="1
 const NEST_FLOOR = {
   backgroundImage: [
     `url("data:image/svg+xml,${encodeURIComponent(TWIG_TILE)}")`,
+    'radial-gradient(720px 420px at 50% -6%, rgba(255,214,140,0.32), rgba(255,214,140,0.10) 55%, rgba(0,0,0,0) 72%)',
     'radial-gradient(900px 640px at 18% -8%, rgba(122,148,92,0.20), rgba(0,0,0,0) 62%)',
     'radial-gradient(760px 560px at 92% 16%, rgba(217,164,65,0.16), rgba(0,0,0,0) 58%)',
     'radial-gradient(820px 620px at 50% 112%, rgba(201,119,90,0.14), rgba(0,0,0,0) 60%)',
@@ -157,24 +159,43 @@ function TwigDivider({ className = '' }: { className?: string }) {
 function LogCluster({ className = '', children }: { className?: string; children: React.ReactNode }) {
   return (
     <div
-      className={`relative rounded-[30px] ${className}`}
+      className={`relative rounded-[32px] ${className}`}
       style={{
         background:
-          'repeating-linear-gradient(45deg, #6b4c2b 0 3px, #5d4222 3px 6px, #7a5a33 6px 9px), linear-gradient(160deg, rgba(255,240,200,0.10), rgba(40,26,12,0.55))',
+          'repeating-linear-gradient(45deg, #5d4222 0 3px, #4a321c 3px 6px, #7a5a33 6px 9px), repeating-linear-gradient(-45deg, rgba(255,225,170,0.16) 0 2px, transparent 2px 9px), linear-gradient(160deg, rgba(255,240,200,0.12), rgba(30,18,6,0.70))',
         boxShadow:
-          '0 16px 40px rgba(12,7,2,0.60), 0 3px 10px rgba(12,7,2,0.45), inset 0 1px 0 rgba(255,240,200,0.16)',
+          '0 18px 44px rgba(12,7,2,0.62), 0 3px 12px rgba(12,7,2,0.50), inset 0 1px 0 rgba(255,240,200,0.20), inset 0 -1px 0 rgba(0,0,0,0.45)',
       }}
     >
+      {/* interwoven twig strands braided across the frame */}
       <div
-        className="m-[5px] rounded-[25px] overflow-hidden"
+        className="absolute inset-0 rounded-[32px] pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg,#f8ecd0 0%,#f2e2bc 55%,#e9d5a8 100%)',
-          boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.65), 0 2px 10px rgba(40,26,12,0.30)',
+          background:
+            'repeating-conic-gradient(from 30deg, rgba(255,228,180,0.16) 0deg 4deg, transparent 4deg 22deg), repeating-conic-gradient(from 150deg, rgba(25,15,6,0.55) 0deg 3deg, transparent 3deg 26deg)',
+        }}
+      />
+      <div
+        className="m-[6px] rounded-[26px] overflow-hidden relative"
+        style={{
+          background: 'linear-gradient(180deg,#faf0d7 0%,#f3e5c2 55%,#e9d5a8 100%)',
+          boxShadow:
+            'inset 0 1px 2px rgba(255,255,255,0.70), inset 0 -2px 6px rgba(90,60,30,0.16), 0 2px 12px rgba(40,26,12,0.35)',
         }}
       >
         {/* bark cap highlight along the top rim */}
-        <div className="h-[7px] rounded-t-[25px] bg-gradient-to-r from-transparent via-[#c9ab72]/50 to-transparent" />
-        <div className="relative px-5 pb-5 sm:px-6 sm:pb-6">{children}</div>
+        <div className="h-[8px] rounded-t-[26px] bg-gradient-to-r from-transparent via-[#c9ab72]/55 to-transparent" />
+        <div className="relative px-6 pb-6 pt-1 sm:px-7 sm:pb-7">{children}</div>
+        {/* tiny leaf & feather accents tucked on the frame */}
+        <span className="pointer-events-none absolute -top-1.5 -right-1 w-4 h-4 text-[#8a6a3f] rotate-[28deg] drop-shadow">
+          <DryLeafIcon className="w-full h-full" />
+        </span>
+        <span className="pointer-events-none absolute -top-1 -left-1 w-3.5 h-3.5 text-[#5f7d45] -rotate-[20deg] drop-shadow">
+          <LeafIcon className="w-full h-full" />
+        </span>
+        <span className="pointer-events-none absolute bottom-2 right-1 w-3 h-3 text-[#c9775a] rotate-[36deg] drop-shadow">
+          <LeafIcon className="w-full h-full" />
+        </span>
       </div>
     </div>
   );
@@ -222,7 +243,7 @@ function Pebble({ children, tone = 'moss', className = '' }: { children: React.R
   };
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-semibold transition-transform hover:-translate-y-0.5 ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-semibold text-stone-800 transition-transform hover:-translate-y-0.5 ${className}`}
       style={styles[tone]}
     >
       {children}
@@ -259,7 +280,7 @@ function GrassCell({ children, active = false }: { children?: React.ReactNode; a
           clipPath: 'polygon(0 0, 12% 58%, 30% 22%, 50% 100%, 70% 22%, 88% 58%, 100% 0)',
         }}
       />
-      <div className="relative flex items-center justify-center h-full text-[9px] font-semibold text-[#4a3d2c] px-0.5 text-center">
+      <div className="relative flex items-center justify-center h-full text-[9px] font-semibold text-stone-800 px-0.5 text-center">
         {children}
       </div>
     </div>
@@ -273,9 +294,197 @@ const ICONS: Record<string, React.ReactNode> = {
   twig: <TwigIcon className="w-3.5 h-3.5" />,
 };
 
+// ─── Referral: Grow the Flock ────────────────────────────────────────────────
+interface ReferralStatsData {
+  code: string;
+  link: string;
+  clicks: number;
+  signups: number;
+  invitedUsers: { id: string; name: string; avatarUrl: string | null; joinedAt: string }[];
+  qrDataUrl: string;
+}
+
+function ReferralSection({ userId }: { userId: string }) {
+  const [stats, setStats] = useState<ReferralStatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await getReferralStatsAction(userId, window.location.origin);
+        if (cancelled) return;
+        if (result.success) setStats(result.data);
+        else setError(result.error);
+      } catch (err: any) {
+        if (!cancelled) setError(err?.message || 'Failed to load your referral nest.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const copyLink = async () => {
+    if (!stats) return;
+    try {
+      await navigator.clipboard.writeText(stats.link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      /* clipboard unavailable — nothing to do */
+    }
+  };
+
+  const downloadQr = () => {
+    if (!stats) return;
+    const a = document.createElement('a');
+    a.href = stats.qrDataUrl;
+    a.download = `kakatua-referral-${stats.code}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  return (
+    <LogCluster className="rotate-[0.2deg]">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="w-8 h-8 rounded-full bg-[#e8efda] flex items-center justify-center text-[#3f5a2e]">
+          <FeatherIcon className="w-4 h-4" />
+        </span>
+        <div className="min-w-0">
+          <h3 className="text-xs font-bold text-stone-900 tracking-tight">Grow the Flock</h3>
+          <p className="text-[9px] text-stone-500 mt-0.5">Every nest you help build makes the canopy warmer</p>
+        </div>
+      </div>
+
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="w-8 h-8 border-2 border-[#c9ab72] border-t-[#8fae72] rounded-full animate-spin mb-3" />
+          <p className="text-[10px] text-stone-500">Weaving your referral link...</p>
+        </div>
+      )}
+
+      {!loading && error && (
+        <p className="text-[10px] text-[#a04a2a] text-center bg-[#f7e0ce]/70 rounded-xl px-3 py-2.5">{error}</p>
+      )}
+
+      {!loading && !error && stats && (
+        <>
+          {/* ─── The invite link ─────────────────────────────────────── */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0 rounded-full bg-[#f7ecd8] border border-[#dcc9a0] pl-4 pr-2 py-1.5 flex items-center gap-2 shadow-inner">
+              <span className="material-symbols-outlined text-[13px] text-[#8a6d4d] flex-shrink-0">link</span>
+              <span className="text-[10px] text-stone-800 font-semibold truncate">{stats.link}</span>
+            </div>
+            <button
+              onClick={copyLink}
+              className={`flex-shrink-0 text-[10px] font-bold rounded-full px-3.5 py-2 flex items-center gap-1 transition-all active:scale-95 ${
+                copied ? 'bg-[#5f7d45] text-white' : 'bg-[#e8efda] text-[#3f5a2e] hover:bg-[#d9e8c8]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[13px]">{copied ? 'check' : 'content_copy'}</span>
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+
+          {/* ─── QR code + live stats ───────────────────────────────── */}
+          <div className="mt-4 grid grid-cols-2 gap-3 items-stretch">
+            {/* QR, framed in a woven twig ring */}
+            <div className="flex flex-col items-center justify-center rounded-2xl p-3"
+              style={{
+                background: 'linear-gradient(180deg,#f4e5bc,#e0c892)',
+                boxShadow: 'inset 0 2px 6px rgba(90,60,30,0.18)',
+              }}
+            >
+              <div className="relative p-1.5 rounded-2xl"
+                style={{
+                  background:
+                    'repeating-conic-gradient(from 30deg, rgba(122,90,51,0.55) 0deg 8deg, transparent 8deg 22deg), repeating-conic-gradient(from 150deg, rgba(90,60,30,0.35) 0deg 4deg, transparent 4deg 18deg)',
+                }}
+              >
+                <div className="bg-white rounded-xl p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={stats.qrDataUrl} alt={`Referral QR code for ${stats.code}`} className="w-24 h-24 sm:w-28 sm:h-28" />
+                </div>
+              </div>
+              <button
+                onClick={downloadQr}
+                className="mt-2.5 text-[9px] font-bold text-[#6f573d] bg-[#f4e2b8]/80 hover:bg-[#f4e2b8] px-3 py-1.5 rounded-full flex items-center gap-1 transition-all active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[12px]">download</span>
+                Download QR
+              </button>
+            </div>
+
+            {/* Live stats */}
+            <div className="flex flex-col justify-center gap-2.5">
+              <div className="rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5"
+                style={{
+                  background: 'radial-gradient(circle at 30% 25%, #e2efce, #c2d8a8 60%, #9fc07e)',
+                  boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.7), 0 3px 8px rgba(40,26,12,0.25)',
+                }}
+              >
+                <span className="material-symbols-outlined text-lg text-[#2e4a21]">radar</span>
+                <div className="min-w-0">
+                  <div className="text-base font-bold text-stone-900 leading-none">{stats.clicks}</div>
+                  <div className="text-[9px] text-stone-700 mt-1">link peeks</div>
+                </div>
+              </div>
+              <div className="rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5"
+                style={{
+                  background: 'radial-gradient(circle at 30% 25%, #f7e0c6, #e8c189 60%, #d5a96a)',
+                  boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.7), 0 3px 8px rgba(40,26,12,0.25)',
+                }}
+              >
+                <span className="material-symbols-outlined text-lg text-[#7a3d1a]">group_add</span>
+                <div className="min-w-0">
+                  <div className="text-base font-bold text-stone-900 leading-none">{stats.signups}</div>
+                  <div className="text-[9px] text-stone-700 mt-1">new nests</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ─── Invited birds ──────────────────────────────────────── */}
+          <div className="mt-4">
+            <h4 className="text-[10px] font-semibold uppercase tracking-wider text-stone-600 mb-2">New birds in the flock</h4>
+            {stats.invitedUsers.length === 0 ? (
+              <p className="text-[10px] italic text-stone-500">
+                No hatchlings yet — share your link and watch the canopy grow.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {stats.invitedUsers.map((u) => (
+                  <div key={u.id} className="flex items-center gap-2.5 rounded-full bg-[#f7ecd8]/80 border border-[#dcc9a0]/60 pl-2 pr-3.5 py-1.5">
+                    {u.avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={u.avatarUrl} alt={u.name} className="w-7 h-7 rounded-full object-cover" />
+                    ) : (
+                      <span className="w-7 h-7 rounded-full bg-[#e8efda] flex items-center justify-center text-[#5f7d45]">
+                        <FeatherIcon className="w-3.5 h-3.5" />
+                      </span>
+                    )}
+                    <span className="text-[11px] font-semibold text-stone-800 truncate flex-1">{u.name}</span>
+                    <span className="text-[9px] text-stone-500">
+                      {new Date(u.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </LogCluster>
+  );
+}
+
 const inputCls =
-  'w-full bg-[#f7ecd8] border border-[#dcc9a0] rounded-2xl px-3 py-2.5 text-xs text-[#4a3d2c] placeholder:text-[#b3a583] focus:outline-none focus:ring-2 focus:ring-[#a08050]/60 focus:border-transparent resize-none transition-all';
-const labelCls = 'text-[10px] font-semibold uppercase tracking-wider text-[#8a7a5e] mb-1 block';
+  'w-full bg-[#f7ecd8] border border-[#dcc9a0] rounded-2xl px-3 py-2.5 text-xs text-stone-800 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-[#a08050]/60 focus:border-transparent resize-none transition-all';
+const labelCls = 'text-[10px] font-semibold uppercase tracking-wider text-stone-600 mb-1 block';
 
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -388,9 +597,20 @@ export default function ProfilePage() {
   return (
     <LayoutShell activeTab="profile" userId={session?.user?.id}>
       <div
-        className="relative -mx-5 sm:-mx-8 lg:-mx-10 -mt-2 min-h-[calc(100dvh-4rem)] px-5 sm:px-8 lg:px-10 pb-32"
+        className="relative -mx-5 sm:-mx-8 lg:-mx-10 -mt-2 min-h-[calc(100dvh-4rem)] px-5 sm:px-8 lg:px-10 pb-36"
         style={NEST_FLOOR}
       >
+        {/* ambient keyframes: sunlight pulse + drifting leaves */}
+        <style>{`
+          @keyframes nestGlow {
+            0%, 100% { opacity: 0.55; transform: translate(-50%, 0) scale(1); }
+            50% { opacity: 0.95; transform: translate(-50%, 0) scale(1.04); }
+          }
+          @keyframes nestFloat {
+            0%, 100% { transform: translateY(0) rotate(-24deg); }
+            50% { transform: translateY(-3px) rotate(-20deg); }
+          }
+        `}</style>
         {/* Scattered dry twigs & pressed leaves tucked into the spacing */}
         <div className="pointer-events-none absolute -top-2 left-[6%] w-16 h-16 text-[#7a5a33]/45">
           <DryBranchIcon className="w-full h-full" />
@@ -405,11 +625,11 @@ export default function ProfilePage() {
           <DryLeafIcon className="w-full h-full" />
         </div>
 
-        <div className="relative z-10 flex flex-col gap-6">
+        <div className="relative z-10 flex flex-col gap-7">
           {loading && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <div className="w-9 h-9 border-2 border-[#c9ab72] border-t-[#8fae72] rounded-full animate-spin mb-4" />
-              <p className="text-[11px] text-[#dcc9a0]">Gathering twigs for your nest...</p>
+              <p className="text-[11px] text-stone-200">Gathering twigs for your nest...</p>
             </div>
           )}
 
@@ -422,84 +642,130 @@ export default function ProfilePage() {
 
           {!loading && !error && !profile && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <span className="material-symbols-outlined text-4xl text-[#b29a6a] mb-2">person_off</span>
-              <p className="text-[11px] text-[#dcc9a0]">Could not find your nest.</p>
+              <span className="material-symbols-outlined text-4xl text-[#d9b36a] mb-2">person_off</span>
+              <p className="text-[11px] text-stone-300">Could not find your nest.</p>
             </div>
           )}
 
           {!loading && !error && profile && (
             <>
-              {/* ─── Header log: rough-hewn wooden frame ────────────────── */}
+              {/* ─── Header: the woven heart of the nest ──────────────── */}
               <LogCluster className="-rotate-[0.5deg]">
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative w-[96px] h-[96px] flex-shrink-0">
-                    {/* rough bark ring */}
+                <div className="flex flex-col items-center text-center relative">
+                  {/* warm diffused sunlight glowing down on the portrait */}
+                  <div
+                    className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[220px] rounded-full"
+                    style={{
+                      background:
+                        'radial-gradient(closest-side, rgba(255,205,120,0.42), rgba(255,205,120,0.12) 60%, rgba(0,0,0,0) 75%)',
+                      filter: 'blur(6px)',
+                      animation: 'nestGlow 4.5s ease-in-out infinite',
+                    }}
+                  />
+
+                  {/* ─── Woven twig portrait frame ─────────────────────── */}
+                  <div className="relative w-[136px] h-[136px] mt-2 flex-shrink-0">
+                    {/* halo */}
+                    <div
+                      className="absolute -inset-5 rounded-full"
+                      style={{
+                        background:
+                          'radial-gradient(circle, rgba(255,214,140,0.50), rgba(217,164,65,0.18) 55%, rgba(0,0,0,0) 72%)',
+                        filter: 'blur(3px)',
+                      }}
+                    />
+                    {/* outer woven twig ring */}
                     <div
                       className="absolute inset-0 rounded-full"
                       style={{
-                        background:
-                          'conic-gradient(from 30deg, #6b4c2b 0deg, #8a6a3f 35deg, #5d4222 70deg, #9c7a4c 110deg, #6b4c2b 150deg, #7a5a33 190deg, #553a1e 230deg, #8a6a3f 270deg, #6b4c2b 320deg, #8a6a3f 360deg)',
-                        boxShadow: '0 12px 24px rgba(12,7,2,0.55), inset 0 2px 3px rgba(255,236,190,0.25)',
+                        background: [
+                          'repeating-conic-gradient(from 0deg, #4a321c 0deg 9deg, #6b4c2b 9deg 15deg, #553a1e 15deg 26deg, #8a6a3f 26deg 32deg, #4a321c 32deg 40deg)',
+                          'repeating-conic-gradient(from 12deg, rgba(255,228,180,0.22) 0deg 3deg, transparent 3deg 18deg)',
+                          'repeating-conic-gradient(from 170deg, rgba(20,12,4,0.60) 0deg 2deg, transparent 2deg 24deg)',
+                        ].join(','),
+                        boxShadow:
+                          '0 18px 34px rgba(12,7,2,0.60), 0 0 30px rgba(240,180,90,0.35), inset 0 0 0 2px rgba(255,236,190,0.28), inset 0 5px 12px rgba(20,12,4,0.65), inset 0 -3px 8px rgba(255,225,170,0.25)',
+                      }}
+                    />
+                    {/* moss lining ring */}
+                    <div
+                      className="absolute inset-[9px] rounded-full"
+                      style={{
+                        background: 'radial-gradient(circle at 38% 30%, #8fae72, #5f7d45 62%, #4a5f34)',
+                        boxShadow: 'inset 0 2px 6px rgba(30,20,6,0.55), inset 0 -1px 0 rgba(255,255,255,0.35)',
                       }}
                     />
                     {/* sawn wood-grain disc */}
                     <div
-                      className="absolute inset-[7px] rounded-full overflow-hidden"
+                      className="absolute inset-[15px] rounded-full overflow-hidden"
                       style={{
-                        background: 'radial-gradient(circle at 45% 40%, #f0dfb2, #ddc48f 55%, #c9ab72)',
-                        boxShadow: 'inset 0 3px 8px rgba(90,60,30,0.5)',
+                        background: 'radial-gradient(circle at 45% 40%, #f4e5bc, #e0c892 55%, #cdb078)',
+                        boxShadow: 'inset 0 4px 10px rgba(90,60,30,0.55)',
                       }}
                     >
                       <div
                         className="absolute inset-0 rounded-full"
-                        style={{ background: 'repeating-radial-gradient(circle at 45% 40%, rgba(122,90,51,0.28) 0 2px, transparent 2px 9px)' }}
+                        style={{ background: 'repeating-radial-gradient(circle at 45% 40%, rgba(122,90,51,0.30) 0 2px, transparent 2px 10px)' }}
                       />
-                      {/* moss lining */}
                       <div
-                        className="absolute inset-[10px] rounded-full overflow-hidden bg-[#e8efda]"
-                        style={{ boxShadow: 'inset 0 2px 5px rgba(63,90,46,0.35)' }}
-                      >
-                        {profile.avatarUrl ? (
-                          <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="w-full h-full flex items-center justify-center text-[#3f5a2e]">
-                            <FeatherIcon className="w-6 h-6" />
-                          </span>
-                        )}
-                      </div>
+                        className="absolute inset-1.5 rounded-full"
+                        style={{
+                          background:
+                            'conic-gradient(from 60deg, rgba(255,240,200,0.16) 0deg 60deg, transparent 60deg 180deg, rgba(255,240,200,0.12) 180deg 260deg, transparent 260deg 360deg)',
+                          mixBlendMode: 'overlay',
+                        }}
+                      />
                     </div>
-                    {/* pressed dry leaves nestled on the wood */}
-                    <span className="absolute -top-1 -left-1.5 w-4 h-4 text-[#8a6a3f] -rotate-[24deg] drop-shadow-md">
+                    {/* photo */}
+                    <div
+                      className="absolute inset-[22px] rounded-full overflow-hidden bg-[#e8efda]"
+                      style={{ boxShadow: 'inset 0 3px 8px rgba(30,20,6,0.50), 0 0 0 3px rgba(255,240,200,0.40)' }}
+                    >
+                      {profile.avatarUrl ? (
+                        <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="w-full h-full flex items-center justify-center text-[#3f5a2e]">
+                          <FeatherIcon className="w-7 h-7" />
+                        </span>
+                      )}
+                    </div>
+                    {/* pressed leaves nestled on the woven frame */}
+                    <span className="absolute -top-1.5 -left-3 w-5 h-5 text-[#8a6a3f] -rotate-[24deg] drop-shadow-md animate-[nestFloat_6s_ease-in-out_infinite]">
                       <DryLeafIcon className="w-full h-full" />
                     </span>
-                    <span className="absolute top-1 -right-2.5 w-3.5 h-3.5 text-[#5f7d45] rotate-[30deg] drop-shadow-md">
+                    <span className="absolute top-2 -right-3.5 w-4 h-4 text-[#5f7d45] rotate-[30deg] drop-shadow-md">
                       <LeafIcon className="w-full h-full" />
                     </span>
-                    <span className="absolute -bottom-1 -left-2 w-3.5 h-3.5 text-[#a08050] rotate-[15deg] drop-shadow-md">
+                    <span className="absolute -bottom-1.5 -left-2.5 w-4 h-4 text-[#a08050] rotate-[15deg] drop-shadow-md">
                       <DryLeafIcon className="w-full h-full" />
                     </span>
-                    <span className="absolute -bottom-0.5 -right-1.5 w-3 h-3 text-[#c9775a] rotate-[40deg] drop-shadow-md">
+                    <span className="absolute -bottom-1 -right-2 w-4 h-4 text-[#c9775a] rotate-[40deg] drop-shadow-md">
                       <LeafIcon className="w-full h-full" />
                     </span>
                   </div>
 
                   {/* intertwined dry branches flanking the portrait */}
-                  <span className="pointer-events-none absolute top-[36%] -left-10 w-20 h-20 text-[#6b4c2b]/70 -rotate-12">
+                  <span className="pointer-events-none absolute top-[30%] -left-12 w-24 h-24 text-[#6b4c2b]/70 -rotate-12">
                     <DryBranchIcon className="w-full h-full" flip />
                   </span>
-                  <span className="pointer-events-none absolute top-[38%] -right-10 w-20 h-20 text-[#6b4c2b]/70 rotate-[24deg]">
+                  <span className="pointer-events-none absolute top-[32%] -right-12 w-24 h-24 text-[#6b4c2b]/70 rotate-[24deg]">
                     <DryBranchIcon className="w-full h-full" />
                   </span>
 
-                  <h2 className="mt-3 text-base font-bold text-[#3f5a2e] truncate">{profile.name}</h2>
-                  <p className="text-[11px] text-[#8a7a5e] truncate max-w-full">{profile.email}</p>
+                  {/* display name — the heart of the nest */}
+                  <h2 className="mt-5 font-serif font-bold text-3xl sm:text-4xl text-stone-900 tracking-tight leading-tight break-words max-w-full">
+                    {profile.name}
+                  </h2>
+                  <p className="mt-1.5 text-[12px] text-stone-600 truncate max-w-full">{profile.email}</p>
 
-                  <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
-                    <span className={`w-1.5 h-1.5 rounded-full ${profile.status === 'active' ? 'bg-[#5f7d45]' : 'bg-[#b26a3a]'}`} />
-                    <span className="text-[10px] text-[#6f573d] font-medium capitalize">{profile.status}</span>
+                  <div className="flex items-center gap-2.5 mt-3 flex-wrap justify-center">
+                    <span className="flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full ${profile.status === 'active' ? 'bg-[#5f7d45] ring-2 ring-[#5f7d45]/30' : 'bg-[#b26a3a]'}`} />
+                      <span className="text-[11px] text-stone-700 font-semibold capitalize">{profile.status}</span>
+                    </span>
                     {profile.isAmbassador && profile.ambassadorRole && ROLE_LABELS[profile.ambassadorRole] && (
                       <span
-                        className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
+                        className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1"
                         style={{ color: ROLE_LABELS[profile.ambassadorRole].color, backgroundColor: ROLE_LABELS[profile.ambassadorRole].bg }}
                       >
                         <span className="material-symbols-outlined text-[10px]">{ROLE_LABELS[profile.ambassadorRole].icon}</span>
@@ -507,12 +773,12 @@ export default function ProfilePage() {
                       </span>
                     )}
                     {profile.isAmbassador && !profile.ambassadorRole && (
-                      <span className="text-[10px] bg-[#f4e2b8] text-[#8a6d4d] px-1.5 py-0.5 rounded-full font-bold">Ambassador</span>
+                      <span className="text-[10px] bg-[#f4e2b8] text-[#7a5a1e] px-2.5 py-1 rounded-full font-bold">Ambassador</span>
                     )}
                   </div>
 
-                  <TwigDivider className="w-2/3 mt-3" />
-                  <p className="text-[10px] italic text-[#a08050] mt-2">« every nest has a story »</p>
+                  <TwigDivider className="w-2/3 mt-4" />
+                  <p className="text-[11px] italic text-stone-500 mt-2">« every nest has a story »</p>
                 </div>
               </LogCluster>
 
@@ -523,8 +789,8 @@ export default function ProfilePage() {
                     <div className="w-16 h-16 rounded-full bg-[#f4e2b8]/70 flex items-center justify-center mb-3 shadow-inner">
                       <TwigIcon className="w-7 h-7 text-[#a08050]" />
                     </div>
-                    <h3 className="text-sm font-bold text-[#6f573d] mb-1">Your cultural card is waiting</h3>
-                    <p className="text-[11px] text-[#8a7a5e] leading-relaxed max-w-[80%] mb-4">
+                    <h3 className="text-sm font-bold text-stone-900 mb-1">Your cultural card is waiting</h3>
+                    <p className="text-[11px] text-stone-600 leading-relaxed max-w-[80%] mb-4">
                       Share your traditions, flavours, and history with the flock. Every nest has a story — let yours be heard.
                     </p>
                     <Link
@@ -546,18 +812,18 @@ export default function ProfilePage() {
                       <span className="w-8 h-8 rounded-full bg-[#e8efda] flex items-center justify-center text-[#3f5a2e]">
                         <TwigIcon className="w-4 h-4" />
                       </span>
-                      <h3 className="text-xs font-bold text-[#3f5a2e] tracking-tight">My Identity</h3>
+                      <h3 className="text-xs font-bold text-stone-900 tracking-tight">My Identity</h3>
                     </div>
                     {!isProtectedAmbassador ? (
                       <button
                         onClick={openEdit}
-                        className="text-[11px] font-semibold text-[#8a6d4d] hover:text-[#6f573d] transition-colors flex items-center gap-1 bg-[#f4e2b8]/60 hover:bg-[#f4e2b8] px-3 py-1 rounded-full"
+                        className="text-[11px] font-semibold text-stone-800 hover:text-stone-900 transition-colors flex items-center gap-1 bg-[#f4e2b8]/70 hover:bg-[#f4e2b8] px-3 py-1 rounded-full"
                       >
                         <span className="material-symbols-outlined text-sm">edit</span>
                         Edit
                       </button>
                     ) : (
-                      <span className="text-[10px] font-bold text-[#8a7a5e] flex items-center gap-1">
+                      <span className="text-[10px] font-bold text-stone-700 flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">shield</span>
                         Guardian
                       </span>
@@ -574,13 +840,13 @@ export default function ProfilePage() {
                             {ICONS[s.icon]}
                           </span>
                           <div className="min-w-0">
-                            <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#8a7a5e]">{s.label}</h4>
+                            <h4 className="text-[10px] font-semibold uppercase tracking-wider text-stone-600">{s.label}</h4>
                             {s.key === 'bio' ? (
                               <ReedFrame>
-                                <p className="text-xs text-[#4a3d2c] leading-relaxed">{s.text}</p>
+                                <p className="text-xs text-stone-800 leading-relaxed">{s.text}</p>
                               </ReedFrame>
                             ) : (
-                              <p className="text-xs text-[#4a3d2c] leading-relaxed mt-0.5">{s.text}</p>
+                              <p className="text-xs text-stone-800 leading-relaxed mt-0.5">{s.text}</p>
                             )}
                           </div>
                         </div>
@@ -598,7 +864,7 @@ export default function ProfilePage() {
                     <span className="w-8 h-8 rounded-full bg-[#f4e2b8] flex items-center justify-center text-[#8a6d4d]">
                       <FeatherIcon className="w-4 h-4" />
                     </span>
-                    <h3 className="text-xs font-bold text-[#6f573d]">Edit Your Card</h3>
+                    <h3 className="text-xs font-bold text-stone-900">Edit Your Card</h3>
                   </div>
 
                   <div className="flex flex-col gap-3.5">
@@ -661,13 +927,13 @@ export default function ProfilePage() {
                       </button>
                       <button
                         onClick={() => { setEditing(false); setSaveMsg(''); }}
-                        className="text-[11px] font-medium text-[#8a7a5e] hover:text-[#6f573d] transition-colors px-3 py-2.5"
+                        className="text-[11px] font-medium text-stone-600 hover:text-stone-800 transition-colors px-3 py-2.5"
                       >
                         Cancel
                       </button>
                     </div>
                     {saveMsg && saveMsg !== 'Saved!' && (
-                      <p className="text-[10px] text-[#b26a3a] text-center">{saveMsg}</p>
+                      <p className="text-[10px] text-[#a04a2a] text-center">{saveMsg}</p>
                     )}
                   </div>
                 </LogCluster>
@@ -679,12 +945,12 @@ export default function ProfilePage() {
                   <span className="w-8 h-8 rounded-full bg-[#e8efda] flex items-center justify-center text-[#5f7d45]">
                     <EggIcon className="w-4 h-4" />
                   </span>
-                  <h3 className="text-xs font-bold text-[#3f5a2e] tracking-tight">Nest Languages</h3>
+                  <h3 className="text-xs font-bold text-stone-900 tracking-tight">Nest Languages</h3>
                 </div>
                 <div className="flex flex-wrap items-center gap-2.5">
                   {profile.nativeLanguages.map((l) => (
                     <Pebble key={l} tone="moss">
-                      <EggIcon className="w-3 h-3 text-[#3f5a2e]" /> {l}
+                      <EggIcon className="w-3 h-3 text-[#2e4a21]" /> {l}
                     </Pebble>
                   ))}
                   {profile.nativeLanguages.length > 0 && profile.learningLanguages.length > 0 && (
@@ -694,11 +960,11 @@ export default function ProfilePage() {
                   )}
                   {profile.learningLanguages.map((l) => (
                     <Pebble key={l} tone="clay">
-                      <EggIcon className="w-3 h-3 text-[#8a4a22]" /> {l}
+                      <EggIcon className="w-3 h-3 text-[#7a3d1a]" /> {l}
                     </Pebble>
                   ))}
                   {profile.nativeLanguages.length === 0 && profile.learningLanguages.length === 0 && (
-                    <span className="text-[11px] text-[#b3a583]">No languages lined up yet — visit Nest Settings to add eggs.</span>
+                    <span className="text-[11px] text-stone-500">No languages lined up yet — visit Nest Settings to add eggs.</span>
                   )}
                 </div>
               </LogCluster>
@@ -709,7 +975,7 @@ export default function ProfilePage() {
                   <span className="w-8 h-8 rounded-full bg-[#f7e0ce] flex items-center justify-center text-[#b26a3a]">
                     <BerryIcon className="w-4 h-4" />
                   </span>
-                  <h3 className="text-xs font-bold text-[#6f573d] tracking-tight">Nest Berries</h3>
+                  <h3 className="text-xs font-bold text-stone-900 tracking-tight">Nest Berries</h3>
                 </div>
                 <div className="flex flex-wrap gap-2.5">
                   {profile.interests.map((i) => (
@@ -718,7 +984,7 @@ export default function ProfilePage() {
                     </Pebble>
                   ))}
                   {profile.interests.length === 0 && (
-                    <span className="text-[11px] text-[#b3a583]">The berry basket is empty — add interests in Nest Settings.</span>
+                    <span className="text-[11px] text-stone-500">The berry basket is empty — add interests in Nest Settings.</span>
                   )}
                 </div>
               </LogCluster>
@@ -729,14 +995,14 @@ export default function ProfilePage() {
                   <span className="w-8 h-8 rounded-full bg-[#f4e2b8] flex items-center justify-center text-[#8a6d4d]">
                     <GrassTuftIcon className="w-4 h-4" />
                   </span>
-                  <h3 className="text-xs font-bold text-[#8a6d4d] tracking-tight">Nest Rhythm</h3>
+                  <h3 className="text-xs font-bold text-stone-900 tracking-tight">Nest Rhythm</h3>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 mb-4">
-                  <span className="bg-[#f4e2b8] text-[#8a6d4d] px-3 py-1.5 rounded-full text-[11px] font-bold">{tzLabel}</span>
-                  <p className="text-[10px] text-[#8a7a5e]">
+                  <span className="bg-[#f4e2b8] text-stone-800 px-3 py-1.5 rounded-full text-[11px] font-bold">{tzLabel}</span>
+                  <p className="text-[10px] text-stone-600">
                     Your perch stays on this clock. Availability slots are tuned in{' '}
-                    <span className="font-semibold text-[#6f573d]">Nest Settings</span>.
+                    <span className="font-semibold text-stone-800">Nest Settings</span>.
                   </p>
                 </div>
 
@@ -750,7 +1016,7 @@ export default function ProfilePage() {
                 >
                   <div className="grid grid-cols-7 gap-1.5">
                     {DAYS.map((d, i) => (
-                      <div key={`h-${i}`} className="text-center text-[9px] font-bold uppercase tracking-wider text-[#8a7a5e]">
+                      <div key={`h-${i}`} className="text-center text-[9px] font-bold uppercase tracking-wider text-stone-600">
                         {d}
                       </div>
                     ))}
@@ -760,7 +1026,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center gap-2 mt-3 justify-center">
                     <GrassTuftIcon className="w-4 h-3 text-[#8a6a3f]" />
-                    <p className="text-[9px] italic text-[#8a7a5e]">each slot is a blade of the nest</p>
+                    <p className="text-[9px] italic text-stone-500">each slot is a blade of the nest</p>
                   </div>
                 </div>
               </LogCluster>
@@ -774,10 +1040,10 @@ export default function ProfilePage() {
                   <FeatherIcon className="w-4 h-4" />
                 </span>
                 <span className="text-left min-w-0">
-                  <span className="block text-xs font-bold text-[#6f573d]">Polishing My Wings</span>
-                  <span className="block text-[10px] text-[#8a7a5e] mt-0.5">Grammar & style check for your writing</span>
+                  <span className="block text-xs font-bold text-stone-900">Polishing My Wings</span>
+                  <span className="block text-[10px] text-stone-600 mt-0.5">Grammar & style check for your writing</span>
                 </span>
-                <span className="material-symbols-outlined text-lg text-[#c2b28a] group-hover:text-[#8a6d4d] transition-colors ml-auto">arrow_forward</span>
+                <span className="material-symbols-outlined text-lg text-stone-500 group-hover:text-stone-700 transition-colors ml-auto">arrow_forward</span>
               </button>
 
               <Link
@@ -788,11 +1054,14 @@ export default function ProfilePage() {
                   <span className="material-symbols-outlined text-lg">tune</span>
                 </span>
                 <span className="text-left min-w-0">
-                  <span className="block text-xs font-bold text-[#3f5a2e]">Nest Settings</span>
-                  <span className="block text-[10px] text-[#8a7a5e] mt-0.5">Languages, availability, privacy & profile photo</span>
+                  <span className="block text-xs font-bold text-stone-900">Nest Settings</span>
+                  <span className="block text-[10px] text-stone-600 mt-0.5">Languages, availability, privacy & profile photo</span>
                 </span>
-                <span className="material-symbols-outlined text-lg text-[#c2b28a] group-hover:text-[#5f7d45] transition-colors ml-auto">arrow_forward</span>
+                <span className="material-symbols-outlined text-lg text-stone-500 group-hover:text-stone-700 transition-colors ml-auto">arrow_forward</span>
               </Link>
+
+              {/* ─── Refer a Friend ───────────────────────────────────── */}
+              <ReferralSection userId={session!.user.id!} />
             </>
           )}
         </div>

@@ -5,18 +5,19 @@ import {
   createEmailVerificationToken,
   sendVerificationEmail,
 } from '../../lib/email';
+import { generateUniqueReferralCode, linkReferralSignup } from '../../actions/referrals';
 
 // Reserved ambassador emails — cannot be registered by public users.
+// Exactly the two global guardians of the flock.
 const RESERVED_EMAILS = [
   'guide@kakatua.app',
   'buddy@kakatua.app',
-  'dhaka@kakatua.app',
 ];
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password } = body;
+    const { name, email, password, referralCode } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -54,19 +55,51 @@ export async function POST(request: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const cleanName = name.trim();
 
-    const user = await prisma.user.create({
-      data: {
-        email: normalizedEmail,
-        name: name.trim(),
-        password: hashedPassword,
-        nativeLanguages: JSON.stringify([]),
-        learningLanguages: JSON.stringify([]),
-        interests: JSON.stringify([]),
-        timezoneOffset: 0,
-        status: 'active',
-      },
-    });
+    // Each bird gets a unique, human-readable invite code based on their name.
+    let user = null;
+    for (let attempt = 0; attempt < 5 && !user; attempt++) {
+      const referralCode = await generateUniqueReferralCode(cleanName);
+      try {
+        user = await prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            name: cleanName,
+            password: hashedPassword,
+            referralCode,
+            nativeLanguages: JSON.stringify([]),
+            learningLanguages: JSON.stringify([]),
+            interests: JSON.stringify([]),
+            timezoneOffset: 0,
+            status: 'active',
+          },
+        });
+      } catch (err: any) {
+        // Rare race: two birds claimed the same code — regenerate and retry.
+        if (err?.code === 'P2002' && String(err?.meta?.target ?? '').includes('referral')) {
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'The nest builder hit a hiccup minting your invite code. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    // If the new bird arrived via a referral link, link them to their inviter.
+    // Never block the nest-building flow on referral bookkeeping.
+    if (referralCode) {
+      try {
+        await linkReferralSignup(referralCode, user.id);
+      } catch (refErr: any) {
+        console.warn('[referral] Signup linking skipped for', user.id, ':', refErr?.message);
+      }
+    }
 
     // Create an unverified verification record and fire off the confirmation email.
     // Email delivery must never block registration.
@@ -89,7 +122,7 @@ export async function POST(request: Request) {
       {
         success: true,
         message: 'Your nest has been built. Welcome to the flock.',
-        user: { id: user.id, email: user.email, name: user.name },
+        user: { id: user.id, email: user.email, name: user.name, referralCode: user.referralCode },
       },
       { status: 201 }
     );

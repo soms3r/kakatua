@@ -1,11 +1,20 @@
 // Guardian Support System — server actions (app/actions/guardians.ts)
-// Community members can raise tickets to "guardians" (verified ambassadors).
-// Ambassadors see a live roster, a claimable inbox, and pending reports.
+//
+// Exactly two global guardians serve the flock: Global Buddy (MATCHMAKER, casual
+// conversation & culture) and Kakatua Guide (GUIDE, platform expertise & support).
+//
+// Flow: a member raises a ticket → the Kakatua bot answers from their live app
+// context (languages, missions, settings, profile). Confident answers close the
+// ticket instantly (source BOT); ambiguous, complex, technical, or safety queries
+// land in the PENDING_MODERATION queue for an authorized developer/moderator.
 
 'use server';
 
 import { prisma } from './db';
 import { ActionResponse } from './types';
+import { buildUserContext, answerFromContext } from './guardianBot';
+import { GLOBAL_GUARDIAN_ROLES } from './roles';
+import { trackUserAction } from './missions';
 
 export type TicketType = 'GUIDANCE' | 'PRACTICE_SESSION' | 'SAFETY_FLAG';
 
@@ -34,27 +43,18 @@ export interface GuardianTicketData {
   message: string;
   status: string;
   createdAt: string;
-  acceptedAt: string | null;
-  resolvedAt: string | null;
-  resolution: string | null;
+  answerText: string | null;
+  answerSource: string | null;
+  confidence: number | null;
+  answeredAt: string | null;
   guardian: GuardianMini | null;
   user: { id: string; name: string } | null;
+  answeredBy: GuardianMini | null;
 }
 
-export interface CommunityReportData {
-  id: string;
-  reason: string;
-  status: string;
-  createdAt: string;
-  reporter: { id: string; name: string };
-  reported: { id: string; name: string };
-}
-
-export interface GuardianDashboardData {
-  profile: GuardianProfile;
-  openTickets: GuardianTicketData[];
-  assignedTickets: GuardianTicketData[];
-  pendingReports: CommunityReportData[];
+export interface ModerationQueueData {
+  pending: GuardianTicketData[];
+  recent: GuardianTicketData[];
 }
 
 function toTicket(t: any): GuardianTicketData {
@@ -65,9 +65,10 @@ function toTicket(t: any): GuardianTicketData {
     message: t.message,
     status: t.status,
     createdAt: t.createdAt.toISOString(),
-    acceptedAt: t.acceptedAt ? t.acceptedAt.toISOString() : null,
-    resolvedAt: t.resolvedAt ? t.resolvedAt.toISOString() : null,
-    resolution: t.resolution,
+    answerText: t.answerText,
+    answerSource: t.answerSource,
+    confidence: t.confidence != null ? Number(t.confidence) : null,
+    answeredAt: t.answeredAt ? t.answeredAt.toISOString() : null,
     guardian: t.guardian
       ? {
           id: t.guardian.id,
@@ -77,32 +78,60 @@ function toTicket(t: any): GuardianTicketData {
         }
       : null,
     user: t.user ? { id: t.user.id, name: t.user.name } : null,
+    answeredBy: t.answeredBy
+      ? {
+          id: t.answeredBy.id,
+          name: t.answeredBy.name,
+          avatarUrl: t.answeredBy.avatarUrl,
+          ambassadorBadge: t.answeredBy.ambassadorBadge,
+        }
+      : null,
   };
 }
 
-async function getAmbassadorProfile(userId: string): Promise<GuardianProfile | null> {
-  const user = await prisma.user.findFirst({
-    where: { id: userId, isAmbassador: true },
-    select: {
-      id: true,
-      name: true,
-      avatarUrl: true,
-      ambassadorRole: true,
-      ambassadorBadge: true,
-      specialtyLanguages: true,
-      isOnline: true,
-      countrySlug: true,
-    },
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+async function isAuthorizedModerator(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, isModerator: true },
   });
-  return user as GuardianProfile | null;
+  if (!user) return false;
+  return user.isModerator || ADMIN_EMAILS.includes(user.email.toLowerCase());
 }
 
-// ─── Community-facing actions ─────────────────────────────────────────────────
+async function resolveGuardian(guardianId?: string): Promise<{ id: string; role: string | null }> {
+  const toResult = (u: { id: string; ambassadorRole: string | null } | null) =>
+    u ? { id: u.id, role: u.ambassadorRole } : { id: '', role: null };
+
+  if (guardianId) {
+    const found = await prisma.user.findFirst({
+      where: {
+        id: guardianId,
+        isAmbassador: true,
+        ambassadorRole: { in: GLOBAL_GUARDIAN_ROLES },
+      },
+      select: { id: true, ambassadorRole: true },
+    });
+    if (found) return toResult(found);
+  }
+  // Default to Kakatua Guide (platform expertise) when nothing specific is chosen.
+  const guide = await prisma.user.findFirst({
+    where: { ambassadorRole: 'GUIDE', isAmbassador: true },
+    select: { id: true, ambassadorRole: true },
+  });
+  return toResult(guide);
+}
+
+// ─── Roster ───────────────────────────────────────────────────────────────────
 
 export async function getGuardiansAction(): Promise<ActionResponse<GuardianProfile[]>> {
   try {
     const guardians = await prisma.user.findMany({
-      where: { isAmbassador: true },
+      where: { isAmbassador: true, ambassadorRole: { in: GLOBAL_GUARDIAN_ROLES } },
       select: {
         id: true,
         name: true,
@@ -124,6 +153,8 @@ export async function getGuardiansAction(): Promise<ActionResponse<GuardianProfi
     return { success: false, error: error.message || 'Failed to load the guardian roster.' };
   }
 }
+
+// ─── Ask the flock guardian → auto bot → moderation fallback ──────────────────
 
 export interface CreateTicketPayload {
   type: TicketType;
@@ -151,27 +182,12 @@ export async function createGuardianTicketAction(
       return { success: false, error: 'Suspended birds cannot raise guardian tickets.' };
     }
 
-    // Preferred guardian must be a real, online ambassador; otherwise auto-assign.
-    let assignedGuardianId: string | null = null;
-    if (guardianId) {
-      const preferred = await prisma.user.findFirst({
-        where: { id: guardianId, isAmbassador: true },
-        select: { id: true, isOnline: true },
-      });
-      if (preferred) assignedGuardianId = preferred.id;
-    }
-    if (!assignedGuardianId) {
-      const online = await prisma.user.findFirst({
-        where: { isAmbassador: true, isOnline: true },
-        select: { id: true },
-      });
-      if (online) assignedGuardianId = online.id;
-    }
+    const guardian = await resolveGuardian(guardianId);
 
     const ticket = await prisma.guardianTicket.create({
       data: {
         userId,
-        guardianId: assignedGuardianId,
+        guardianId: guardian.id || null,
         type,
         subject: subject.trim(),
         message: message.trim(),
@@ -180,12 +196,49 @@ export async function createGuardianTicketAction(
       include: { guardian: true, user: true },
     });
 
+    // Run the automated context bot immediately.
+    const ctx = await buildUserContext(userId);
+    const verdict = answerFromContext(ctx, {
+      type,
+      subject: subject.trim(),
+      message: message.trim(),
+      guardianRole: guardian.role,
+    });
+    const now = new Date();
+
+    let answered = false;
+    if (verdict.source === 'BOT' && verdict.answer) {
+      await prisma.guardianTicket.update({
+        where: { id: ticket.id },
+        data: {
+          status: 'CLOSED',
+          answerText: verdict.answer,
+          answerSource: 'BOT',
+          confidence: verdict.confidence,
+          answeredAt: now,
+        },
+      });
+      answered = true;
+    } else {
+      await prisma.guardianTicket.update({
+        where: { id: ticket.id },
+        data: { status: 'PENDING_MODERATION', confidence: verdict.confidence },
+      });
+    }
+
+    const saved = await prisma.guardianTicket.findUnique({
+      where: { id: ticket.id },
+      include: { guardian: true, user: true },
+    });
+
+    await trackUserAction(userId, 'GUARDIAN_QUESTION_ASKED', { label: `Guardian question: ${subject.trim()}` });
+
     return {
       success: true,
-      message: assignedGuardianId
-        ? 'Your request has reached a guardian. They will reply at their perch.'
-        : 'Your request is queued for the next available guardian.',
-      data: toTicket(ticket),
+      message: answered
+        ? 'The Kakatua bot answered instantly. Your answer is ready below.'
+        : 'This one needs a human touch — it has been routed to our moderation queue.',
+      data: toTicket(saved),
     };
   } catch (error: any) {
     return { success: false, error: error.message || 'Failed to raise the guardian ticket.' };
@@ -211,157 +264,91 @@ export async function getMyGuardianRequestsAction(
   }
 }
 
-// ─── Guardian-facing actions ──────────────────────────────────────────────────
+// ─── Developer / moderator queue ──────────────────────────────────────────────
 
-export async function getGuardianDashboardAction(
+export async function getModerationAccessAction(
   userId: string
-): Promise<ActionResponse<GuardianDashboardData | null>> {
+): Promise<ActionResponse<{ authorized: boolean }>> {
   try {
-    const profile = await getAmbassadorProfile(userId);
-    if (!profile) {
-      return { success: true, message: 'Not a guardian.', data: null };
+    const authorized = await isAuthorizedModerator(userId);
+    return {
+      success: true,
+      message: authorized ? 'Access granted.' : 'Not a moderator.',
+      data: { authorized },
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Failed to verify moderator access.' };
+  }
+}
+
+export async function getModerationQueueAction(
+  userId: string
+): Promise<ActionResponse<ModerationQueueData | null>> {
+  try {
+    if (!(await isAuthorizedModerator(userId))) {
+      return { success: true, message: 'Not authorized.', data: null };
     }
 
-    const [openTickets, assignedTickets, pendingReports] = await Promise.all([
+    const [pending, recent] = await Promise.all([
       prisma.guardianTicket.findMany({
-        where: { status: 'OPEN' },
-        orderBy: { createdAt: 'asc' },
-        include: { guardian: true, user: true },
+        where: { status: 'PENDING_MODERATION' },
+        orderBy: [{ confidence: 'asc' }, { createdAt: 'asc' }],
+        include: { guardian: true, user: true, answeredBy: true },
       }),
       prisma.guardianTicket.findMany({
-        where: { status: 'ACCEPTED', guardianId: userId },
-        orderBy: { acceptedAt: 'asc' },
-        include: { guardian: true, user: true },
-      }),
-      prisma.userReport.findMany({
-        where: { status: 'PENDING' },
-        orderBy: { createdAt: 'asc' },
-        include: {
-          reporter: { select: { id: true, name: true } },
-          reported: { select: { id: true, name: true } },
-        },
+        where: { status: 'CLOSED', answeredBy: { isNot: null } },
+        orderBy: { answeredAt: 'desc' },
+        take: 8,
+        include: { guardian: true, user: true, answeredBy: true },
       }),
     ]);
 
     return {
       success: true,
-      message: 'Guardian dashboard loaded.',
-      data: {
-        profile,
-        openTickets: openTickets.map(toTicket),
-        assignedTickets: assignedTickets.map(toTicket),
-        pendingReports: pendingReports.map((r) => ({
-          id: r.id,
-          reason: r.reason,
-          status: r.status,
-          createdAt: r.createdAt.toISOString(),
-          reporter: r.reporter,
-          reported: r.reported,
-        })),
-      },
+      message: 'Moderation queue loaded.',
+      data: { pending: pending.map(toTicket), recent: recent.map(toTicket) },
     };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to load guardian dashboard.' };
+    return { success: false, error: error.message || 'Failed to load the moderation queue.' };
   }
 }
 
-export async function acceptGuardianTicketAction(
-  guardianId: string,
-  ticketId: string
-): Promise<ActionResponse<null>> {
-  try {
-    const profile = await getAmbassadorProfile(guardianId);
-    if (!profile) {
-      return { success: false, error: 'Only guardians can accept requests.' };
-    }
-
-    const ticket = await prisma.guardianTicket.findUnique({ where: { id: ticketId } });
-    if (!ticket) return { success: false, error: 'Request not found.' };
-    if (ticket.status !== 'OPEN') {
-      return { success: false, error: 'This request has already been handled.' };
-    }
-
-    await prisma.guardianTicket.update({
-      where: { id: ticketId },
-      data: { guardianId, status: 'ACCEPTED', acceptedAt: new Date() },
-    });
-
-    return { success: true, message: 'Request accepted. The flock member has been notified.', data: null };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to accept the request.' };
-  }
-}
-
-export async function closeGuardianTicketAction(
-  guardianId: string,
+export async function answerModerationTicketAction(
+  moderatorId: string,
   ticketId: string,
-  resolution: string
+  answer: string
 ): Promise<ActionResponse<null>> {
   try {
-    const profile = await getAmbassadorProfile(guardianId);
-    if (!profile) {
-      return { success: false, error: 'Only guardians can close requests.' };
+    if (!(await isAuthorizedModerator(moderatorId))) {
+      return { success: false, error: 'Only authorized moderators can dispatch answers.' };
+    }
+    if (!answer?.trim()) {
+      return { success: false, error: 'Write an answer before dispatching.' };
     }
 
     const ticket = await prisma.guardianTicket.findUnique({ where: { id: ticketId } });
     if (!ticket) return { success: false, error: 'Request not found.' };
-    if (ticket.guardianId !== guardianId || ticket.status !== 'ACCEPTED') {
-      return { success: false, error: 'This request is not assigned to you.' };
-    }
-    if (!resolution?.trim()) {
-      return { success: false, error: 'Please write a short resolution note.' };
+    if (ticket.status !== 'PENDING_MODERATION') {
+      return { success: false, error: 'This request is no longer in the queue.' };
     }
 
     await prisma.guardianTicket.update({
       where: { id: ticketId },
-      data: { status: 'CLOSED', resolution: resolution.trim(), resolvedAt: new Date() },
-    });
-
-    return { success: true, message: 'Request resolved. Great guardian work.', data: null };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to close the request.' };
-  }
-}
-
-export async function resolveCommunityReportAction(
-  guardianId: string,
-  reportId: string,
-  resolution: string,
-  outcome: 'ACTIONED' | 'DISMISSED'
-): Promise<ActionResponse<null>> {
-  try {
-    const profile = await getAmbassadorProfile(guardianId);
-    if (!profile) {
-      return { success: false, error: 'Only guardians can moderate reports.' };
-    }
-
-    const report = await prisma.userReport.findUnique({ where: { id: reportId } });
-    if (!report) return { success: false, error: 'Report not found.' };
-    if (report.status !== 'PENDING') {
-      return { success: false, error: 'This report has already been reviewed.' };
-    }
-    if (!resolution?.trim()) {
-      return { success: false, error: 'Please note what action you took.' };
-    }
-
-    await prisma.userReport.update({
-      where: { id: reportId },
       data: {
-        status: outcome,
-        resolution: resolution.trim(),
-        resolvedById: guardianId,
-        resolvedAt: new Date(),
+        status: 'CLOSED',
+        answerText: answer.trim(),
+        answerSource: 'MODERATOR',
+        answeredById: moderatorId,
+        answeredAt: new Date(),
       },
     });
 
     return {
       success: true,
-      message: outcome === 'ACTIONED'
-        ? 'Report actioned. The flock is safer now.'
-        : 'Report dismissed.',
+      message: 'Answer dispatched to the flock member.',
       data: null,
     };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to resolve the report.' };
+    return { success: false, error: error.message || 'Failed to dispatch the answer.' };
   }
 }

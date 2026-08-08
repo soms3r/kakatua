@@ -134,6 +134,34 @@ export default function CultureCard({
           </div>
         )}
 
+        {/* Country / role ribbon — flag + clear name at the top of every card */}
+        <div
+          className="flex items-center gap-1.5 rounded-lg px-2 py-1 border flex-shrink-0"
+          style={{
+            backgroundColor: isThemed ? palette.accentBg : '#f5f3ef',
+            borderColor: isThemed ? palette.border : '#e0d2b3',
+            boxShadow: isThemed ? 'inset 0 1px 0 rgba(255,255,255,0.55)' : 'none',
+          }}
+        >
+          {isThemed && palette.flagEmoji ? (
+            <span className="text-[15px] leading-none drop-shadow-sm">{palette.flagEmoji}</span>
+          ) : (
+            <span
+              className="material-symbols-outlined text-[11px]"
+              style={{ color: isThemed ? palette.accent : '#8a6d3b' }}
+            >
+              {ambassadorRole && ROLE_BADGES[ambassadorRole] ? ROLE_BADGES[ambassadorRole].icon : 'nest_eco_leaf'}
+            </span>
+          )}
+          <span className="text-[10px] font-bold truncate min-w-0" style={{ color: isThemed ? palette.accentDark : '#5d4a2c' }}>
+            {isThemed && palette.flagEmoji
+              ? palette.name
+              : ambassadorRole && ROLE_BADGES[ambassadorRole]
+                ? ROLE_BADGES[ambassadorRole].label
+                : 'Flock'}
+          </span>
+        </div>
+
         {/* Header: Avatar + Name + Languages + Report */}
         <div className="flex items-center gap-2">
           <div
@@ -148,10 +176,7 @@ export default function CultureCard({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
-              <h3 className="font-bold text-[11px] text-[#1b1c1a] truncate">
-                {palette.flagEmoji && <span className="mr-0.5">{palette.flagEmoji}</span>}
-                {user.name}
-              </h3>
+              <h3 className="font-bold text-[11px] text-[#1b1c1a] truncate">{user.name}</h3>
               {ambassadorRole && ROLE_BADGES[ambassadorRole] && (
                 <span
                   className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded-full flex items-center gap-0.5 flex-shrink-0"

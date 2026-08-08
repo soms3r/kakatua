@@ -7,9 +7,9 @@ import LayoutShell from '../components/LayoutShell';
 import {
   getMissionsAction,
   createCustomMissionAction,
-  updateMissionProgressAction,
   claimMissionRewardAction,
   deleteCustomMissionAction,
+  TRACKING_ACTION_LABELS,
   type MissionData,
 } from '../actions/missions';
 
@@ -26,19 +26,18 @@ function percentOf(m: MissionData): number {
 function MissionCard({
   mission,
   busy,
-  onLogProgress,
   onClaim,
   onDelete,
 }: {
   mission: MissionData;
   busy: boolean;
-  onLogProgress: (id: string) => void;
   onClaim: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
   const completed = mission.status === 'COMPLETED';
   const pct = percentOf(mission);
   const meta = CATEGORY_META[mission.category] ?? CATEGORY_META.GOAL;
+  const trackingLabel = mission.trackingAction ? TRACKING_ACTION_LABELS[mission.trackingAction] ?? mission.trackingAction : null;
 
   return (
     <div className="relative bg-[#fffdf8] rounded-2xl border border-[#e0d2b3] shadow-[0_4px_16px_rgba(138,109,59,0.08)] p-4 overflow-hidden">
@@ -110,15 +109,13 @@ function MissionCard({
               Claim +{mission.expReward} EXP
             </button>
           )
+        ) : trackingLabel ? (
+          <span className="text-[9px] text-[#72796e] bg-[#f3ead6]/60 px-2.5 py-1.5 rounded-full flex items-center gap-1 min-w-0">
+            <span className="material-symbols-outlined text-[12px] text-[#b98a3e] flex-shrink-0">radar</span>
+            <span className="truncate">Auto: {trackingLabel}</span>
+          </span>
         ) : (
-          <button
-            onClick={() => onLogProgress(mission.id)}
-            disabled={busy}
-            className="text-[10px] font-bold text-[#8a6d3b] bg-[#f3ead6] hover:bg-[#e9dcc0] active:scale-95 disabled:opacity-50 transition-all px-3.5 py-1.5 rounded-full flex items-center gap-1"
-          >
-            <span className="material-symbols-outlined text-[13px]">flight_takeoff</span>
-            Log Progress
-          </button>
+          <span className="text-[9px] text-[#72796e] italic">Manual mission</span>
         )}
 
         {mission.source === 'CUSTOM' && (
@@ -140,7 +137,7 @@ function CustomMissionForm({
   onCreated,
   busy,
 }: {
-  onCreated: (input: { title: string; description: string; category: 'DAILY' | 'CONVERSATION' | 'GOAL'; target: number; expReward: number }) => void;
+  onCreated: (input: { title: string; description: string; category: 'DAILY' | 'CONVERSATION' | 'GOAL'; target: number; expReward: number; trackingAction?: string | null }) => void;
   busy: boolean;
 }) {
   const [title, setTitle] = useState('');
@@ -148,6 +145,7 @@ function CustomMissionForm({
   const [category, setCategory] = useState<'DAILY' | 'CONVERSATION' | 'GOAL'>('GOAL');
   const [target, setTarget] = useState('1');
   const [expReward, setExpReward] = useState('25');
+  const [trackingAction, setTrackingAction] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,11 +156,13 @@ function CustomMissionForm({
       category,
       target: Math.max(1, Math.floor(Number(target) || 1)),
       expReward: Math.max(0, Math.floor(Number(expReward) || 0)),
+      trackingAction: trackingAction || null,
     });
     setTitle('');
     setDescription('');
     setTarget('1');
     setExpReward('25');
+    setTrackingAction('');
   };
 
   const inputCls =
@@ -216,6 +216,18 @@ function CustomMissionForm({
           aria-label="EXP reward"
         />
       </div>
+
+      <select
+        value={trackingAction}
+        onChange={(e) => setTrackingAction(e.target.value)}
+        className={inputCls}
+        aria-label="Auto-track by"
+      >
+        <option value="">Track manually (no auto-progress)</option>
+        <option value="VIDEO_MATCH_COMPLETED">Auto: complete a video match</option>
+        <option value="PROFILE_UPDATED">Auto: update profile settings</option>
+        <option value="GUARDIAN_QUESTION_ASKED">Auto: ask a guardian a question</option>
+      </select>
 
       <button
         type="submit"
@@ -274,18 +286,6 @@ export default function MissionsPage() {
     setMissions((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
   };
 
-  const handleLogProgress = async (missionId: string) => {
-    setBusyId(missionId);
-    const result = await updateMissionProgressAction(session!.user.id!, missionId, 1);
-    setBusyId(null);
-    if (result.success) {
-      replaceMission(result.data);
-      showToast(result.message);
-    } else {
-      showToast(result.error);
-    }
-  };
-
   const handleClaim = async (missionId: string) => {
     setBusyId(missionId);
     const result = await claimMissionRewardAction(session!.user.id!, missionId);
@@ -310,7 +310,7 @@ export default function MissionsPage() {
     }
   };
 
-  const handleCreate = async (input: { title: string; description: string; category: 'DAILY' | 'CONVERSATION' | 'GOAL'; target: number; expReward: number }) => {
+  const handleCreate = async (input: { title: string; description: string; category: 'DAILY' | 'CONVERSATION' | 'GOAL'; target: number; expReward: number; trackingAction?: string | null }) => {
     setCreating(true);
     const result = await createCustomMissionAction(session!.user.id!, input);
     setCreating(false);
@@ -398,7 +398,7 @@ export default function MissionsPage() {
               ) : (
                 <div className="flex flex-col gap-3">
                   {prebuilt.map((m) => (
-                    <MissionCard key={m.id} mission={m} busy={busyId === m.id} onLogProgress={handleLogProgress} onClaim={handleClaim} onDelete={handleDelete} />
+                    <MissionCard key={m.id} mission={m} busy={busyId === m.id} onClaim={handleClaim} onDelete={handleDelete} />
                   ))}
                 </div>
               )}
@@ -425,7 +425,7 @@ export default function MissionsPage() {
               {auto.length > 0 && (
                 <div className="flex flex-col gap-3">
                   {auto.map((m) => (
-                    <MissionCard key={m.id} mission={m} busy={busyId === m.id} onLogProgress={handleLogProgress} onClaim={handleClaim} onDelete={handleDelete} />
+                    <MissionCard key={m.id} mission={m} busy={busyId === m.id} onClaim={handleClaim} onDelete={handleDelete} />
                   ))}
                 </div>
               )}
@@ -444,7 +444,7 @@ export default function MissionsPage() {
               {custom.length > 0 && (
                 <div className="flex flex-col gap-3">
                   {custom.map((m) => (
-                    <MissionCard key={m.id} mission={m} busy={busyId === m.id} onLogProgress={handleLogProgress} onClaim={handleClaim} onDelete={handleDelete} />
+                    <MissionCard key={m.id} mission={m} busy={busyId === m.id} onClaim={handleClaim} onDelete={handleDelete} />
                   ))}
                 </div>
               )}

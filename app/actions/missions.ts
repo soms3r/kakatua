@@ -1,6 +1,8 @@
 // Next.js Server Actions: Missions (app/actions/missions.ts)
 // Normalized per-user missions: prebuilt catalog, profile-driven auto-generation,
-// custom mission creator, progress logging, and reward claiming.
+// custom mission creator, event-driven auto-progress, and reward claiming.
+// Missions are advanced ONLY by real app events (trackUserAction) — there is no
+// manual progress button; users must actually do the thing to complete a mission.
 
 'use server';
 
@@ -10,6 +12,16 @@ import { logActivity } from './activity';
 
 export type MissionCategory = 'DAILY' | 'CONVERSATION' | 'GOAL';
 export type MissionSource = 'PREBUILT' | 'AUTO' | 'CUSTOM';
+export type MissionTrackingAction =
+  | 'VIDEO_MATCH_COMPLETED'
+  | 'PROFILE_UPDATED'
+  | 'GUARDIAN_QUESTION_ASKED';
+
+export const TRACKING_ACTION_LABELS: Record<string, string> = {
+  VIDEO_MATCH_COMPLETED: 'Complete a video match with a partner',
+  PROFILE_UPDATED: 'Update your profile settings',
+  GUARDIAN_QUESTION_ASKED: 'Ask a question to a guardian',
+};
 
 export interface MissionData {
   id: string;
@@ -23,6 +35,7 @@ export interface MissionData {
   rewardClaimed: boolean;
   isPrebuilt: boolean;
   source: MissionSource;
+  trackingAction: string | null;
   completedAt: string | null;
 }
 
@@ -32,13 +45,24 @@ export interface MissionProfileContext {
 }
 
 // ─── Curated Prebuilt Catalog ────────────────────────────────────────────────
-const PREBUILT_MISSIONS: Omit<MissionData, 'id' | 'progress' | 'status' | 'rewardClaimed' | 'completedAt' | 'isPrebuilt' | 'source'>[] = [
+// Each mission declares the real app event (trackingAction) that advances it.
+type MissionSeed = Omit<
+  MissionData,
+  'id' | 'progress' | 'status' | 'rewardClaimed' | 'completedAt' | 'isPrebuilt' | 'source'
+>;
+
+interface MissionCandidate extends MissionSeed {
+  isPrebuilt: boolean;
+  source: MissionSource;
+}
+const PREBUILT_MISSIONS: MissionSeed[] = [
   {
     title: 'First Flight',
     description: 'Complete your first video match with a language partner.',
     category: 'DAILY',
     target: 1,
     expReward: 50,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   },
   {
     title: 'Warm-Up Sparring',
@@ -46,6 +70,7 @@ const PREBUILT_MISSIONS: Omit<MissionData, 'id' | 'progress' | 'status' | 'rewar
     category: 'CONVERSATION',
     target: 1,
     expReward: 40,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   },
   {
     title: 'Canopy Chatter',
@@ -53,38 +78,44 @@ const PREBUILT_MISSIONS: Omit<MissionData, 'id' | 'progress' | 'status' | 'rewar
     category: 'CONVERSATION',
     target: 1,
     expReward: 20,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   },
   {
     title: 'Nest Check-In',
-    description: 'Log in and review your daily flights.',
+    description: 'Keep your nest tidy — update your profile settings so the flock knows you.',
     category: 'DAILY',
     target: 1,
     expReward: 15,
+    trackingAction: 'PROFILE_UPDATED',
   },
   {
     title: 'Cultural Explorer',
-    description: 'Read a partner culture card and learn a new tradition.',
+    description: 'Ask a guardian about a tradition, custom, or way of life that fascinates you.',
     category: 'CONVERSATION',
     target: 1,
     expReward: 30,
+    trackingAction: 'GUARDIAN_QUESTION_ASKED',
   },
   {
     title: 'Flight Chain',
-    description: 'Complete missions on 3 consecutive days.',
+    description: 'Take flight with a language partner on 3 separate video matches.',
     category: 'GOAL',
     target: 3,
     expReward: 100,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   },
 ];
 
 // ─── Profile-Driven Auto-Generation Templates ────────────────────────────────
-const GOAL_TEMPLATES: Record<string, (lang: string) => Omit<MissionData, 'id' | 'progress' | 'status' | 'rewardClaimed' | 'completedAt' | 'isPrebuilt' | 'source'>> = {
+// Auto quests advance through video-match conversations.
+const GOAL_TEMPLATES: Record<string, (lang: string) => MissionSeed> = {
   TRAVEL: (lang) => ({
     title: `Travel Wings in ${lang}`,
     description: `Have a 5-minute conversation about travel plans in ${lang}.`,
     category: 'CONVERSATION',
     target: 1,
     expReward: 45,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   }),
   CAREER: (lang) => ({
     title: `Career Soar in ${lang}`,
@@ -92,6 +123,7 @@ const GOAL_TEMPLATES: Record<string, (lang: string) => Omit<MissionData, 'id' | 
     category: 'GOAL',
     target: 10,
     expReward: 45,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   }),
   TEST_PREP: (lang) => ({
     title: `${lang} Study Sprint`,
@@ -99,6 +131,7 @@ const GOAL_TEMPLATES: Record<string, (lang: string) => Omit<MissionData, 'id' | 
     category: 'GOAL',
     target: 15,
     expReward: 35,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   }),
   CULTURE: (lang) => ({
     title: `Culture Quest in ${lang}`,
@@ -106,6 +139,7 @@ const GOAL_TEMPLATES: Record<string, (lang: string) => Omit<MissionData, 'id' | 
     category: 'CONVERSATION',
     target: 1,
     expReward: 40,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   }),
   CONVERSATION: (lang) => ({
     title: `${lang} Small Talk`,
@@ -113,6 +147,7 @@ const GOAL_TEMPLATES: Record<string, (lang: string) => Omit<MissionData, 'id' | 
     category: 'CONVERSATION',
     target: 1,
     expReward: 35,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   }),
   FLUENCY: (lang) => ({
     title: `${lang} Shadow Practice`,
@@ -120,6 +155,7 @@ const GOAL_TEMPLATES: Record<string, (lang: string) => Omit<MissionData, 'id' | 
     category: 'GOAL',
     target: 10,
     expReward: 30,
+    trackingAction: 'VIDEO_MATCH_COMPLETED',
   }),
 };
 
@@ -137,6 +173,7 @@ function toMissionData(m: {
   rewardClaimed: boolean;
   isPrebuilt: boolean;
   source: string;
+  trackingAction: string | null;
   completedAt: Date | null;
 }): MissionData {
   return {
@@ -151,6 +188,7 @@ function toMissionData(m: {
     rewardClaimed: m.rewardClaimed,
     isPrebuilt: m.isPrebuilt,
     source: (m.source || 'CUSTOM') as MissionSource,
+    trackingAction: m.trackingAction ?? null,
     completedAt: m.completedAt ? m.completedAt.toISOString() : null,
   };
 }
@@ -194,7 +232,7 @@ export async function regenerateMissionsForUser(userId: string): Promise<{ creat
   const existingKeys = new Set(existing.map((m) => `${m.source}::${m.title}`));
 
   const context = await fetchProfileContext(userId);
-  const candidates: { title: string; description: string; category: MissionCategory; target: number; expReward: number; isPrebuilt: boolean; source: MissionSource }[] = [];
+  const candidates: MissionCandidate[] = [];
 
   for (const prebuilt of PREBUILT_MISSIONS) {
     const key = `PREBUILT::${prebuilt.title}`;
@@ -232,6 +270,7 @@ export async function regenerateMissionsForUser(userId: string): Promise<{ creat
       expReward: c.expReward,
       isPrebuilt: c.isPrebuilt,
       source: c.source,
+      trackingAction: c.trackingAction ?? null,
       status: 'PENDING',
     })),
   });
@@ -273,7 +312,14 @@ export async function getMissionsAction(
 // ─── 2. Create Custom Mission ─────────────────────────────────────────────────
 export async function createCustomMissionAction(
   userId: string,
-  input: { title: string; description: string; category?: MissionCategory; target?: number; expReward?: number }
+  input: {
+    title: string;
+    description: string;
+    category?: MissionCategory;
+    target?: number;
+    expReward?: number;
+    trackingAction?: string | null;
+  }
 ): Promise<ActionResponse<MissionData>> {
   const title = input.title?.trim();
   const description = input.description?.trim();
@@ -284,6 +330,7 @@ export async function createCustomMissionAction(
   const target = Math.min(Math.max(Math.floor(input.target ?? 1), 1), 1000);
   const expReward = Math.min(Math.max(Math.floor(input.expReward ?? 25), 0), 1000);
   const category: MissionCategory = input.category ?? 'GOAL';
+  const trackingAction = input.trackingAction?.trim() || null;
 
   try {
     const mission = await prisma.mission.create({
@@ -297,6 +344,7 @@ export async function createCustomMissionAction(
         status: 'PENDING',
         isPrebuilt: false,
         source: 'CUSTOM',
+        trackingAction,
       },
     });
 
@@ -316,65 +364,71 @@ export async function createCustomMissionAction(
   }
 }
 
-// ─── 3. Log Mission Progress ──────────────────────────────────────────────────
-export async function updateMissionProgressAction(
+// ─── 3. Track App Events → Advance Missions ───────────────────────────────────
+// Central hook: any real app action (video match, profile update, etc.) reports
+// itself here and every mission listening on that action auto-advances.
+export async function trackUserAction(
   userId: string,
-  missionId: string,
-  increment: number
-): Promise<ActionResponse<MissionData>> {
-  const step = Math.max(Math.floor(increment ?? 1), 1);
+  action: string,
+  metadata?: { step?: number; label?: string }
+): Promise<ActionResponse<{ advanced: MissionData[]; completed: MissionData[] }>> {
+  const step = Math.max(Math.floor(metadata?.step ?? 1), 1);
 
   try {
-    const mission = await prisma.mission.findUnique({ where: { id: missionId } });
-    if (!mission || mission.userId !== userId) {
-      return { success: false, error: 'This flight is not part of your nest.' };
-    }
-
-    if (mission.status === 'COMPLETED') {
-      return {
-        success: true,
-        message: 'This flight is already complete.',
-        data: toMissionData(mission),
-      };
-    }
-
-    const nextProgress = Math.min(mission.target, mission.progress + step);
-    const completed = nextProgress >= mission.target;
-
-    const updated = await prisma.mission.update({
-      where: { id: missionId },
-      data: {
-        progress: nextProgress,
-        status: completed ? 'COMPLETED' : 'PENDING',
-        completedAt: completed ? new Date() : null,
-      },
+    const activeMissions = await prisma.mission.findMany({
+      where: { userId, status: 'PENDING', trackingAction: action },
     });
+    if (activeMissions.length === 0) {
+      return { success: true, message: 'No missions tracking this action.', data: { advanced: [], completed: [] } };
+    }
 
-    if (completed) {
-      const minutesByCategory: Record<string, number> = { DAILY: 2, CONVERSATION: 5, GOAL: 10 };
-      await logActivity(
-        userId,
-        'MISSION_COMPLETED',
-        `Flight accomplished: ${updated.title}`,
-        'You completed a mission on your flight deck.',
-        {
-          category: updated.category,
-          expReward: updated.expReward,
-          source: updated.source,
-          minutes: minutesByCategory[updated.category] ?? 2,
-        }
-      );
+    const advanced: MissionData[] = [];
+    const completed: MissionData[] = [];
+
+    for (const mission of activeMissions) {
+      const nextProgress = Math.min(mission.target, mission.progress + step);
+      const isCompleted = nextProgress >= mission.target;
+
+      const updated = await prisma.mission.update({
+        where: { id: mission.id },
+        data: {
+          progress: nextProgress,
+          status: isCompleted ? 'COMPLETED' : 'PENDING',
+          completedAt: isCompleted ? new Date() : null,
+        },
+      });
+
+      advanced.push(toMissionData(updated));
+      if (isCompleted) completed.push(toMissionData(updated));
+
+      if (isCompleted) {
+        const minutesByCategory: Record<string, number> = { DAILY: 2, CONVERSATION: 5, GOAL: 10 };
+        await logActivity(
+          userId,
+          'MISSION_COMPLETED',
+          `Flight accomplished: ${updated.title}`,
+          'You completed a mission on your flight deck.',
+          {
+            category: updated.category,
+            expReward: updated.expReward,
+            source: updated.source,
+            action,
+            minutes: minutesByCategory[updated.category] ?? 2,
+          }
+        );
+      }
     }
 
     return {
       success: true,
-      message: completed
-        ? `Flight accomplished! "${updated.title}" is complete.`
-        : `Progress logged: ${nextProgress}/${updated.target} on "${updated.title}".`,
-      data: toMissionData(updated),
+      message:
+        completed.length > 0
+          ? `${completed.length} flight${completed.length > 1 ? 's' : ''} accomplished!`
+          : `${advanced.length} mission${advanced.length > 1 ? 's' : ''} advanced.`,
+      data: { advanced, completed },
     };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to log flight progress.' };
+    return { success: false, error: error.message || 'Failed to track this action.' };
   }
 }
 

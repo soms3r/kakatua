@@ -14,7 +14,8 @@ export type ActivityActionType =
   | 'MISSION_COMPLETED'
   | 'MISSION_CREATED'
   | 'PROFILE_UPDATED'
-  | 'FEEDBACK_SUBMITTED';
+  | 'FEEDBACK_SUBMITTED'
+  | 'REFERRAL_SIGNUP';
 
 export interface ActivityData {
   id: string;
@@ -121,52 +122,60 @@ export async function getUserActivityAction(
   }
 }
 
+// ─── Analytics Core ───────────────────────────────────────────────────────────
+// Shared with the nest-insights logic layer so tips are computed from the same
+// numbers the dashboard shows.
+export async function fetchActivityAnalytics(userId: string): Promise<ActivityAnalytics> {
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const [missionsCompleted, videoMatchesCompleted, activitiesThisWeek, expAgg, completions, activityRows] =
+    await Promise.all([
+      prisma.mission.count({ where: { userId, status: 'COMPLETED' } }),
+      prisma.userActivity.count({ where: { userId, actionType: 'VIDEO_MATCH_COMPLETED' } }),
+      prisma.userActivity.count({ where: { userId, createdAt: { gte: startOfWeek } } }),
+      prisma.mission.aggregate({
+        where: { userId, rewardClaimed: true },
+        _sum: { expReward: true },
+      }),
+      prisma.mission.findMany({
+        where: { userId, status: 'COMPLETED', completedAt: { not: null } },
+        select: { completedAt: true },
+        orderBy: { completedAt: 'desc' },
+      }),
+      prisma.userActivity.findMany({
+        where: { userId },
+        select: { metadata: true },
+      }),
+    ]);
+
+  const totalPracticeMinutes = activityRows.reduce((sum, row) => {
+    const minutes = (row.metadata as { minutes?: number } | null)?.minutes;
+    return sum + (typeof minutes === 'number' && minutes > 0 ? minutes : 0);
+  }, 0);
+
+  return {
+    totalPracticeMinutes,
+    videoMatchesCompleted,
+    missionsCompleted,
+    currentStreak: computeStreak(completions.map((c) => c.completedAt!)),
+    totalExpEarned: expAgg._sum.expReward ?? 0,
+    activitiesThisWeek,
+  };
+}
+
 // ─── Fetch Analytics Summary ──────────────────────────────────────────────────
 export async function getUserAnalyticsAction(
   userId: string
 ): Promise<ActionResponse<ActivityAnalytics>> {
   try {
-    const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const [missionsCompleted, videoMatchesCompleted, activitiesThisWeek, expAgg, completions, activityRows] =
-      await Promise.all([
-        prisma.mission.count({ where: { userId, status: 'COMPLETED' } }),
-        prisma.userActivity.count({ where: { userId, actionType: 'VIDEO_MATCH_COMPLETED' } }),
-        prisma.userActivity.count({ where: { userId, createdAt: { gte: startOfWeek } } }),
-        prisma.mission.aggregate({
-          where: { userId, rewardClaimed: true },
-          _sum: { expReward: true },
-        }),
-        prisma.mission.findMany({
-          where: { userId, status: 'COMPLETED', completedAt: { not: null } },
-          select: { completedAt: true },
-          orderBy: { completedAt: 'desc' },
-        }),
-        prisma.userActivity.findMany({
-          where: { userId },
-          select: { metadata: true },
-        }),
-      ]);
-
-    const totalPracticeMinutes = activityRows.reduce((sum, row) => {
-      const minutes = (row.metadata as { minutes?: number } | null)?.minutes;
-      return sum + (typeof minutes === 'number' && minutes > 0 ? minutes : 0);
-    }, 0);
-
+    const data = await fetchActivityAnalytics(userId);
     return {
       success: true,
       message: 'Analytics gathered from the nest.',
-      data: {
-        totalPracticeMinutes,
-        videoMatchesCompleted,
-        missionsCompleted,
-        currentStreak: computeStreak(completions.map((c) => c.completedAt!)),
-        totalExpEarned: expAgg._sum.expReward ?? 0,
-        activitiesThisWeek,
-      },
+      data,
     };
   } catch (error: any) {
     return { success: false, error: error.message || 'Failed to gather your analytics.' };

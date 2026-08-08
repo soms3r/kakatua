@@ -5,11 +5,22 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import LayoutShell from '../components/LayoutShell';
 import {
+  TwigCard,
+  ReedFrame,
+  TwigDivider,
+  DryLeafIcon,
+  DryBranchIcon,
+  GrassTuftIcon,
+  GrassBar,
+} from '../components/nestUI';
+import { getDailyWisdom } from '../lib/nestWisdom';
+import {
   getUserActivityAction,
   getUserAnalyticsAction,
   type ActivityAnalytics,
   type ActivityData,
 } from '../actions/activity';
+import { getNestTipsAction, type NestTip } from '../actions/nestInsights';
 
 const ACTION_META: Record<string, { label: string; icon: string; tone: string }> = {
   VIDEO_MATCH_COMPLETED: { label: 'Video Match', icon: 'videocam', tone: 'text-[#2d5a27] bg-[#bcf0ae]/40' },
@@ -17,6 +28,21 @@ const ACTION_META: Record<string, { label: string; icon: string; tone: string }>
   MISSION_CREATED: { label: 'Custom Quest', icon: 'add_task', tone: 'text-[#8a6d3b] bg-[#f3ead6]' },
   PROFILE_UPDATED: { label: 'Profile', icon: 'person', tone: 'text-[#42493e] bg-[#e8e4dc]' },
   FEEDBACK_SUBMITTED: { label: 'Feedback', icon: 'forum', tone: 'text-[#7b5800] bg-[#ffe8bd]' },
+  REFERRAL_SIGNUP: { label: 'New Flock Member', icon: 'group_add', tone: 'text-[#2d5a27] bg-[#d7ecc6]' },
+};
+
+const TIP_TONE: Record<string, string> = {
+  moss: 'text-[#5f7d45]',
+  clay: 'text-[#c2703d]',
+  bark: 'text-[#8a6d3b]',
+  sunrise: 'text-[#b98a3e]',
+};
+
+const STAT_STONES: Record<string, string> = {
+  clay: 'radial-gradient(circle at 30% 25%, #eecfa0, #c9935f 62%, #a76f3e)',
+  moss: 'radial-gradient(circle at 30% 25%, #cbe5b4, #8fae72 62%, #5f7d45)',
+  sunrise: 'radial-gradient(circle at 30% 25%, #f2d68f, #d9b25c 62%, #b98a3e)',
+  bark: 'radial-gradient(circle at 30% 25%, #f2e3bd, #dcc193 62%, #b99761)',
 };
 
 function formatRelative(iso: string): string {
@@ -102,11 +128,13 @@ function ActivityCard({ activity }: { activity: ActivityData }) {
 export default function ActivityPage() {
   const { data: session } = useSession();
   const [analytics, setAnalytics] = useState<ActivityAnalytics | null>(null);
+  const [tips, setTips] = useState<NestTip[]>([]);
   const [items, setItems] = useState<ActivityData[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
+  const [wisdom] = useState(() => getDailyWisdom());
 
   useEffect(() => {
     if (!session?.user?.id) {
@@ -117,9 +145,10 @@ export default function ActivityPage() {
 
     async function load() {
       try {
-        const [statsResult, logResult] = await Promise.all([
+        const [statsResult, logResult, tipsResult] = await Promise.all([
           getUserAnalyticsAction(session!.user.id),
           getUserActivityAction(session!.user.id),
+          getNestTipsAction(session!.user.id),
         ]);
         if (cancelled) return;
         if (statsResult.success) setAnalytics(statsResult.data);
@@ -127,6 +156,7 @@ export default function ActivityPage() {
           setItems(logResult.data.items);
           setNextCursor(logResult.data.nextCursor);
         }
+        if (tipsResult.success) setTips(tipsResult.data);
       } catch (err: any) {
         if (cancelled) return;
         setError(err?.message || 'Failed to load your activity.');
@@ -152,42 +182,73 @@ export default function ActivityPage() {
     }
   };
 
-  const statCards: { label: string; value: string; icon: string; gradient: string }[] = [
+  const statCards: { label: string; value: string; icon: string; stone: string }[] = [
     {
       label: 'Practice Time',
       value: formatMinutes(analytics?.totalPracticeMinutes ?? 0),
       icon: 'timer',
-      gradient: 'from-[#b98a3e] to-[#8a6d3b]',
+      stone: STAT_STONES.clay,
     },
     {
       label: 'Video Matches',
       value: String(analytics?.videoMatchesCompleted ?? 0),
       icon: 'videocam',
-      gradient: 'from-[#2d5a27] to-[#154212]',
+      stone: STAT_STONES.moss,
     },
     {
       label: 'Missions Done',
       value: String(analytics?.missionsCompleted ?? 0),
       icon: 'task_alt',
-      gradient: 'from-[#7dbf4f] to-[#2d5a27]',
+      stone: STAT_STONES.moss,
     },
     {
       label: 'Flight Streak',
       value: `${analytics?.currentStreak ?? 0}d`,
       icon: 'local_fire_department',
-      gradient: 'from-[#f0a63c] to-[#c2703d]',
+      stone: STAT_STONES.sunrise,
     },
     {
       label: 'EXP Earned',
       value: String(analytics?.totalExpEarned ?? 0),
       icon: 'eco',
-      gradient: 'from-[#a1d494] to-[#5b9440]',
+      stone: STAT_STONES.bark,
     },
     {
       label: 'This Week',
       value: String(analytics?.activitiesThisWeek ?? 0),
       icon: 'auto_awesome',
-      gradient: 'from-[#c9b37a] to-[#a08350]',
+      stone: STAT_STONES.sunrise,
+    },
+  ];
+
+  const grassBars: { label: string; goal: string; value: number; max: number; tone: 'moss' | 'clay' | 'sunrise' }[] = [
+    {
+      label: 'Weekly practice',
+      goal: '60m goal',
+      value: analytics?.totalPracticeMinutes ?? 0,
+      max: 60,
+      tone: 'moss',
+    },
+    {
+      label: 'Video matches',
+      goal: '10 matches',
+      value: analytics?.videoMatchesCompleted ?? 0,
+      max: 10,
+      tone: 'clay',
+    },
+    {
+      label: 'Missions completed',
+      goal: '10 quests',
+      value: analytics?.missionsCompleted ?? 0,
+      max: 10,
+      tone: 'sunrise',
+    },
+    {
+      label: 'Flight streak',
+      goal: '7 days',
+      value: analytics?.currentStreak ?? 0,
+      max: 7,
+      tone: 'moss',
     },
   ];
 
@@ -221,28 +282,104 @@ export default function ActivityPage() {
 
         {!loading && !error && (
           <>
-            {/* Analytics Overview — polished pebbles */}
+            {/* Daily Wisdom — parchment scroll */}
+            <TwigCard>
+              <div className="flex items-start gap-3">
+                <DryLeafIcon className="w-7 h-7 text-[#a8832f] flex-shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#a8832f]">Daily Wisdom</p>
+                  <p className="mt-1.5 text-[13px] italic text-[#3f3527] leading-relaxed">&ldquo;{wisdom.text}&rdquo;</p>
+                  <p className="mt-2 text-[10px] font-semibold text-[#8a6d3b]">
+                    — {wisdom.author} <span className="font-normal text-[#b5aa93]">· {wisdom.attribution}</span>
+                  </p>
+                </div>
+              </div>
+            </TwigCard>
+
+            {/* Nest Dashboard — pebble stats + grass progress */}
             <section className="flex flex-col gap-2.5">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#b98a3e] text-lg">dashboard_customize</span>
-                <h3 className="font-semibold text-sm text-[#1b1c1a] tracking-tight">Analytics Overview</h3>
+                <GrassTuftIcon className="w-4 h-4 text-[#b98a3e]" />
+                <h3 className="font-semibold text-sm text-[#1b1c1a] tracking-tight">Nest Dashboard</h3>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {statCards.map((card) => (
-                  <div
-                    key={card.label}
-                    className={`relative rounded-[22px] p-3.5 bg-gradient-to-br ${card.gradient} shadow-[0_6px_18px_rgba(138,109,59,0.18)] border border-white/20 overflow-hidden`}
-                  >
-                    <div className="absolute -top-3 -right-3 w-12 h-12 rounded-full bg-white/10 blur-md" />
-                    <span className="material-symbols-outlined text-xl text-white/90">{card.icon}</span>
-                    <div className="text-xl font-bold text-white leading-none mt-2.5">{card.value}</div>
-                    <div className="text-[9px] text-white/80 mt-1 font-medium">{card.label}</div>
-                  </div>
-                ))}
-              </div>
+              <TwigCard>
+                <div className="grid grid-cols-3 gap-2">
+                  {statCards.map((card) => (
+                    <div
+                      key={card.label}
+                      className="rounded-[16px] px-2.5 py-3 text-center border border-white/25"
+                      style={{
+                        background: card.stone,
+                        boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.55), 0 4px 10px rgba(40,26,12,0.22)',
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-lg text-white/95">{card.icon}</span>
+                      <div className="text-lg font-bold text-white leading-none mt-1.5 drop-shadow-sm">{card.value}</div>
+                      <div className="text-[8px] text-white/90 mt-1 font-semibold tracking-wide uppercase">{card.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <TwigDivider className="my-3.5" />
+
+                <div className="flex flex-col gap-3">
+                  {grassBars.map((bar) => (
+                    <div key={bar.label}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-semibold text-[#5d4a2c]">{bar.label}</span>
+                        <span className="text-[9px] text-[#a88755] font-medium">
+                          {bar.value} / {bar.max} <span className="text-[#c4b189]">· {bar.goal}</span>
+                        </span>
+                      </div>
+                      <GrassBar value={bar.value} max={bar.max} tone={bar.tone} />
+                    </div>
+                  ))}
+                </div>
+              </TwigCard>
             </section>
 
-            {/* Activity Timeline */}
+            {/* Personalized Nest Tips — dry-branch cards */}
+            <section className="flex flex-col gap-2.5">
+              <div className="flex items-center gap-2">
+                <DryBranchIcon className="w-5 h-5 text-[#8a6d3b]" />
+                <h3 className="font-semibold text-sm text-[#1b1c1a] tracking-tight">Personalized Nest Tips</h3>
+              </div>
+
+              {tips.length === 0 ? (
+                <ReedFrame>
+                  <p className="text-[11px] text-[#72796e] text-center py-1">
+                    All is well in the nest — no tips to rustle today.
+                  </p>
+                </ReedFrame>
+              ) : (
+                <div className="flex flex-col gap-2.5">
+                  {tips.map((tip) => (
+                    <ReedFrame key={tip.id}>
+                      <div className="flex items-start gap-3">
+                        <span className={`material-symbols-outlined text-lg flex-shrink-0 ${TIP_TONE[tip.tone] ?? 'text-[#b98a3e]'}`}>
+                          {tip.icon}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-bold text-[#2b2620]">{tip.title}</h4>
+                          <p className="text-[10.5px] text-[#6d6455] mt-1 leading-relaxed">{tip.message}</p>
+                          {tip.cta && (
+                            <Link
+                              href={tip.cta.href}
+                              className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-[#2D5A27] hover:text-[#154212] transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[12px]">arrow_right_alt</span>
+                              {tip.cta.label}
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </ReedFrame>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Flight Timeline */}
             <section className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#2d5a27] text-lg">flutter_dash</span>

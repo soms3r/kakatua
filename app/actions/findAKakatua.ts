@@ -5,6 +5,7 @@
 import { prisma } from './db';
 import { ActionResponse } from './types';
 import { logActivity } from './activity';
+import { trackUserAction } from './missions';
 
 export interface MatchedUserData {
   id: string;
@@ -153,6 +154,8 @@ export async function findAKakatuaAction(userId: string): Promise<ActionResponse
           minutes: 15,
         }
       );
+
+      await trackUserAction(userId, 'VIDEO_MATCH_COMPLETED', { label: `Matched with ${match.name}` });
 
       return {
         success: true,

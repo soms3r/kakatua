@@ -35,7 +35,12 @@ model User {
   ambassadorBadge   String?       @map("ambassador_badge") // Trust badge text shown next to ambassador name (e.g. "Verified Guide")
   specialtyLanguages String[]     @default([]) @map("specialty_languages") // Languages an ambassador can coach (e.g. ["Bengali", "English"])
   isOnline          Boolean       @default(false) @map("is_online") // Live presence flag for the guardian roster
+  isModerator       Boolean       @default(false) @map("is_moderator") // Can answer the PENDING_MODERATION queue
   countrySlug       String?       @map("country_slug") // URL slug for country detail pages (e.g. "bangladesh", "japan")
+
+  // Referral system
+  referralCode      String?       @unique @map("referral_code") // Short human-readable invite code (e.g. "tasneem")
+  invitedById       String?       @map("invited_by_id") // The bird whose referral link built this nest
 
   // Profile enrichment fields (legacy, mirrored into Profile)
   bio               String?       // Short personal bio
@@ -56,6 +61,7 @@ model User {
   resolvedReports   UserReport[]    @relation("ResolvedReports")
   guardianRequests  GuardianTicket[] @relation("GuardianRequestor")
   guardianAssignments GuardianTicket[] @relation("GuardianAssignee")
+  answeredTickets   GuardianTicket[] @relation("AnsweredTickets")
 
   // Normalized profile architecture
   profile           Profile?
@@ -68,6 +74,11 @@ model User {
   verification      Verification?
   blocks            UserBlock[]     @relation("Blocker")
   blockedBy         UserBlock[]     @relation("Blocked")
+
+  // Referral relations
+  invitedBy         User?           @relation("ReferralInvites", fields: [invitedById], references: [id], onDelete: SetNull)
+  referralInvites   User[]          @relation("ReferralInvites")
+  referralSignups   ReferralSignup[] @relation("ReferredUsers")
 
   @@map("users")
 }
@@ -117,6 +128,7 @@ model Mission {
   rewardClaimed Boolean   @default(false) @map("reward_claimed")
   isPrebuilt    Boolean   @default(false) @map("is_prebuilt")
   source        String    @default("CUSTOM") // PREBUILT, AUTO, CUSTOM
+  trackingAction String?  @map("tracking_action") // Event that auto-advances this mission: VIDEO_MATCH_COMPLETED, PROFILE_UPDATED, GUARDIAN_QUESTION_ASKED
   completedAt   DateTime? @map("completed_at")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
@@ -147,8 +159,11 @@ model UserReport {
 }
 
 // ─── Guardian Support System ──────────────────────────────────────────────────
-// Tickets raised by community members for an ambassador ("guardian") to answer:
-// GUIDANCE (life/culture advice), PRACTICE_SESSION (language practice), SAFETY_FLAG.
+// Tickets raised by community members for one of the two global guardians:
+// Global Buddy (MATCHMAKER — casual conversation/culture) and Kakatua Guide
+// (GUIDE — platform expertise & support). Tickets are auto-processed by the
+// Kakatua bot. Confident answers close instantly (source = BOT); ambiguous,
+// complex, technical, or safety queries route to a moderator (PENDING_MODERATION).
 model GuardianTicket {
   id         String   @id @default(uuid())
   userId     String   @map("user_id")
@@ -158,7 +173,13 @@ model GuardianTicket {
   type       String   // GUIDANCE, PRACTICE_SESSION, SAFETY_FLAG
   subject    String
   message    String
-  status     String   @default("OPEN") // OPEN, ACCEPTED, CLOSED
+  status     String   @default("OPEN") // OPEN → CLOSED (answered) | PENDING_MODERATION (needs a human)
+  answerText String?  @map("answer_text") // The dispatchable answer shown to the user
+  answerSource String? @map("answer_source") // BOT | MODERATOR
+  confidence Float?   // Bot confidence 0..1 before answering (used to rank the moderation queue)
+  answeredById String? @map("answered_by_id")
+  answeredBy User?    @relation("AnsweredTickets", fields: [answeredById], references: [id], onDelete: SetNull)
+  answeredAt DateTime? @map("answered_at")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
   acceptedAt DateTime? @map("accepted_at")
@@ -168,6 +189,7 @@ model GuardianTicket {
   @@index([userId])
   @@index([guardianId])
   @@index([status])
+  @@index([answeredById])
   @@map("guardian_tickets")
 }
 
@@ -385,4 +407,28 @@ model UserActivity {
 
   @@index([userId, createdAt])
   @@map("user_activities")
+}
+
+// 20. Referral Click Log Table (anonymous — who clicked which invite link)
+model ReferralClick {
+  id           String   @id @default(uuid())
+  referralCode String   @map("referral_code")
+  ipAddress    String?  @map("ip_address")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([referralCode, createdAt])
+  @@map("referral_clicks")
+}
+
+// 21. Referral Signup Table (which invite link actually built a nest)
+model ReferralSignup {
+  id           String   @id @default(uuid())
+  referralCode String   @map("referral_code")
+  newUserId    String   @map("new_user_id")
+  newUser      User     @relation("ReferredUsers", fields: [newUserId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([referralCode])
+  @@index([newUserId])
+  @@map("referral_signups")
 }

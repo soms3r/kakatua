@@ -1,16 +1,20 @@
 // Kakatua Database Seed Script (prisma/seed.ts)
-// Populates system bots + 11 country ambassador Culture Cards with detailed content.
+// Populates the two global guardians (Global Buddy + Kakatua Guide) and
+// 11 country ambassador Culture Cards with detailed content.
 
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 // ─── System Bot Emails (immutable) ────────────────────────────────────────────
+// Exactly two global guardians of the flock.
 const SYSTEM_EMAILS = [
   'guide@kakatua.app',
   'buddy@kakatua.app',
-  'dhaka@kakatua.app',
 ];
+
+// Legacy system bot emails that must be purged when re-seeding (no longer active).
+const LEGACY_SYSTEM_EMAILS = ['dhaka@kakatua.app'];
 
 // ─── Country Ambassador Data ──────────────────────────────────────────────────
 
@@ -599,7 +603,7 @@ async function main() {
   console.log(`    PASS ${LANGUAGES.length} languages, ${INTERESTS.length} interests`);
 
   // 1. Clear all existing system bots + country ambassadors
-  const allEmails = [...SYSTEM_EMAILS, ...COUNTRIES.map((c) => c.email)];
+  const allEmails = [...SYSTEM_EMAILS, ...LEGACY_SYSTEM_EMAILS, ...COUNTRIES.map((c) => c.email)];
   const deleted = await prisma.user.deleteMany({
     where: { email: { in: allEmails } },
   });
@@ -616,7 +620,7 @@ async function main() {
       name: 'Kakatua Guide',
       isAmbassador: true,
       ambassadorRole: 'GUIDE',
-      ambassadorBadge: 'Verified Guide',
+      ambassadorBadge: 'Platform Expert',
       specialtyLanguages: ['English', 'Spanish'],
       isOnline: true,
       password: null,
@@ -629,7 +633,7 @@ async function main() {
         create: {
           username: 'guide',
           displayName: 'Kakatua Guide',
-          bio: 'Weekly welcome circles where newcomers share a greeting from their mother tongue.',
+          bio: 'Your flight-path expert for app navigation, missions, settings help, and technical support.',
           country: 'Global',
           nativeLanguage: 'English',
           interfaceLanguage: 'English',
@@ -657,7 +661,7 @@ async function main() {
       name: 'Global Buddy',
       isAmbassador: true,
       ambassadorRole: 'MATCHMAKER',
-      ambassadorBadge: 'Verified Matchmaker',
+      ambassadorBadge: 'Casual Peer',
       specialtyLanguages: ['Bengali', 'English'],
       isOnline: true,
       password: null,
@@ -670,7 +674,7 @@ async function main() {
         create: {
           username: 'buddy',
           displayName: 'Global Buddy',
-          bio: 'Evening poetry readings on the rooftop, sharing verses in Bengali and English.',
+          bio: 'Evening poetry readings on the rooftop, sharing verses in Bengali and English. Your casual peer for conversation and culture.',
           country: 'Bangladesh',
           city: 'Dhaka',
           nativeLanguage: 'Bengali',
@@ -693,50 +697,6 @@ async function main() {
   await linkLanguages(buddy.id, ['Bengali'], ['English']);
   await linkInterests(buddy.id, ['Technology', 'Poetry']);
   console.log('    PASS Global Buddy (MATCHMAKER)');
-
-  // Dhaka Local — CULTURAL_ADVISOR (also Bangladesh country ambassador)
-  const dhaka = await prisma.user.create({
-    data: {
-      email: 'dhaka@kakatua.app',
-      name: 'Dhaka Local',
-      isAmbassador: true,
-      ambassadorRole: 'CULTURAL_ADVISOR',
-      ambassadorBadge: 'Dhaka Cultural Advisor',
-      specialtyLanguages: ['Bengali', 'English'],
-      isOnline: true,
-      password: null,
-      nativeLanguages: JSON.stringify(['Bengali']),
-      learningLanguages: JSON.stringify(['English']),
-      interests: JSON.stringify(['Digital Marketing', 'Dhaka Life', 'Startups']),
-      timezoneOffset: 6,
-      status: 'active',
-      profile: {
-        create: {
-          username: 'dhaka-local',
-          displayName: 'Dhaka Local',
-          bio: 'Rickshaw art is a living tradition — every cycle is a canvas of vibrant folk storytelling.',
-          country: 'Bangladesh',
-          city: 'Dhaka',
-          nativeLanguage: 'Bengali',
-          interfaceLanguage: 'English',
-          timezone: 'Asia/Dhaka',
-        },
-      },
-      cultureCard: {
-        create: {
-          data: JSON.stringify({
-            traditions: "Rickshaw art is a living tradition — every cycle is a canvas of vibrant folk storytelling.",
-            food: "Fuchka from street vendors is the heartbeat of Dhaka's evening snack culture.",
-            history: "Dhaka is one of the densest and most vibrant cities in South Asia, with a rich Mughal heritage.",
-            funFact: "Dhaka's rickshaws produce over 100,000 unique hand-painted artworks every year.",
-          }),
-        },
-      },
-    },
-  });
-  await linkLanguages(dhaka.id, ['Bengali'], ['English']);
-  await linkInterests(dhaka.id, ['Startups', 'Culture']);
-  console.log('    PASS Dhaka Local (CULTURAL_ADVISOR)');
 
   // 3. Country Ambassadors ─────────────────────────────────────────────────
   console.log('\n  ── Country Ambassadors (Flock Library) ────────────');

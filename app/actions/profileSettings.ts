@@ -15,7 +15,7 @@ import {
   UserLanguageEntry,
 } from './types';
 import { guardAgainstAmbassadorMutation } from './ambassadors';
-import { regenerateMissionsForUser } from './missions';
+import { regenerateMissionsForUser, trackUserAction } from './missions';
 import { logActivity } from './activity';
 
 function timezoneToOffset(timezone: string | null): number {
@@ -413,6 +413,7 @@ export async function updateProfileSettingsAction(
     }
 
     await logActivity(userId, 'PROFILE_UPDATED', 'Nest settings refreshed', 'Profile, languages, goals, and preferences updated.');
+    await trackUserAction(userId, 'PROFILE_UPDATED', { label: 'Nest settings refreshed' });
 
     return {
       success: true,
