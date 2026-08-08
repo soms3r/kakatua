@@ -7,7 +7,10 @@
 import { prisma } from './db';
 import {
   ActionResponse,
+  AvailabilityEntry,
+  LanguageGoalEntry,
   ProfileSettingsPayload,
+  ProfileSettingsProfile,
   ProfileSettingsSnapshot,
   UserLanguageEntry,
 } from './types';
@@ -53,10 +56,68 @@ function parseTopics(raw: string | null): string[] {
   }
 }
 
-function safeIso(date: string | null): Date | null {
+function safeIso(date: string | null | undefined): Date | null {
   if (!date) return null;
   const d = new Date(date);
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function normalizeString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed || null;
+}
+
+function normalizeLanguageEntries(
+  entries: UserLanguageEntry[] | null | undefined
+): UserLanguageEntry[] {
+  const seen = new Set<string>();
+  const result: UserLanguageEntry[] = [];
+  for (const entry of entries ?? []) {
+    const languageId = entry?.languageId?.trim();
+    if (!languageId || seen.has(languageId)) continue;
+    seen.add(languageId);
+    result.push({ languageId, proficiency: entry.proficiency || null });
+  }
+  return result;
+}
+
+function normalizeGoals(goals: LanguageGoalEntry[] | null | undefined): LanguageGoalEntry[] {
+  const result: LanguageGoalEntry[] = [];
+  for (const goal of goals ?? []) {
+    if (!goal || typeof goal.goalType !== 'string' || !goal.goalType.trim()) continue;
+    result.push({
+      goalType: goal.goalType,
+      languageId: goal.languageId || null,
+      targetLevel: goal.targetLevel || null,
+      targetDate: goal.targetDate || null,
+      status: goal.status || 'ACTIVE',
+    });
+  }
+  return result;
+}
+
+function normalizeAvailability(
+  slots: AvailabilityEntry[] | null | undefined
+): AvailabilityEntry[] {
+  const result: AvailabilityEntry[] = [];
+  for (const slot of slots ?? []) {
+    if (
+      !slot ||
+      typeof slot.dayOfWeek !== 'number' ||
+      !slot.startTime ||
+      !slot.endTime
+    ) {
+      continue;
+    }
+    result.push({
+      dayOfWeek: slot.dayOfWeek,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      timezone: slot.timezone || null,
+    });
+  }
+  return result;
 }
 
 export async function getProfileSettingsAction(
@@ -156,11 +217,43 @@ export async function updateProfileSettingsAction(
   userId: string,
   input: ProfileSettingsPayload
 ): Promise<ActionResponse<{ userId: string }>> {
+  if (!userId) {
+    return { success: false, error: 'You must be signed in to update your settings.' };
+  }
+
   try {
     await guardAgainstAmbassadorMutation(userId, 'modified');
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: e?.message || 'This account cannot be modified.' };
   }
+
+  const rawProfile: Partial<ProfileSettingsProfile> = input?.profile ?? {};
+  const username = normalizeString(rawProfile.username);
+  const displayName = normalizeString(rawProfile.displayName);
+  const nativeLanguages = normalizeLanguageEntries(input?.nativeLanguages);
+  const learningLanguages = normalizeLanguageEntries(input?.learningLanguages);
+
+  const errors: string[] = [];
+  if (!username) errors.push('Username is required.');
+  if (!displayName) errors.push('Display name is required.');
+  if (nativeLanguages.length === 0) errors.push('Select at least one native language.');
+  if (learningLanguages.length === 0) errors.push('Select at least one learning language.');
+  if (errors.length > 0) {
+    return { success: false, error: errors.join(' ') };
+  }
+
+  const nativeSet = new Set(nativeLanguages.map((l) => l.languageId));
+  const learning = learningLanguages.filter((l) => !nativeSet.has(l.languageId));
+  const goals = normalizeGoals(input?.goals);
+  const interestIds = Array.from(
+    new Set((input?.interestIds ?? []).filter((id) => typeof id === 'string' && id.trim()))
+  );
+  const availability = normalizeAvailability(input?.availability);
+  const matchPreference = input?.matchPreference ?? {};
+  const privacySettings = input?.privacySettings ?? {};
+  const conversationTopics = Array.isArray(matchPreference.conversationTopics)
+    ? matchPreference.conversationTopics.map(String).map((t) => t.trim()).filter(Boolean)
+    : [];
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -169,55 +262,51 @@ export async function updateProfileSettingsAction(
         where: { userId },
         create: {
           userId,
-          username: input.profile.username,
-          displayName: input.profile.displayName,
-          profilePhoto: input.profile.profilePhoto,
-          bio: input.profile.bio,
-          dateOfBirth: safeIso(input.profile.dateOfBirth),
-          gender: input.profile.gender,
-          country: input.profile.country,
-          city: input.profile.city,
-          timezone: input.profile.timezone,
-          nativeLanguage: input.profile.nativeLanguage,
-          interfaceLanguage: input.profile.interfaceLanguage,
+          username,
+          displayName,
+          profilePhoto: normalizeString(rawProfile.profilePhoto),
+          bio: normalizeString(rawProfile.bio),
+          dateOfBirth: safeIso(rawProfile.dateOfBirth),
+          gender: normalizeString(rawProfile.gender),
+          country: normalizeString(rawProfile.country),
+          city: normalizeString(rawProfile.city),
+          timezone: normalizeString(rawProfile.timezone),
+          nativeLanguage: normalizeString(rawProfile.nativeLanguage),
+          interfaceLanguage: normalizeString(rawProfile.interfaceLanguage),
         },
         update: {
-          username: input.profile.username,
-          displayName: input.profile.displayName,
-          profilePhoto: input.profile.profilePhoto,
-          bio: input.profile.bio,
-          dateOfBirth: safeIso(input.profile.dateOfBirth),
-          gender: input.profile.gender,
-          country: input.profile.country,
-          city: input.profile.city,
-          timezone: input.profile.timezone,
-          nativeLanguage: input.profile.nativeLanguage,
-          interfaceLanguage: input.profile.interfaceLanguage,
+          username,
+          displayName,
+          profilePhoto: normalizeString(rawProfile.profilePhoto),
+          bio: normalizeString(rawProfile.bio),
+          dateOfBirth: safeIso(rawProfile.dateOfBirth),
+          gender: normalizeString(rawProfile.gender),
+          country: normalizeString(rawProfile.country),
+          city: normalizeString(rawProfile.city),
+          timezone: normalizeString(rawProfile.timezone),
+          nativeLanguage: normalizeString(rawProfile.nativeLanguage),
+          interfaceLanguage: normalizeString(rawProfile.interfaceLanguage),
         },
       });
 
       // 2. User Languages (native + learning)
       await tx.userLanguage.deleteMany({ where: { userId } });
-      const languageEntries: UserLanguageEntry[] = [
-        ...input.nativeLanguages,
-        ...input.learningLanguages,
-      ];
-      const nativeIds = input.nativeLanguages.map((l) => l.languageId);
+      const languageEntries: UserLanguageEntry[] = [...nativeLanguages, ...learning];
       for (const entry of languageEntries) {
         await tx.userLanguage.create({
           data: {
             userId,
             languageId: entry.languageId,
-            type: nativeIds.includes(entry.languageId) ? 'NATIVE' : 'LEARNING',
+            type: nativeSet.has(entry.languageId) ? 'NATIVE' : 'LEARNING',
             proficiency: entry.proficiency,
-            isPrimary: nativeIds.includes(entry.languageId),
+            isPrimary: nativeSet.has(entry.languageId),
           },
         });
       }
 
       // 3. Language Goals
       await tx.languageGoal.deleteMany({ where: { userId } });
-      for (const goal of input.goals) {
+      for (const goal of goals) {
         await tx.languageGoal.create({
           data: {
             userId,
@@ -235,77 +324,67 @@ export async function updateProfileSettingsAction(
         where: { userId },
         create: {
           userId,
-          seeking: input.matchPreference.seeking,
-          partnerGenderPreference: input.matchPreference.partnerGenderPreference,
-          partnerAgeMin: input.matchPreference.partnerAgeMin,
-          partnerAgeMax: input.matchPreference.partnerAgeMax,
-          callPreference: input.matchPreference.callPreference,
-          conversationTopics: JSON.stringify(input.matchPreference.conversationTopics),
+          seeking: matchPreference.seeking || null,
+          partnerGenderPreference: matchPreference.partnerGenderPreference || null,
+          partnerAgeMin: typeof matchPreference.partnerAgeMin === 'number' ? matchPreference.partnerAgeMin : null,
+          partnerAgeMax: typeof matchPreference.partnerAgeMax === 'number' ? matchPreference.partnerAgeMax : null,
+          callPreference: matchPreference.callPreference || null,
+          conversationTopics: JSON.stringify(conversationTopics),
         },
         update: {
-          seeking: input.matchPreference.seeking,
-          partnerGenderPreference: input.matchPreference.partnerGenderPreference,
-          partnerAgeMin: input.matchPreference.partnerAgeMin,
-          partnerAgeMax: input.matchPreference.partnerAgeMax,
-          callPreference: input.matchPreference.callPreference,
-          conversationTopics: JSON.stringify(input.matchPreference.conversationTopics),
+          seeking: matchPreference.seeking || null,
+          partnerGenderPreference: matchPreference.partnerGenderPreference || null,
+          partnerAgeMin: typeof matchPreference.partnerAgeMin === 'number' ? matchPreference.partnerAgeMin : null,
+          partnerAgeMax: typeof matchPreference.partnerAgeMax === 'number' ? matchPreference.partnerAgeMax : null,
+          callPreference: matchPreference.callPreference || null,
+          conversationTopics: JSON.stringify(conversationTopics),
         },
       });
 
       // 5. User Interests
       await tx.userInterest.deleteMany({ where: { userId } });
-      for (const interestId of input.interestIds) {
+      for (const interestId of interestIds) {
         await tx.userInterest.create({ data: { userId, interestId } });
       }
 
       // 6. Availability
       await tx.availability.deleteMany({ where: { userId } });
-      for (const slot of input.availability) {
+      for (const slot of availability) {
         await tx.availability.create({
           data: {
             userId,
             dayOfWeek: slot.dayOfWeek,
             startTime: slot.startTime,
             endTime: slot.endTime,
-            timezone: slot.timezone ?? input.profile.timezone,
+            timezone: slot.timezone ?? normalizeString(rawProfile.timezone),
           },
         });
       }
 
       // 7. Privacy Settings (1:1)
+      const privacy = {
+        showProfile: privacySettings.showProfile ?? true,
+        showOnlineStatus: privacySettings.showOnlineStatus ?? true,
+        showLastActive: privacySettings.showLastActive ?? true,
+        showEmail: privacySettings.showEmail ?? false,
+        showAge: privacySettings.showAge ?? true,
+        showLocation: privacySettings.showLocation ?? true,
+        allowDMs: privacySettings.allowDMs ?? true,
+        allowVideoCalls: privacySettings.allowVideoCalls ?? true,
+      };
       await tx.privacySettings.upsert({
         where: { userId },
-        create: {
-          userId,
-          showProfile: input.privacySettings.showProfile,
-          showOnlineStatus: input.privacySettings.showOnlineStatus,
-          showLastActive: input.privacySettings.showLastActive,
-          showEmail: input.privacySettings.showEmail,
-          showAge: input.privacySettings.showAge,
-          showLocation: input.privacySettings.showLocation,
-          allowDMs: input.privacySettings.allowDMs,
-          allowVideoCalls: input.privacySettings.allowVideoCalls,
-        },
-        update: {
-          showProfile: input.privacySettings.showProfile,
-          showOnlineStatus: input.privacySettings.showOnlineStatus,
-          showLastActive: input.privacySettings.showLastActive,
-          showEmail: input.privacySettings.showEmail,
-          showAge: input.privacySettings.showAge,
-          showLocation: input.privacySettings.showLocation,
-          allowDMs: input.privacySettings.allowDMs,
-          allowVideoCalls: input.privacySettings.allowVideoCalls,
-        },
+        create: { userId, ...privacy },
+        update: privacy,
       });
 
       // 8. Mirror into legacy user columns (backward compatibility)
       const allLanguageIds = Array.from(
-        new Set(input.nativeLanguages.concat(input.learningLanguages).map((l) => l.languageId))
+        new Set(nativeLanguages.concat(learning).map((l) => l.languageId))
       );
-      const allInterestIds = input.interestIds;
       const [langRows, interestRows] = await Promise.all([
         tx.language.findMany({ where: { id: { in: allLanguageIds } }, select: { id: true, name: true } }),
-        tx.interest.findMany({ where: { id: { in: allInterestIds } }, select: { id: true, name: true } }),
+        tx.interest.findMany({ where: { id: { in: interestIds } }, select: { id: true, name: true } }),
       ]);
       const nameById = new Map(langRows.map((r) => [r.id, r.name]));
       const interestNameById = new Map(interestRows.map((r) => [r.id, r.name]));
@@ -313,13 +392,13 @@ export async function updateProfileSettingsAction(
       await tx.user.update({
         where: { id: userId },
         data: {
-          name: input.profile.displayName?.trim() || undefined,
-          avatarUrl: input.profile.profilePhoto?.trim() || null,
-          bio: input.profile.bio ?? null,
-          nativeLanguages: JSON.stringify(input.nativeLanguages.map((l) => nameById.get(l.languageId)).filter(Boolean)),
-          learningLanguages: JSON.stringify(input.learningLanguages.map((l) => nameById.get(l.languageId)).filter(Boolean)),
-          interests: JSON.stringify(input.interestIds.map((id) => interestNameById.get(id)).filter(Boolean)),
-          timezoneOffset: timezoneToOffset(input.profile.timezone),
+          name: displayName || undefined,
+          avatarUrl: normalizeString(rawProfile.profilePhoto),
+          bio: normalizeString(rawProfile.bio),
+          nativeLanguages: JSON.stringify(nativeLanguages.map((l) => nameById.get(l.languageId)).filter(Boolean)),
+          learningLanguages: JSON.stringify(learning.map((l) => nameById.get(l.languageId)).filter(Boolean)),
+          interests: JSON.stringify(interestIds.map((id) => interestNameById.get(id)).filter(Boolean)),
+          timezoneOffset: timezoneToOffset(normalizeString(rawProfile.timezone)),
         },
       });
     });
@@ -331,13 +410,16 @@ export async function updateProfileSettingsAction(
     };
   } catch (error: any) {
     console.error('=== UPDATE PROFILE SETTINGS ERROR ===');
-    console.error('Message:', error.message);
-    console.error('Code:', error.code);
-    console.error('Meta:', error.meta);
+    console.error('Message:', error?.message);
+    console.error('Code:', error?.code);
+    console.error('Meta:', error?.meta);
     console.error('=====================================');
-    if (error.code === 'P2002') {
+    if (error?.code === 'P2002') {
       return { success: false, error: 'That username is already taken by another bird.' };
     }
-    return { success: false, error: error.message || 'Failed to update profile settings.' };
+    if (error?.code === 'P2003') {
+      return { success: false, error: 'One of the selected languages or interests is no longer available. Please refresh and try again.' };
+    }
+    return { success: false, error: 'We could not save your settings right now. Please try again.' };
   }
 }

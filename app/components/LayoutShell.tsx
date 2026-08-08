@@ -72,8 +72,8 @@ export default function LayoutShell({ children, activeTab = 'home', onTabChange,
           Tell the Flock
         </button>
 
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[480px] z-40">
-          <nav className="flex items-center justify-around py-3 px-4 bg-[#fbf9f5]/85 backdrop-blur-xl border border-[#c2c9bb]/40 rounded-full shadow-[0_12px_32px_rgba(21,66,18,0.12)]">
+        <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pointer-events-none">
+          <nav className="pointer-events-auto mx-auto w-full max-w-[480px] flex items-center justify-around py-3 px-4 bg-[#fbf9f5]/90 backdrop-blur-xl border border-[#c2c9bb]/40 rounded-full shadow-[0_12px_32px_rgba(21,66,18,0.14)]">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (

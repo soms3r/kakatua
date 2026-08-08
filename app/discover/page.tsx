@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import LayoutShell from '../components/LayoutShell';
 import CultureCard from '../components/CultureCard';
+import { getCountryTheme } from '../components/countryThemes';
 import { getDiscoverFeed } from '../actions/ambassadors';
 import type { DiscoverAmbassador } from '../actions/types';
 
@@ -91,7 +92,7 @@ export default function DiscoverPage() {
               <h2 className="text-xs font-bold text-[#154212]">Culture Library</h2>
               <span className="text-[10px] bg-[#ffdea5]/60 text-[#7b5800] px-2 py-0.5 rounded-full font-bold">{countryCards.length}</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {countryCards.map((amb) => (
                 <div
                   key={amb.id}
@@ -114,6 +115,7 @@ export default function DiscoverPage() {
                     cultureCardId={amb.cultureCardId}
                     loveCount={amb.loveCount}
                     isUserCreated={amb.isUserCreated}
+                    theme={getCountryTheme(amb.countrySlug)}
                   />
                 </div>
               ))}
@@ -129,7 +131,7 @@ export default function DiscoverPage() {
               <h2 className="text-xs font-bold text-[#154212]">From the Flock</h2>
               <span className="text-[10px] bg-[#e8f5e3] text-[#4a6741] px-2 py-0.5 rounded-full font-bold">{userCards.length}</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {userCards.map((u) => (
                 <CultureCard
                   key={u.id}
@@ -159,7 +161,7 @@ export default function DiscoverPage() {
               <span className="material-symbols-outlined text-[#2D5A27] text-base">shield</span>
               <h2 className="text-xs font-bold text-[#154212]">Guardians of the Flock</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {systemBots.map((amb) => (
                 <CultureCard
                   key={amb.id}

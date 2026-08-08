@@ -23,7 +23,13 @@ const PROFICIENCY_OPTIONS = ['Beginner', 'Elementary', 'Intermediate', 'Upper In
 const GOAL_TYPES = ['FLUENCY', 'CONVERSATION', 'TRAVEL', 'CAREER', 'TEST_PREP', 'CULTURE'];
 const GOAL_STATUSES = ['ACTIVE', 'COMPLETED', 'DROPPED'];
 const SEEKING_OPTIONS = ['LANGUAGE_PARTNER', 'FRIEND', 'MENTOR', 'TUTOR'];
-const CALL_PREFERENCES = ['VIDEO', 'AUDIO', 'TEXT'];
+const CALL_PREFERENCES = ['ALL', 'VIDEO', 'AUDIO', 'TEXT'];
+const CALL_PREFERENCE_LABELS: Record<string, string> = {
+  ALL: 'All (Any)',
+  VIDEO: 'Video',
+  AUDIO: 'Audio',
+  TEXT: 'Text',
+};
 const GENDER_OPTIONS = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
 const PARTNER_GENDER_OPTIONS = ['Female', 'Male', 'Non-binary', 'Any'];
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -76,6 +82,18 @@ function normalizePayload(p: ProfileSettingsPayload): ProfileSettingsPayload {
       conversationTopics: p.matchPreference.conversationTopics ?? [],
     },
   };
+}
+
+function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-[#ffffff] border border-[#efeeea] rounded-[20px] p-5 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="material-symbols-outlined text-[#2D5A27] text-lg">{icon}</span>
+        <h2 className="text-xs font-bold text-[#154212] tracking-tight">{title}</h2>
+      </div>
+      <div className="flex flex-col gap-3.5">{children}</div>
+    </div>
+  );
 }
 
 export default function ProfileSettingsPage() {
@@ -162,6 +180,16 @@ export default function ProfileSettingsPage() {
 
   async function handleSave() {
     if (!userId) return;
+    const username = form.profile.username?.trim();
+    const displayName = form.profile.displayName?.trim();
+    if (!username || !displayName) {
+      setMessage({ type: 'err', text: 'Username and display name are required to save your settings.' });
+      return;
+    }
+    if (form.nativeLanguages.length === 0 || form.learningLanguages.length === 0) {
+      setMessage({ type: 'err', text: 'Please select at least one native language and one learning language.' });
+      return;
+    }
     setSaving(true);
     setMessage(null);
     try {
@@ -170,8 +198,8 @@ export default function ProfileSettingsPage() {
         profile: {
           ...form.profile,
           dateOfBirth: form.profile.dateOfBirth || null,
-          username: form.profile.username?.trim() || null,
-          displayName: form.profile.displayName?.trim() || null,
+          username: username,
+          displayName: displayName,
           profilePhoto: form.profile.profilePhoto?.trim() || null,
           bio: form.profile.bio?.trim() || null,
           timezone: form.profile.timezone?.trim() || null,
@@ -193,18 +221,6 @@ export default function ProfileSettingsPage() {
     } finally {
       setSaving(false);
     }
-  }
-
-  function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
-    return (
-      <div className="bg-[#ffffff] border border-[#efeeea] rounded-[20px] p-5 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="material-symbols-outlined text-[#2D5A27] text-lg">{icon}</span>
-          <h2 className="text-xs font-bold text-[#154212] tracking-tight">{title}</h2>
-        </div>
-        <div className="flex flex-col gap-3.5">{children}</div>
-      </div>
-    );
   }
 
   if (loading) {
@@ -366,6 +382,7 @@ export default function ProfileSettingsPage() {
                   {languages.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
                 </select>
                 <button
+                  type="button"
                   onClick={() => setForm((prev) => ({ ...prev, goals: prev.goals.filter((_, idx) => idx !== i) }))}
                   className="material-symbols-outlined text-[#ba1a1a] hover:bg-[#ffdad6] rounded-lg p-2 text-sm transition-colors"
                   aria-label="Remove goal"
@@ -411,6 +428,7 @@ export default function ProfileSettingsPage() {
             </div>
           ))}
           <button
+            type="button"
             onClick={() => setForm((prev) => ({
               ...prev,
               goals: [...prev.goals, { goalType: 'CONVERSATION', languageId: null, targetLevel: null, targetDate: null, status: 'ACTIVE' }],
@@ -443,7 +461,7 @@ export default function ProfileSettingsPage() {
               <label className={labelCls}>Call Preference</label>
               <select value={form.matchPreference.callPreference ?? ''} onChange={(e) => setMatch('callPreference', e.target.value)} className={inputCls}>
                 <option value="">No preference</option>
-                {CALL_PREFERENCES.map((c) => <option key={c} value={c}>{c}</option>)}
+                {CALL_PREFERENCES.map((c) => <option key={c} value={c}>{CALL_PREFERENCE_LABELS[c] ?? c}</option>)}
               </select>
             </div>
           </div>
@@ -471,6 +489,7 @@ export default function ProfileSettingsPage() {
               const active = form.interestIds.includes(interest.id);
               return (
                 <button
+                  type="button"
                   key={interest.id}
                   onClick={() => toggleInterest(interest.id)}
                   className={`text-[11px] font-medium px-3 py-1.5 rounded-full border transition-all ${
@@ -513,6 +532,7 @@ export default function ProfileSettingsPage() {
                 return { ...prev, availability };
               })} className={inputCls} />
               <button
+                type="button"
                 onClick={() => setForm((prev) => ({ ...prev, availability: prev.availability.filter((_, idx) => idx !== i) }))}
                 className="material-symbols-outlined text-[#ba1a1a] hover:bg-[#ffdad6] rounded-lg p-2 text-sm transition-colors"
                 aria-label="Remove slot"
@@ -522,6 +542,7 @@ export default function ProfileSettingsPage() {
             </div>
           ))}
           <button
+            type="button"
             onClick={() => setForm((prev) => ({
               ...prev,
               availability: [...prev.availability, { dayOfWeek: 1, startTime: '18:00', endTime: '21:00', timezone: null }],
@@ -554,6 +575,7 @@ export default function ProfileSettingsPage() {
         )}
 
         <button
+          type="button"
           onClick={handleSave}
           disabled={saving}
           className="bg-[#2D5A27] hover:bg-[#154212] active:scale-[0.98] disabled:opacity-50 transition-all text-white font-semibold text-xs py-3 px-6 rounded-full flex items-center justify-center gap-2 shadow-md shadow-[#2d5a27]/10"
@@ -573,6 +595,7 @@ export default function ProfileSettingsPage() {
 function ToggleRow({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
+      type="button"
       onClick={() => onChange(!value)}
       className="flex items-center justify-between w-full text-left"
     >
@@ -624,6 +647,7 @@ function LanguageRows({
             {PROFICIENCY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
           <button
+            type="button"
             onClick={() => onChange(rows.filter((_, idx) => idx !== i))}
             className="material-symbols-outlined text-[#ba1a1a] hover:bg-[#ffdad6] rounded-lg p-2 text-sm transition-colors"
             aria-label={`Remove ${title.toLowerCase().slice(0, -1)}`}
@@ -636,6 +660,7 @@ function LanguageRows({
         </div>
       ))}
       <button
+        type="button"
         onClick={() => onChange([...rows, { languageId: '', proficiency: null }])}
         className="flex items-center gap-1.5 text-[11px] font-semibold text-[#2D5A27] hover:text-[#154212] transition-colors"
       >

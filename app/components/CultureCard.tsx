@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { reportUserAction } from '../actions/reportUser';
 import { toggleLoveAction, getUserLoveStatus } from '../actions/loveCard';
+import { DEFAULT_THEME, type CountryTheme } from './countryThemes';
 
 interface CultureCardData {
   traditions: string;
@@ -31,6 +32,7 @@ interface CultureCardProps {
   cultureCardId?: string | null;
   loveCount?: number;
   isUserCreated?: boolean;
+  theme?: CountryTheme;
 }
 
 const ROLE_BADGES: Record<string, { label: string; icon: string; color: string; bg: string }> = {
@@ -48,6 +50,7 @@ export default function CultureCard({
   cultureCardId,
   loveCount: initialLoveCount = 0,
   isUserCreated = false,
+  theme,
 }: CultureCardProps) {
   const { data: session } = useSession();
   const [showReportModal, setShowReportModal] = useState(false);
@@ -76,10 +79,13 @@ export default function CultureCard({
   const tz = parseFloat(user.timezoneOffset);
   const tzLabel = isNaN(tz) ? '' : `UTC ${tz >= 0 ? '+' : ''}${tz}`;
 
+  const isThemed = !!theme && theme !== DEFAULT_THEME;
+  const palette = isThemed && theme ? theme : DEFAULT_THEME;
+
   const sections = [
-    { key: 'traditions', label: 'Traditions', icon: 'diversity_3', color: '#2d5a27', bg: '#bcf0ae', text: cardData.traditions },
-    { key: 'food', label: 'Local Flavours', icon: 'restaurant', color: '#7b5800', bg: '#ffdea5', text: cardData.food },
-    { key: 'history', label: 'History', icon: 'auto_stories', color: '#6d1d06', bg: '#ffdbd1', text: cardData.history },
+    { key: 'traditions', label: 'Traditions', icon: 'diversity_3', color: isThemed ? theme!.accentDark : '#2d5a27', bg: isThemed ? theme!.accentBg : '#bcf0ae', text: cardData.traditions },
+    { key: 'food', label: 'Local Flavours', icon: 'restaurant', color: isThemed ? theme!.accentDark : '#7b5800', bg: isThemed ? theme!.accentBg : '#ffdea5', text: cardData.food },
+    { key: 'history', label: 'History', icon: 'auto_stories', color: isThemed ? theme!.accentDark : '#6d1d06', bg: isThemed ? theme!.accentBg : '#ffdbd1', text: cardData.history },
   ].filter((s) => s.text && s.text.trim().length > 0);
 
   async function handleReport() {
@@ -116,20 +122,36 @@ export default function CultureCard({
 
   return (
     <>
-      <div className="w-full bg-[#ffffff] border border-[#efeeea] rounded-[20px] shadow-[0_4px_24px_rgba(21,66,18,0.04)] p-5 flex flex-col gap-4 transition-all hover:shadow-[0_6px_28px_rgba(21,66,18,0.07)]">
+      <div
+        className="relative w-full bg-[#ffffff] rounded-2xl shadow-[0_2px_14px_rgba(21,66,18,0.05)] p-4 flex flex-col gap-3 overflow-hidden border transition-all hover:shadow-[0_8px_24px_rgba(21,66,18,0.09)] hover:-translate-y-0.5"
+        style={{ borderColor: palette.border }}
+      >
+        {palette.stripes.length > 0 && (
+          <div className="absolute top-0 left-0 right-0 h-1.5 flex">
+            {palette.stripes.map((c, i) => (
+              <div key={i} style={{ backgroundColor: c }} className="flex-1" />
+            ))}
+          </div>
+        )}
 
         {/* Header: Avatar + Name + Languages + Report */}
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-[#f5f3ef] border border-[#dbdad6] overflow-hidden flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"
+            style={{ backgroundColor: palette.accentBg, border: `2px solid ${palette.accentSoft}` }}
+          >
             {user.avatarUrl ? (
               <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
             ) : (
-              <span className="material-symbols-outlined w-full h-full flex items-center justify-center text-[#2D5A27] text-xl">flutter_dash</span>
+              <span className="material-symbols-outlined text-xl" style={{ color: palette.accent }}>flutter_dash</span>
             )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="font-bold text-sm text-[#1b1c1a] truncate">{user.name}</h3>
+              <h3 className="font-bold text-[13px] text-[#1b1c1a] truncate">
+                {palette.flagEmoji && <span className="mr-0.5">{palette.flagEmoji}</span>}
+                {user.name}
+              </h3>
               {ambassadorRole && ROLE_BADGES[ambassadorRole] && (
                 <span
                   className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
@@ -149,22 +171,22 @@ export default function CultureCard({
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-[#72796e] flex items-center gap-1 mt-0.5">
-              <span className="material-symbols-outlined text-[12px]">language</span>
+            <p className="text-[10px] text-[#72796e] flex items-center gap-1 mt-0.5">
+              <span className="material-symbols-outlined text-[11px]" style={{ color: palette.accent }}>language</span>
               <span className="truncate">{formatLanguages(user.nativeLanguages)} → {formatLanguages(user.learningLanguages)}</span>
             </p>
           </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {tzLabel && (
-              <span className="text-[10px] text-[#72796e] bg-[#f5f3ef] px-2 py-0.5 rounded-full">{tzLabel}</span>
+              <span className="text-[9px] text-[#72796e] bg-[#f5f3ef] px-2 py-0.5 rounded-full">{tzLabel}</span>
             )}
             {!isOwnCard && (
               <button
                 onClick={() => setShowReportModal(true)}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#ffdad6] transition-colors text-[#a0a0a0] hover:text-[#ba1a1a]"
+                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#ffdad6] transition-colors text-[#a0a0a0] hover:text-[#ba1a1a]"
                 title="Report this user"
               >
-                <span className="material-symbols-outlined text-base">flag</span>
+                <span className="material-symbols-outlined text-sm">flag</span>
               </button>
             )}
           </div>
@@ -172,18 +194,18 @@ export default function CultureCard({
 
         {/* Culture Sections */}
         {sections.length > 0 && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {sections.map((section) => (
-              <div key={section.key} className="flex gap-2.5 items-start">
+              <div key={section.key} className="flex gap-2 items-start">
                 <span
-                  className="material-symbols-outlined text-base p-1.5 rounded-lg flex-shrink-0 mt-0.5"
+                  className="material-symbols-outlined text-[15px] p-1.5 rounded-lg flex-shrink-0 mt-0.5"
                   style={{ color: section.color, backgroundColor: `${section.bg}40` }}
                 >
                   {section.icon}
                 </span>
                 <div className="min-w-0">
-                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-[#72796e]">{section.label}</h4>
-                  <p className="text-xs text-[#42493e] leading-relaxed mt-0.5">{section.text}</p>
+                  <h4 className="text-[9px] font-semibold uppercase tracking-wider text-[#72796e]">{section.label}</h4>
+                  <p className="text-[11px] text-[#42493e] leading-relaxed mt-0.5">{section.text}</p>
                 </div>
               </div>
             ))}
@@ -192,9 +214,12 @@ export default function CultureCard({
 
         {/* Fun Fact */}
         {cardData.funFact && cardData.funFact.trim().length > 0 && (
-          <div className="bg-[#fbf9f5] border border-[#efeeea] rounded-xl px-3 py-2.5 flex gap-2 items-start">
-            <span className="material-symbols-outlined text-sm text-[#2d5a27] mt-0.5">tips_and_updates</span>
-            <p className="text-[11px] text-[#42493e] leading-relaxed italic">"{cardData.funFact}"</p>
+          <div
+            className="rounded-lg px-2.5 py-2 flex gap-2 items-start border"
+            style={{ backgroundColor: palette.accentBg, borderColor: palette.border }}
+          >
+            <span className="material-symbols-outlined text-sm mt-0.5" style={{ color: palette.accentDark }}>tips_and_updates</span>
+            <p className="text-[10px] text-[#42493e] leading-relaxed italic">"{cardData.funFact}"</p>
           </div>
         )}
 
@@ -202,7 +227,7 @@ export default function CultureCard({
         {user.interests && user.interests.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-1 border-t border-[#f5f3ef]">
             {user.interests.map((interest) => (
-              <span key={interest} className="text-[10px] font-medium bg-[#f5f3ef] text-[#42493e] px-2 py-0.5 rounded-full">
+              <span key={interest} className="text-[9px] font-medium bg-[#f5f3ef] text-[#42493e] px-1.5 py-0.5 rounded-full">
                 #{interest}
               </span>
             ))}
@@ -216,7 +241,7 @@ export default function CultureCard({
             <button
               onClick={handleLoveToggle}
               disabled={loveLoading || isOwnCard}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
                 isOwnCard
                   ? 'bg-[#f5f3ef] text-[#b0b0b0] cursor-default'
                   : isLoved
@@ -235,7 +260,10 @@ export default function CultureCard({
           {(onViewProfile || hasDetails) && (
             <button
               onClick={onViewProfile}
-              className="self-start text-[11px] font-semibold text-[#2D5A27] hover:text-[#154212] transition-colors flex items-center gap-1"
+              className="self-start text-[10px] font-semibold transition-colors flex items-center gap-1"
+              style={{ color: palette.accent }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = palette.accentDark)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = palette.accent)}
             >
               <span className="material-symbols-outlined text-sm">{hasDetails ? 'book_2' : 'arrow_forward'}</span>
               {hasDetails ? 'View Culture Library' : 'View Profile'}
