@@ -89,6 +89,27 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
     newUser: '/register',
   },
+  events: {
+    async signIn({ user }) {
+      // Mark the bird as present on the guardian roster.
+      if (user?.id) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { isOnline: true },
+        });
+      }
+    },
+    async signOut({ token }) {
+      // Mark the bird as away when they leave the nest.
+      const id = token?.id;
+      if (id) {
+        await prisma.user.update({
+          where: { id },
+          data: { isOnline: false },
+        });
+      }
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

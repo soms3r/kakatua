@@ -15,6 +15,8 @@ import {
   UserLanguageEntry,
 } from './types';
 import { guardAgainstAmbassadorMutation } from './ambassadors';
+import { regenerateMissionsForUser } from './missions';
+import { logActivity } from './activity';
 
 function timezoneToOffset(timezone: string | null): number {
   if (!timezone) return 0;
@@ -402,6 +404,15 @@ export async function updateProfileSettingsAction(
         },
       });
     });
+
+    // Regenerate profile-driven missions based on the updated learning goals
+    try {
+      await regenerateMissionsForUser(userId);
+    } catch (e: any) {
+      console.warn('[Kakatua] Missions: auto-generation after profile update skipped:', e?.message);
+    }
+
+    await logActivity(userId, 'PROFILE_UPDATED', 'Nest settings refreshed', 'Profile, languages, goals, and preferences updated.');
 
     return {
       success: true,

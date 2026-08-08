@@ -54,44 +54,6 @@ export async function getAmbassadorsAction(): Promise<ActionResponse<AmbassadorD
   }
 }
 
-interface MissionData {
-  id: string;
-  missionId: string;
-  title: string;
-  description: string;
-  expReward: number;
-  type: string;
-  progress: number;
-  completed: boolean;
-  completedAt: string | null;
-}
-
-export async function getUserMissionsAction(userId: string): Promise<ActionResponse<MissionData[]>> {
-  try {
-    const userMissions = await prisma.userMission.findMany({
-      where: { userId },
-      include: { mission: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    const data: MissionData[] = userMissions.map((um) => ({
-      id: um.id,
-      missionId: um.missionId,
-      title: um.mission.title,
-      description: um.mission.description,
-      expReward: um.mission.expReward,
-      type: um.mission.type,
-      progress: um.progress,
-      completed: um.completed,
-      completedAt: um.completedAt ? um.completedAt.toISOString() : null,
-    }));
-
-    return { success: true, message: 'Missions loaded.', data };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to load missions.' };
-  }
-}
-
 interface UserProfileData {
   id: string;
   name: string;

@@ -32,6 +32,9 @@ model User {
   password          String?       // bcrypt-hashed password for credential auth
   isAmbassador      Boolean       @default(false) @map("is_ambassador")
   ambassadorRole    String?       @map("ambassador_role") // GUIDE, MATCHMAKER, CULTURAL_ADVISOR — immutable system bots
+  ambassadorBadge   String?       @map("ambassador_badge") // Trust badge text shown next to ambassador name (e.g. "Verified Guide")
+  specialtyLanguages String[]     @default([]) @map("specialty_languages") // Languages an ambassador can coach (e.g. ["Bengali", "English"])
+  isOnline          Boolean       @default(false) @map("is_online") // Live presence flag for the guardian roster
   countrySlug       String?       @map("country_slug") // URL slug for country detail pages (e.g. "bangladesh", "japan")
 
   // Profile enrichment fields (legacy, mirrored into Profile)
@@ -46,9 +49,13 @@ model User {
   // Relationships
   cultureCard       CultureCard?
   cultureCardLikes  CultureCardLike[]
-  userMissions      UserMission[]
+  missions          Mission[]
+  activities        UserActivity[]
   reportsFiled      UserReport[]    @relation("Reporter")
   reportsReceived   UserReport[]    @relation("Reported")
+  resolvedReports   UserReport[]    @relation("ResolvedReports")
+  guardianRequests  GuardianTicket[] @relation("GuardianRequestor")
+  guardianAssignments GuardianTicket[] @relation("GuardianAssignee")
 
   // Normalized profile architecture
   profile           Profile?
@@ -95,36 +102,27 @@ model CultureCardLike {
   @@map("culture_card_likes")
 }
 
-// 3. Missions Table (Master Data)
+// 3. Missions Table (per-user, normalized — prebuilt, auto-generated, and custom)
 model Mission {
-  id           String        @id @default(uuid())
-  title        String
-  description  String
-  expReward    Int           @map("exp_reward")
-  type         String        // daily, weekly, milestone
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  description   String
+  category      String    @default("DAILY") // DAILY, CONVERSATION, GOAL
+  progress      Int       @default(0)
+  target        Int       @default(100)
+  status        String    @default("PENDING") // PENDING, COMPLETED
+  expReward     Int       @default(0) @map("exp_reward")
+  rewardClaimed Boolean   @default(false) @map("reward_claimed")
+  isPrebuilt    Boolean   @default(false) @map("is_prebuilt")
+  source        String    @default("CUSTOM") // PREBUILT, AUTO, CUSTOM
+  completedAt   DateTime? @map("completed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  userMissions UserMission[]
-
+  @@index([userId])
   @@map("missions")
-}
-
-// 4. User Missions Table (1:M tracking progress)
-model UserMission {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  missionId   String    @map("mission_id")
-  mission     Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  progress    Int       @default(0)
-  completed   Boolean   @default(false)
-  completedAt DateTime? @map("completed_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  @@unique([userId, missionId])
-  @@map("user_missions")
 }
 
 // 5. User Reports Table (spam-blocked audit trail)
@@ -135,11 +133,42 @@ model UserReport {
   reportedId String   @map("reported_id")
   reported   User     @relation("Reported", fields: [reportedId], references: [id], onDelete: Cascade)
   reason     String
+  status     String   @default("PENDING") // PENDING, ACTIONED, RESOLVED, DISMISSED
+  resolution String?  // Guardian's note on what was done
+  resolvedById String? @map("resolved_by_id")
+  resolvedBy User?    @relation("ResolvedReports", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolvedAt DateTime? @map("resolved_at")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@unique([reporterId, reportedId])
+  @@index([status])
   @@map("user_reports")
+}
+
+// ─── Guardian Support System ──────────────────────────────────────────────────
+// Tickets raised by community members for an ambassador ("guardian") to answer:
+// GUIDANCE (life/culture advice), PRACTICE_SESSION (language practice), SAFETY_FLAG.
+model GuardianTicket {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  user       User     @relation("GuardianRequestor", fields: [userId], references: [id], onDelete: Cascade)
+  guardianId String?  @map("guardian_id")
+  guardian   User?    @relation("GuardianAssignee", fields: [guardianId], references: [id], onDelete: SetNull)
+  type       String   // GUIDANCE, PRACTICE_SESSION, SAFETY_FLAG
+  subject    String
+  message    String
+  status     String   @default("OPEN") // OPEN, ACCEPTED, CLOSED
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  acceptedAt DateTime? @map("accepted_at")
+  resolvedAt DateTime? @map("resolved_at")
+  resolution String?
+
+  @@index([userId])
+  @@index([guardianId])
+  @@index([status])
+  @@map("guardian_tickets")
 }
 
 // 6. Feedbacks Table (Flock Feedback system)
@@ -341,4 +370,19 @@ model UserBlock {
   @@unique([blockerId, blockedId])
   @@index([blockedId])
   @@map("user_blocks")
+}
+
+// 19. User Activity Log Table (per-user timeline & analytics)
+model UserActivity {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actionType  String   @map("action_type") // VIDEO_MATCH_COMPLETED, MISSION_COMPLETED, PROFILE_UPDATED, FEEDBACK_SUBMITTED, MISSION_CREATED
+  title       String
+  description String?
+  metadata    Json?    // extra context (partnerId, compatibilityScore, minutes, expReward, ...)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@map("user_activities")
 }

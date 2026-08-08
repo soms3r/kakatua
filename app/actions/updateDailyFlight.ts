@@ -4,6 +4,7 @@
 
 import { prisma } from './db';
 import { ActionResponse } from './types';
+import { computeStreak } from './streak';
 
 interface FlightProgressResult {
   missionId: string;
@@ -14,13 +15,6 @@ interface FlightProgressResult {
   currentStreak: number;
 }
 
-interface UserMissionProgress {
-  id: string;
-  progress: number;
-  completed: boolean;
-  completedAt: Date | null;
-}
-
 export async function updateDailyFlightAction(
   userId: string,
   missionId: string,
@@ -28,123 +22,49 @@ export async function updateDailyFlightAction(
 ): Promise<ActionResponse<FlightProgressResult>> {
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Fetch the master mission details
+      // 1. Fetch the user's mission (normalized per-user model)
       const mission = await tx.mission.findUnique({
         where: { id: missionId },
       });
 
-      if (!mission) {
-        throw new Error("Daily Flight route is not mapped.");
+      if (!mission || mission.userId !== userId) {
+        throw new Error("Daily Flight route is not mapped to your nest.");
       }
 
-      // 2. Fetch or initialize the user's progress for this mission
-      // Use select ... for update via raw query to lock the row
-      const rows = await tx.$queryRawUnsafe<UserMissionProgress[]>(
-        `SELECT id, progress, completed, completed_at AS "completedAt" FROM user_missions
-         WHERE user_id = ? AND mission_id = ?`,
-        userId,
-        missionId
-      );
-
-      let progressRecord: UserMissionProgress | null = rows.length > 0 ? rows[0] : null;
-
-      let currentProgress = 0;
-      let isCompleted = false;
+      let currentProgress = mission.progress;
+      let isCompleted = mission.status === 'COMPLETED';
       let expAwarded = 0;
-      const targetProgress = 100;
 
-      if (!progressRecord) {
-        currentProgress = Math.min(targetProgress, progressIncrement);
-        isCompleted = currentProgress >= targetProgress;
+      if (!isCompleted) {
+        currentProgress = Math.min(mission.target, mission.progress + progressIncrement);
+        isCompleted = currentProgress >= mission.target;
 
-        const inserted = await tx.userMission.create({
+        await tx.mission.update({
+          where: { id: missionId },
           data: {
-            userId,
-            missionId,
             progress: currentProgress,
-            completed: isCompleted,
+            status: isCompleted ? 'COMPLETED' : 'PENDING',
             completedAt: isCompleted ? new Date() : null,
           },
         });
-        progressRecord = inserted;
-      } else {
-        if (progressRecord.completed) {
-          isCompleted = true;
-          currentProgress = targetProgress;
-        } else {
-          currentProgress = Math.min(
-            targetProgress,
-            progressRecord.progress + progressIncrement
-          );
-          isCompleted = currentProgress >= targetProgress;
-
-          const updated = await tx.userMission.update({
-            where: { id: progressRecord.id },
-            data: {
-              progress: currentProgress,
-              completed: isCompleted,
-              completedAt: isCompleted ? new Date() : null,
-            },
-          });
-          progressRecord = updated;
-        }
       }
 
-      if (isCompleted && progressRecord.completedAt) {
+      if (isCompleted && mission.rewardClaimed === false) {
         expAwarded = mission.expReward;
       }
 
-      // 3. Dynamically calculate the user's consecutive day streak
-      const completions = await tx.userMission.findMany({
+      // 2. Dynamically calculate the user's consecutive day streak
+      const completions = await tx.mission.findMany({
         where: {
           userId,
-          completed: true,
+          status: 'COMPLETED',
           completedAt: { not: null },
         },
         select: { completedAt: true },
         orderBy: { completedAt: 'desc' },
       });
 
-      let currentStreak = 0;
-      if (completions.length > 0) {
-        const uniqueDates = Array.from(
-          new Set(
-            completions.map((c) =>
-              new Date(c.completedAt!).toISOString().split('T')[0]
-            )
-          )
-        );
-
-        const todayStr = new Date().toISOString().split('T')[0];
-        const yesterdayStr = new Date(
-          Date.now() - 24 * 60 * 60 * 1000
-        ).toISOString().split('T')[0];
-
-        let checkDate = new Date();
-        if (uniqueDates[0] === todayStr) {
-          currentStreak = 1;
-        } else if (uniqueDates[0] === yesterdayStr) {
-          currentStreak = 1;
-          checkDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        } else {
-          currentStreak = 0;
-        }
-
-        if (currentStreak > 0) {
-          for (let i = 1; i < 365; i++) {
-            const previousDateStr = new Date(
-              checkDate.getTime() - i * 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split('T')[0];
-            if (uniqueDates.includes(previousDateStr)) {
-              currentStreak++;
-            } else {
-              break;
-            }
-          }
-        }
-      }
+      const currentStreak = computeStreak(completions.map((c) => c.completedAt!));
 
       return {
         missionId: mission.id,

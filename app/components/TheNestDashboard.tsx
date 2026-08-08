@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 interface Mission {
   id: string;
@@ -19,6 +20,7 @@ interface TheNestDashboardProps {
   missions: Mission[];
   onFindKakatua: () => void;
   onMissionClick?: (missionId: string) => void;
+  loading?: boolean;
 }
 
 export default function TheNestDashboard({
@@ -27,6 +29,7 @@ export default function TheNestDashboard({
   missions,
   onFindKakatua,
   onMissionClick,
+  loading = false,
 }: TheNestDashboardProps) {
   
   return (
@@ -96,7 +99,28 @@ export default function TheNestDashboard({
         </div>
 
         <div className="flex flex-col gap-3">
-          {missions.map((mission) => {
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center bg-[#ffffff] border border-[#efeeea] rounded-2xl">
+              <div className="w-8 h-8 border-3 border-[#a1d494] border-t-[#2D5A27] rounded-full animate-spin mb-3" />
+              <p className="text-xs text-[#72796e]">Gathering your flights...</p>
+            </div>
+          ) : missions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center bg-[#ffffff] border border-[#efeeea] rounded-2xl">
+              <span className="material-symbols-outlined text-4xl text-[#c2c9bb] mb-3">flight_takeoff</span>
+              <h4 className="text-xs font-bold text-[#42493e] mb-1">No flights on your deck yet</h4>
+              <p className="text-[10px] text-[#72796e] max-w-[75%] leading-relaxed mb-4">
+                Visit Missions to pick up curated quests or weave your own.
+              </p>
+              <Link
+                href="/missions"
+                className="bg-[#2D5A27] hover:bg-[#154212] active:scale-95 transition-all text-white font-semibold text-[10px] py-2 px-4 rounded-full flex items-center justify-center gap-1.5 shadow-md"
+              >
+                <span className="material-symbols-outlined text-xs">rocket_launch</span>
+                Browse Missions
+              </Link>
+            </div>
+          ) : (
+          missions.map((mission) => {
             return (
               <div
                 key={mission.id}
@@ -137,7 +161,8 @@ export default function TheNestDashboard({
                 </div>
               </div>
             );
-          })}
+          })
+          )}
         </div>
       </div>
 

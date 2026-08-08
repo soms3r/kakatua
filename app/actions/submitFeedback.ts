@@ -4,6 +4,7 @@
 
 import { prisma } from './db';
 import { ActionResponse, FeedbackCategory } from './types';
+import { logActivity } from './activity';
 
 interface FeedbackInput {
   message: string;
@@ -53,6 +54,16 @@ export async function submitFeedbackAction(
         status: 'New',
       },
     });
+
+    if (userId) {
+      await logActivity(
+        userId,
+        'FEEDBACK_SUBMITTED',
+        `Feedback shared (${input.category})`,
+        input.message.trim().slice(0, 120),
+        { category: input.category, feedbackId: feedback.id }
+      );
+    }
 
     return {
       success: true,

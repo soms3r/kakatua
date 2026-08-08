@@ -53,12 +53,12 @@ if ($prismaTables -eq $sqlTables) {
 }
 
 # 1d. Verify Prisma unique constraints required by Constitution section 3-B
-$userMissionUnique = (Select-String -Path "prisma\schema.prisma" -Pattern '@@unique\(\[userId,\s*missionId\]\)').Count
+$missionUserIndex = (Select-String -Path "prisma\schema.prisma" -Pattern '@@index\(\[userId\]\)').Count
 $reportUnique = (Select-String -Path "prisma\schema.prisma" -Pattern '@@unique\(\[reporterId,\s*reportedId\]\)').Count
-if ($userMissionUnique -ge 1 -and $reportUnique -ge 1) {
-    pass "Prisma schema has required unique constraints (Constitution 3-B)"
+if ($missionUserIndex -ge 1 -and $reportUnique -ge 1) {
+    pass "Prisma schema has required indexes/constraints (missions.user_id index + Constitution 3-B)"
 } else {
-    fail "Prisma schema missing required unique constraints"
+    fail "Prisma schema missing required indexes/constraints"
 }
 
 # 1e. CultureCard.data uses Json type (JSONB)

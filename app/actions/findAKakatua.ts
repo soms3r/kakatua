@@ -4,8 +4,9 @@
 
 import { prisma } from './db';
 import { ActionResponse } from './types';
+import { logActivity } from './activity';
 
-interface MatchedUserData {
+export interface MatchedUserData {
   id: string;
   name: string;
   avatarUrl: string | null;
@@ -141,6 +142,18 @@ export async function findAKakatuaAction(userId: string): Promise<ActionResponse
     });
 
     if (match) {
+      await logActivity(
+        userId,
+        'VIDEO_MATCH_COMPLETED',
+        `Wings aligned with ${match.name}`,
+        `You took flight with ${match.name}, a new language partner.`,
+        {
+          partnerId: match.id,
+          compatibilityScore: match.compatibilityScore,
+          minutes: 15,
+        }
+      );
+
       return {
         success: true,
         message: "Your wings aligned! You have taken flight with a new partner.",

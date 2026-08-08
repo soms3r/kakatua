@@ -16,7 +16,9 @@ interface LayoutShellProps {
 const tabs = [
   { id: 'home', label: 'Nest', icon: 'home', href: '/' },
   { id: 'discover', label: 'Discover', icon: 'explore', href: '/discover' },
+  { id: 'activity', label: 'Activity', icon: 'timeline', href: '/activity' },
   { id: 'missions', label: 'Missions', icon: 'rocket_launch', href: '/missions' },
+  { id: 'guardians', label: 'Guardians', icon: 'support_agent', href: '/guardians' },
   { id: 'profile', label: 'Profile', icon: 'person', href: '/profile' },
 ];
 
