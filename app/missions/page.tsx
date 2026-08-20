@@ -252,17 +252,22 @@ export default function MissionsPage() {
   const [toast, setToast] = useState('');
 
   const loadMissions = async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
+      setError('');
       const result = await getMissionsAction(session.user.id);
       if (result.success) {
         setMissions(result.data.missions);
         setProfileContext(result.data.profile);
       } else {
-        setError(result.error);
+        setError(result.error || 'Failed to load missions.');
       }
     } catch (err: any) {
+      console.warn('[Kakatua] loadMissions error:', err);
       setError(err?.message || 'Failed to load missions.');
     } finally {
       setLoading(false);
@@ -286,39 +291,59 @@ export default function MissionsPage() {
     setMissions((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
   };
 
+  const userId = session?.user?.id;
+
   const handleClaim = async (missionId: string) => {
+    if (!userId) return;
     setBusyId(missionId);
-    const result = await claimMissionRewardAction(session!.user.id!, missionId);
-    setBusyId(null);
-    if (result.success) {
-      replaceMission(result.data.mission);
-      showToast(result.message);
-    } else {
-      showToast(result.error);
+    try {
+      const result = await claimMissionRewardAction(userId, missionId);
+      if (result.success) {
+        replaceMission(result.data.mission);
+        showToast(result.message);
+      } else {
+        showToast(result.error);
+      }
+    } catch {
+      showToast('Something went wrong claiming that reward.');
+    } finally {
+      setBusyId(null);
     }
   };
 
   const handleDelete = async (missionId: string) => {
+    if (!userId) return;
     setBusyId(missionId);
-    const result = await deleteCustomMissionAction(session!.user.id!, missionId);
-    setBusyId(null);
-    if (result.success) {
-      setMissions((prev) => prev.filter((m) => m.id !== missionId));
-      showToast(result.message);
-    } else {
-      showToast(result.error);
+    try {
+      const result = await deleteCustomMissionAction(userId, missionId);
+      if (result.success) {
+        setMissions((prev) => prev.filter((m) => m.id !== missionId));
+        showToast(result.message);
+      } else {
+        showToast(result.error);
+      }
+    } catch {
+      showToast('Something went wrong removing that mission.');
+    } finally {
+      setBusyId(null);
     }
   };
 
   const handleCreate = async (input: { title: string; description: string; category: 'DAILY' | 'CONVERSATION' | 'GOAL'; target: number; expReward: number; trackingAction?: string | null }) => {
+    if (!userId) return;
     setCreating(true);
-    const result = await createCustomMissionAction(session!.user.id!, input);
-    setCreating(false);
-    if (result.success) {
-      setMissions((prev) => [result.data, ...prev]);
-      showToast(result.message);
-    } else {
-      showToast(result.error);
+    try {
+      const result = await createCustomMissionAction(userId, input);
+      if (result.success) {
+        setMissions((prev) => [result.data, ...prev]);
+        showToast(result.message);
+      } else {
+        showToast(result.error);
+      }
+    } catch {
+      showToast('Something went wrong creating that mission.');
+    } finally {
+      setCreating(false);
     }
   };
 

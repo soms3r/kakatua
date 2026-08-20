@@ -199,24 +199,29 @@ interface ProfileInput {
 }
 
 async function fetchProfileContext(userId: string): Promise<ProfileInput> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      profileLanguages: { include: { language: true } },
-      languageGoals: true,
-    },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        profileLanguages: { include: { language: true } },
+        languageGoals: true,
+      },
+    });
 
-  if (!user) return { learningLanguages: [], goals: [] };
+    if (!user) return { learningLanguages: [], goals: [] };
 
-  const learningLanguages = user.profileLanguages
-    .filter((l) => l.type === 'LEARNING')
-    .map((l) => l.language.name)
-    .filter(Boolean);
+    const learningLanguages = user.profileLanguages
+      .filter((l) => l.type === 'LEARNING')
+      .map((l) => l.language.name)
+      .filter(Boolean);
 
-  const goals = user.languageGoals.filter((g) => g.status === 'ACTIVE').map((g) => g.goalType);
+    const goals = user.languageGoals.filter((g) => g.status === 'ACTIVE').map((g) => g.goalType);
 
-  return { learningLanguages, goals };
+    return { learningLanguages, goals };
+  } catch (error: any) {
+    console.warn('[Kakatua] fetchProfileContext failed:', error?.message);
+    return { learningLanguages: [], goals: [] };
+  }
 }
 
 /**
@@ -260,20 +265,24 @@ export async function regenerateMissionsForUser(userId: string): Promise<{ creat
 
   if (candidates.length === 0) return { created: 0 };
 
-  await prisma.mission.createMany({
-    data: candidates.map((c) => ({
-      userId,
-      title: c.title,
-      description: c.description,
-      category: c.category,
-      target: c.target,
-      expReward: c.expReward,
-      isPrebuilt: c.isPrebuilt,
-      source: c.source,
-      trackingAction: c.trackingAction ?? null,
-      status: 'PENDING',
-    })),
-  });
+  try {
+    await prisma.mission.createMany({
+      data: candidates.map((c) => ({
+        userId,
+        title: c.title,
+        description: c.description,
+        category: c.category,
+        target: c.target,
+        expReward: c.expReward,
+        isPrebuilt: c.isPrebuilt,
+        source: c.source,
+        trackingAction: c.trackingAction ?? null,
+        status: 'PENDING',
+      })),
+    });
+  } catch (error: any) {
+    console.warn('[Kakatua] regenerateMissionsForUser createMany failed:', error?.message);
+  }
 
   return { created: candidates.length };
 }
