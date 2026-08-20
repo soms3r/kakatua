@@ -17,12 +17,6 @@ export type MissionTrackingAction =
   | 'PROFILE_UPDATED'
   | 'GUARDIAN_QUESTION_ASKED';
 
-export const TRACKING_ACTION_LABELS: Record<string, string> = {
-  VIDEO_MATCH_COMPLETED: 'Complete a video match with a partner',
-  PROFILE_UPDATED: 'Update your profile settings',
-  GUARDIAN_QUESTION_ASKED: 'Ask a question to a guardian',
-};
-
 export interface MissionData {
   id: string;
   title: string;

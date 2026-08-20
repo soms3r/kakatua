@@ -9,9 +9,9 @@ import {
   createCustomMissionAction,
   claimMissionRewardAction,
   deleteCustomMissionAction,
-  TRACKING_ACTION_LABELS,
   type MissionData,
 } from '../actions/missions';
+import { TRACKING_ACTION_LABELS } from '../lib/constants';
 
 const CATEGORY_META: Record<string, { label: string; icon: string }> = {
   DAILY: { label: 'Daily Flight', icon: 'wb_sunny' },

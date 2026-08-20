@@ -11,6 +11,7 @@ declare module 'next-auth' {
       name?: string | null;
       email?: string | null;
       emailVerified?: boolean | null;
+      avatarUrl?: string | null;
     };
   }
 }
@@ -18,6 +19,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
+    avatarUrl?: string | null;
   }
 }
 
@@ -114,12 +116,19 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        // Fetch avatarUrl once at sign-in and cache it in the JWT.
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { avatarUrl: true },
+        });
+        token.avatarUrl = dbUser?.avatarUrl ?? null;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
+        session.user.avatarUrl = token.avatarUrl ?? null;
         const verification = await prisma.verification.findUnique({
           where: { userId: token.id },
           select: { emailVerified: true },

@@ -52,13 +52,27 @@ export default function LayoutShell({ children, activeTab = 'home', onTabChange,
             <button className="w-9 h-9 flex items-center justify-center rounded-full bg-[#f5f3ef] hover:bg-[#efeeea] active:scale-95 transition-all text-[#42493e]">
               <span className="material-symbols-outlined text-xl">notifications</span>
             </button>
-            <div className="w-8 h-8 rounded-full bg-[#2d5a27] border-2 border-[#a1d494] overflow-hidden">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkc4r1Fu4jTuEkCgJlwCfujDO-dFyEawzA2yEXEcNUJ63ey5-tofexj9BTU3iKPQzjjdrGVuCnUpaLnTm5XAw5iR4qsppIE5-BS8Ff7wOz_FlD5_Qf9p8GFFf2uB1ZsQyYzG2F26jvBFJ07FYCnO0kLSk-Yy11kUUAAQVeAS2DSvCpeRn_YG15Lwh_0t0wGUNKZv8ZLY-DUyEvVE1fuU-KDyy4xcXe7zDP-xc2FkROupFQXAKWmFjRUhu2iQ6PPx4-jKEK2jCNDVFc"
-                alt="My Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <Link
+              href="/profile"
+              className="w-8 h-8 rounded-full border-2 border-[#a1d494] overflow-hidden flex items-center justify-center flex-shrink-0 transition-all active:scale-95"
+              style={{
+                background: session?.user?.avatarUrl
+                  ? undefined
+                  : 'linear-gradient(135deg, #e2efce 0%, #b3cd97 58%, #8fae72)',
+              }}
+            >
+              {session?.user?.avatarUrl ? (
+                <img
+                  src={session.user.avatarUrl}
+                  alt={session.user.name || 'Profile'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-sm font-bold text-[#2e4a21] select-none">
+                  {(session?.user?.name || 'K').charAt(0).toUpperCase()}
+                </span>
+              )}
+            </Link>
           </div>
         </header>
 
