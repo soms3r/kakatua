@@ -36,6 +36,14 @@ export interface GuardianMini {
   ambassadorBadge: string | null;
 }
 
+export interface GuardianMessageData {
+  id: string;
+  sender: string; // USER | BOT | MODERATOR
+  senderId: string | null;
+  content: string;
+  createdAt: string;
+}
+
 export interface GuardianTicketData {
   id: string;
   type: string;
@@ -50,11 +58,22 @@ export interface GuardianTicketData {
   guardian: GuardianMini | null;
   user: { id: string; name: string } | null;
   answeredBy: GuardianMini | null;
+  messages: GuardianMessageData[];
 }
 
 export interface ModerationQueueData {
   pending: GuardianTicketData[];
   recent: GuardianTicketData[];
+}
+
+function toMessage(m: any): GuardianMessageData {
+  return {
+    id: m.id,
+    sender: m.sender,
+    senderId: m.senderId ?? null,
+    content: m.content,
+    createdAt: m.createdAt.toISOString(),
+  };
 }
 
 function toTicket(t: any): GuardianTicketData {
@@ -86,6 +105,7 @@ function toTicket(t: any): GuardianTicketData {
           ambassadorBadge: t.answeredBy.ambassadorBadge,
         }
       : null,
+    messages: t.messages ? t.messages.map(toMessage) : [],
   };
 }
 
@@ -192,8 +212,15 @@ export async function createGuardianTicketAction(
         subject: subject.trim(),
         message: message.trim(),
         status: 'OPEN',
+        messages: {
+          create: {
+            sender: 'USER',
+            senderId: userId,
+            content: message.trim(),
+          },
+        },
       },
-      include: { guardian: true, user: true },
+      include: { guardian: true, user: true, messages: true },
     });
 
     // Run the automated context bot immediately.
@@ -218,6 +245,15 @@ export async function createGuardianTicketAction(
           answeredAt: now,
         },
       });
+      // Save the bot reply as a thread message
+      await prisma.guardianMessage.create({
+        data: {
+          ticketId: ticket.id,
+          sender: 'BOT',
+          senderId: null,
+          content: verdict.answer,
+        },
+      });
       answered = true;
     } else {
       await prisma.guardianTicket.update({
@@ -228,7 +264,7 @@ export async function createGuardianTicketAction(
 
     const saved = await prisma.guardianTicket.findUnique({
       where: { id: ticket.id },
-      include: { guardian: true, user: true },
+      include: { guardian: true, user: true, messages: true },
     });
 
     await trackUserAction(userId, 'GUARDIAN_QUESTION_ASKED', { label: `Guardian question: ${subject.trim()}` });
@@ -252,7 +288,7 @@ export async function getMyGuardianRequestsAction(
     const tickets = await prisma.guardianTicket.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      include: { guardian: true, user: true },
+      include: { guardian: true, user: true, messages: { orderBy: { createdAt: 'asc' } } },
     });
     return {
       success: true,
@@ -293,13 +329,13 @@ export async function getModerationQueueAction(
       prisma.guardianTicket.findMany({
         where: { status: 'PENDING_MODERATION' },
         orderBy: [{ confidence: 'asc' }, { createdAt: 'asc' }],
-        include: { guardian: true, user: true, answeredBy: true },
+        include: { guardian: true, user: true, answeredBy: true, messages: { orderBy: { createdAt: 'asc' } } },
       }),
       prisma.guardianTicket.findMany({
         where: { status: 'CLOSED', answeredBy: { isNot: null } },
         orderBy: { answeredAt: 'desc' },
         take: 8,
-        include: { guardian: true, user: true, answeredBy: true },
+        include: { guardian: true, user: true, answeredBy: true, messages: { orderBy: { createdAt: 'asc' } } },
       }),
     ]);
 
@@ -350,5 +386,108 @@ export async function answerModerationTicketAction(
     };
   } catch (error: any) {
     return { success: false, error: error.message || 'Failed to dispatch the answer.' };
+  }
+}
+
+// ─── Thread replies — continue the conversation inside a ticket ───────────────
+
+export async function replyToGuardianTicketAction(
+  userId: string,
+  ticketId: string,
+  message: string
+): Promise<ActionResponse<GuardianMessageData[]>> {
+  if (!message?.trim()) {
+    return { success: false, error: 'Write a message before sending.' };
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, status: true },
+    });
+    if (!user) return { success: false, error: 'Bird not found in the flock.' };
+    if (user.status === 'suspended' || user.status === 'banned') {
+      return { success: false, error: 'Suspended birds cannot send messages.' };
+    }
+
+    const ticket = await prisma.guardianTicket.findUnique({
+      where: { id: ticketId },
+      include: { messages: { orderBy: { createdAt: 'asc' } } },
+    });
+    if (!ticket) return { success: false, error: 'Ticket not found.' };
+    if (ticket.userId !== userId) {
+      return { success: false, error: 'This is not your ticket.' };
+    }
+    if (ticket.status === 'CLOSED') {
+      return { success: false, error: 'This conversation is closed. Start a new request to continue.' };
+    }
+
+    // Append the user's reply
+    const userMsg = await prisma.guardianMessage.create({
+      data: {
+        ticketId,
+        sender: 'USER',
+        senderId: userId,
+        content: message.trim(),
+      },
+    });
+
+    // If the ticket is handled by the bot, generate a follow-up reply
+    if (ticket.status === 'OPEN') {
+      const ctx = await buildUserContext(userId);
+      const threadHistory = ticket.messages.map((m) => `${m.sender}: ${m.content}`).join('\n');
+      const verdict = answerFromContext(ctx, {
+        type: ticket.type,
+        subject: ticket.subject,
+        message: `${threadHistory}\nUSER: ${message.trim()}`,
+        guardianRole: null,
+      });
+
+      if (verdict.source === 'BOT' && verdict.answer) {
+        await prisma.guardianMessage.create({
+          data: {
+            ticketId,
+            sender: 'BOT',
+            senderId: null,
+            content: verdict.answer,
+          },
+        });
+        // Update ticket metadata
+        await prisma.guardianTicket.update({
+          where: { id: ticketId },
+          data: {
+            answerText: verdict.answer,
+            answerSource: 'BOT',
+            confidence: verdict.confidence,
+            answeredAt: new Date(),
+          },
+        });
+      } else {
+        // Bot is unsure — escalate to moderation
+        await prisma.guardianTicket.update({
+          where: { id: ticketId },
+          data: {
+            status: 'PENDING_MODERATION',
+            confidence: verdict.confidence,
+          },
+        });
+      }
+    }
+    // If PENDING_MODERATION, the user's message is already saved —
+    // moderators will see the full thread when they open the queue.
+
+    // Return the full updated thread
+    const updated = await prisma.guardianTicket.findUnique({
+      where: { id: ticketId },
+      include: { messages: { orderBy: { createdAt: 'asc' } } },
+    });
+
+    return {
+      success: true,
+      message: 'Reply sent.',
+      data: updated!.messages.map(toMessage),
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Failed to send reply.' };
   }
 }

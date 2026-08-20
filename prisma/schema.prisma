@@ -186,11 +186,28 @@ model GuardianTicket {
   resolvedAt DateTime? @map("resolved_at")
   resolution String?
 
+  // Thread messages — the conversation inside this ticket
+  messages    GuardianMessage[]
+
   @@index([userId])
   @@index([guardianId])
   @@index([status])
   @@index([answeredById])
   @@map("guardian_tickets")
+}
+
+// Thread messages for Guardian tickets (chat-like conversation)
+model GuardianMessage {
+  id        String   @id @default(uuid())
+  ticketId  String   @map("ticket_id")
+  ticket    GuardianTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender    String   // USER | BOT | MODERATOR
+  senderId  String?  @map("sender_id") // userId for USER/MODERATOR, null for BOT
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([ticketId])
+  @@map("guardian_messages")
 }
 
 // 6. Feedbacks Table (Flock Feedback system)

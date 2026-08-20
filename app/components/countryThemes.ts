@@ -1,4 +1,5 @@
-// Country flag color themes for Culture Cards (app/components/countryThemes.ts)
+// Country themes — immersive palettes, motifs & cultural greetings
+// Used by both the discover grid and the individual culture card detail page.
 
 export interface CountryTheme {
   name: string;
@@ -9,6 +10,28 @@ export interface CountryTheme {
   accentBg: string;
   border: string;
   stripes: string[];
+
+  // ── Immersive detail page fields ──────────────────────────────────────────
+  /** Top-to-bottom gradient for the hero banner */
+  heroGradient: string;
+  /** Accent gradient for section headers and badges */
+  sectionGradient: string;
+  /** Background tint for the entire page behind sections */
+  pageBg: string;
+  /** Subtle repeating SVG motif as an inline data-URI (background-image) */
+  motifSvg: string;
+  /** Traditional greeting or catchphrase */
+  greeting: string;
+  /** Cultural highlight badge (e.g. 🪷 "Land of Rivers") */
+  culturalBadge: string;
+  /** Decorative top-border accent for hero */
+  heroAccentStripe: string;
+  /** Card/section background color */
+  cardBg: string;
+  /** Card border color */
+  cardBorder: string;
+  /** Section icon tint color */
+  sectionIconColor: string;
 }
 
 export const DEFAULT_THEME: CountryTheme = {
@@ -20,6 +43,16 @@ export const DEFAULT_THEME: CountryTheme = {
   accentBg: '#e8f5e3',
   border: '#a1d494',
   stripes: ['#2d5a27', '#a1d494', '#2d5a27'],
+  heroGradient: 'linear-gradient(135deg, #2D5A27 0%, #154212 50%, #1a6b2e 100%)',
+  sectionGradient: 'linear-gradient(135deg, #2D5A27, #154212)',
+  pageBg: '#fafdf8',
+  motifSvg: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 2 L24 10 L20 18 L16 10Z' fill='%232d5a27' opacity='0.04'/%3E%3C/svg%3E\")",
+  greeting: 'Welcome to the nest',
+  culturalBadge: '🌍 Global Community',
+  heroAccentStripe: '#a1d494',
+  cardBg: '#ffffff',
+  cardBorder: '#efeeea',
+  sectionIconColor: '#2d5a27',
 };
 
 export const COUNTRY_THEMES: Record<string, CountryTheme> = {
@@ -32,6 +65,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#e4f5ec',
     border: '#8fd4b4',
     stripes: ['#006a4e', '#f42a41'],
+    heroGradient: 'linear-gradient(135deg, #006a4e 0%, #00493a 40%, #f42a41 100%)',
+    sectionGradient: 'linear-gradient(135deg, #006a4e, #00493a)',
+    pageBg: '#f4faf7',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='18' fill='none' stroke='%23006a4e' stroke-width='0.5' opacity='0.06'/%3E%3Ccircle cx='30' cy='30' r='10' fill='none' stroke='%23f42a41' stroke-width='0.4' opacity='0.05'/%3E%3Cpath d='M30 12 L30 48 M12 30 L48 30' stroke='%23006a4e' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'স্বাগতম — Shagotom!',
+    culturalBadge: '🪷 Land of Rivers',
+    heroAccentStripe: '#f42a41',
+    cardBg: '#ffffff',
+    cardBorder: '#c8e8d8',
+    sectionIconColor: '#006a4e',
   },
   japan: {
     name: 'Japan',
@@ -42,6 +85,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#fff0f3',
     border: '#f7b0bd',
     stripes: ['#bc002d', '#ffffff', '#bc002d'],
+    heroGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #bc002d 100%)',
+    sectionGradient: 'linear-gradient(135deg, #bc002d, #8f0022)',
+    pageBg: '#fdf6f8',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 C44 18 52 22 52 30 C52 38 44 42 40 50 C36 42 28 38 28 30 C28 22 36 18 40 10Z' fill='%23bc002d' opacity='0.04'/%3E%3Cpath d='M65 55 C67 59 71 61 71 65 C71 69 67 71 65 75 C63 71 59 69 59 65 C59 61 63 59 65 55Z' fill='%23f7b0bd' opacity='0.03'/%3E%3C/svg%3E\")",
+    greeting: 'ようこそ — Yokoso!',
+    culturalBadge: '🌸 Land of the Rising Sun',
+    heroAccentStripe: '#f7b0bd',
+    cardBg: '#fffbfc',
+    cardBorder: '#f7dce1',
+    sectionIconColor: '#bc002d',
   },
   india: {
     name: 'India',
@@ -52,6 +105,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#ecf8ec',
     border: '#9fd99b',
     stripes: ['#ff9933', '#ffffff', '#138808'],
+    heroGradient: 'linear-gradient(135deg, #ff9933 0%, #138808 50%, #000080 100%)',
+    sectionGradient: 'linear-gradient(135deg, #ff9933, #138808)',
+    pageBg: '#fefcf5',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='12' fill='none' stroke='%23ff9933' stroke-width='0.5' opacity='0.06'/%3E%3Ccircle cx='30' cy='30' r='6' fill='none' stroke='%23138808' stroke-width='0.5' opacity='0.05'/%3E%3Cpath d='M30 18 L33 27 L30 30 L27 27Z' fill='%23ff9933' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'नमस्ते — Namaste!',
+    culturalBadge: '🪷 Unity in Diversity',
+    heroAccentStripe: '#ff9933',
+    cardBg: '#ffffff',
+    cardBorder: '#e8dcc8',
+    sectionIconColor: '#c47a00',
   },
   thailand: {
     name: 'Thailand',
@@ -62,6 +125,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#fff1f3',
     border: '#f2a9b4',
     stripes: ['#a51931', '#f4f5f8', '#2d2a4a', '#f4f5f8', '#a51931'],
+    heroGradient: 'linear-gradient(135deg, #a51931 0%, #2d2a4a 50%, #c49a1a 100%)',
+    sectionGradient: 'linear-gradient(135deg, #a51931, #7d1425)',
+    pageBg: '#fdf8f6',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L33 15 L30 20 L27 15Z' fill='%23c49a1a' opacity='0.05'/%3E%3Cpath d='M30 40 L33 50 L30 55 L27 50Z' fill='%23a51931' opacity='0.04'/%3E%3Cpath d='M5 30 L15 27 L20 30 L15 33Z' fill='%23c49a1a' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'สวัสดี — Sawasdee!',
+    culturalBadge: '🐘 Land of Smiles',
+    heroAccentStripe: '#c49a1a',
+    cardBg: '#fffefb',
+    cardBorder: '#f0dde0',
+    sectionIconColor: '#a51931',
   },
   'south-korea': {
     name: 'South Korea',
@@ -72,6 +145,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#edf4fd',
     border: '#9ec0e8',
     stripes: ['#ffffff', '#cd2e3a', '#0047a0'],
+    heroGradient: 'linear-gradient(135deg, #0047a0 0%, #1a1a2e 50%, #cd2e3a 100%)',
+    sectionGradient: 'linear-gradient(135deg, #0047a0, #003372)',
+    pageBg: '#f6f9fd',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='15' fill='none' stroke='%230047a0' stroke-width='0.4' opacity='0.05'/%3E%3Cpath d='M30 15 A15 15 0 0 1 30 45 A7.5 7.5 0 0 1 30 30 A7.5 7.5 0 0 0 30 15' fill='%230047a0' opacity='0.03'/%3E%3C/svg%3E\")",
+    greeting: '어서오세요 — Eoseo-oseyo!',
+    culturalBadge: '🇰🇷 Land of the Morning Calm',
+    heroAccentStripe: '#cd2e3a',
+    cardBg: '#fafcfe',
+    cardBorder: '#d4e3f5',
+    sectionIconColor: '#0047a0',
   },
   brazil: {
     name: 'Brazil',
@@ -82,6 +165,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#ecf9f0',
     border: '#9ddcb8',
     stripes: ['#009c3b', '#ffdf00', '#002776'],
+    heroGradient: 'linear-gradient(135deg, #009c3b 0%, #ffdf00 50%, #002776 100%)',
+    sectionGradient: 'linear-gradient(135deg, #009c3b, #006d2a)',
+    pageBg: '#f7fdf5',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='20' fill='none' stroke='%23ffdf00' stroke-width='0.5' opacity='0.06'/%3E%3Cpath d='M30 10 L35 25 L30 30 L25 25Z' fill='%23009c3b' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'Bem-vindo!',
+    culturalBadge: '🌴 Povo do Brasil',
+    heroAccentStripe: '#ffdf00',
+    cardBg: '#fffef5',
+    cardBorder: '#d4e8c4',
+    sectionIconColor: '#009c3b',
   },
   germany: {
     name: 'Germany',
@@ -92,6 +185,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#fff1f1',
     border: '#f0b3b3',
     stripes: ['#000000', '#dd0000', '#ffce00'],
+    heroGradient: 'linear-gradient(135deg, #000000 0%, #dd0000 50%, #ffce00 100%)',
+    sectionGradient: 'linear-gradient(135deg, #dd0000, #a80000)',
+    pageBg: '#fdfcfa',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='20' y='15' width='20' height='30' rx='2' fill='none' stroke='%23000000' stroke-width='0.4' opacity='0.04'/%3E%3Cpath d='M25 15 L30 5 L35 15' fill='none' stroke='%23dd0000' stroke-width='0.4' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'Willkommen!',
+    culturalBadge: '🏰 Ordnung & Ingenieur',
+    heroAccentStripe: '#ffce00',
+    cardBg: '#ffffff',
+    cardBorder: '#e8d8d8',
+    sectionIconColor: '#dd0000',
   },
   usa: {
     name: 'United States',
@@ -102,6 +205,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#efeff8',
     border: '#a5a4d4',
     stripes: ['#b22234', '#ffffff', '#3c3b6e'],
+    heroGradient: 'linear-gradient(135deg, #3c3b6e 0%, #b22234 50%, #1a1a3e 100%)',
+    sectionGradient: 'linear-gradient(135deg, #3c3b6e, #2b2a51)',
+    pageBg: '#f8f8fc',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 8 L32 14 L38 14 L33 18 L35 24 L30 20 L25 24 L27 18 L22 14 L28 14Z' fill='%233c3b6e' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'Welcome home!',
+    culturalBadge: '🗽 Land of Opportunity',
+    heroAccentStripe: '#b22234',
+    cardBg: '#ffffff',
+    cardBorder: '#d8d6e8',
+    sectionIconColor: '#3c3b6e',
   },
   uk: {
     name: 'United Kingdom',
@@ -112,6 +225,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#eef2fa',
     border: '#9db2da',
     stripes: ['#012169', '#ffffff', '#c8102e'],
+    heroGradient: 'linear-gradient(135deg, #012169 0%, #1a2744 50%, #c8102e 100%)',
+    sectionGradient: 'linear-gradient(135deg, #012169, #00174e)',
+    pageBg: '#f6f8fc',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L30 55 M5 30 L55 30' stroke='%23012169' stroke-width='0.3' opacity='0.04'/%3E%3Cpath d='M15 15 L45 45 M45 15 L15 45' stroke='%23c8102e' stroke-width='0.25' opacity='0.03'/%3E%3C/svg%3E\")",
+    greeting: 'Cheerio!',
+    culturalBadge: '👑 Royal Heritage',
+    heroAccentStripe: '#c8102e',
+    cardBg: '#fafcfe',
+    cardBorder: '#d4dce8',
+    sectionIconColor: '#012169',
   },
   australia: {
     name: 'Australia',
@@ -122,6 +245,16 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#eef2fa',
     border: '#9aabce',
     stripes: ['#00247d', '#ff0000', '#ffffff'],
+    heroGradient: 'linear-gradient(135deg, #00247d 0%, #1a1a3e 50%, #8b4513 100%)',
+    sectionGradient: 'linear-gradient(135deg, #00247d, #001a59)',
+    pageBg: '#f7f9fc',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 30 Q30 10 40 30 Q30 50 20 30Z' fill='none' stroke='%2300247d' stroke-width='0.4' opacity='0.04'/%3E%3Ccircle cx='42' cy='18' r='5' fill='none' stroke='%23ff0000' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: "G'day mate!",
+    culturalBadge: '🦘 Land Down Under',
+    heroAccentStripe: '#ff0000',
+    cardBg: '#fafcfe',
+    cardBorder: '#d4dce8',
+    sectionIconColor: '#00247d',
   },
   pakistan: {
     name: 'Pakistan',
@@ -132,6 +265,116 @@ export const COUNTRY_THEMES: Record<string, CountryTheme> = {
     accentBg: '#ecf5ef',
     border: '#8fc2a2',
     stripes: ['#01411c', '#ffffff'],
+    heroGradient: 'linear-gradient(135deg, #01411c 0%, #012f14 50%, #006a4e 100%)',
+    sectionGradient: 'linear-gradient(135deg, #01411c, #012f14)',
+    pageBg: '#f4faf6',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='28' r='10' fill='none' stroke='%2301411c' stroke-width='0.4' opacity='0.05'/%3E%3Cpath d='M37 23 L40 18' stroke='%2301411c' stroke-width='0.5' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'خوش آمدید — Khush Aamdeed!',
+    culturalBadge: '🏔️ Land of Pure',
+    heroAccentStripe: '#ffffff',
+    cardBg: '#ffffff',
+    cardBorder: '#c8e0d0',
+    sectionIconColor: '#01411c',
+  },
+  china: {
+    name: 'China',
+    flagEmoji: '🇨🇳',
+    accent: '#de2910',
+    accentDark: '#a8200c',
+    accentSoft: '#ffc8c4',
+    accentBg: '#fff1f0',
+    border: '#f5a9a4',
+    stripes: ['#de2910', '#ffde00'],
+    heroGradient: 'linear-gradient(135deg, #de2910 0%, #a8200c 40%, #ffde00 100%)',
+    sectionGradient: 'linear-gradient(135deg, #de2910, #a8200c)',
+    pageBg: '#fef9f6',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 8 L32 14 L38 14 L33 18 L35 24 L30 20 L25 24 L27 18 L22 14 L28 14Z' fill='%23de2910' opacity='0.05'/%3E%3Cpath d='M48 36 L49 39 L52 39 L50 41 L51 44 L48 42 L45 44 L46 41 L44 39 L47 39Z' fill='%23ffde00' opacity='0.03'/%3E%3C/svg%3E\")",
+    greeting: '欢迎 — Huānyíng!',
+    culturalBadge: '🐉 Dragon Spirit',
+    heroAccentStripe: '#ffde00',
+    cardBg: '#fffdf8',
+    cardBorder: '#f0d4cc',
+    sectionIconColor: '#de2910',
+  },
+  mexico: {
+    name: 'Mexico',
+    flagEmoji: '🇲🇽',
+    accent: '#006847',
+    accentDark: '#004d34',
+    accentSoft: '#a7e0c9',
+    accentBg: '#e4f5ec',
+    border: '#8fd4b4',
+    stripes: ['#006847', '#ffffff', '#ce1126'],
+    heroGradient: 'linear-gradient(135deg, #006847 0%, #004d34 40%, #ce1126 100%)',
+    sectionGradient: 'linear-gradient(135deg, #006847, #004d34)',
+    pageBg: '#f4faf7',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10 L36 20 L30 26 L24 20Z' fill='none' stroke='%23006847' stroke-width='0.5' opacity='0.05'/%3E%3Ccircle cx='30' cy='18' r='4' fill='none' stroke='%23ce1126' stroke-width='0.4' opacity='0.04'/%3E%3Cpath d='M20 40 L24 36 L28 40 L24 44Z' fill='none' stroke='%23006847' stroke-width='0.4' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: '¡Bienvenidos!',
+    culturalBadge: '🌮 Tierra del Maíz',
+    heroAccentStripe: '#ce1126',
+    cardBg: '#ffffff',
+    cardBorder: '#c8e8d8',
+    sectionIconColor: '#006847',
+  },
+  egypt: {
+    name: 'Egypt',
+    flagEmoji: '🇪🇬',
+    accent: '#ce1126',
+    accentDark: '#9a0d1d',
+    accentSoft: '#ffc4c8',
+    accentBg: '#fff1f2',
+    border: '#f5a9b0',
+    stripes: ['#ce1126', '#ffffff', '#000000'],
+    heroGradient: 'linear-gradient(135deg, #c9a84c 0%, #ce1126 50%, #1a1a1a 100%)',
+    sectionGradient: 'linear-gradient(135deg, #c9a84c, #ce1126)',
+    pageBg: '#fefcf5',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 55 L22 30 L30 10 L38 30Z' fill='none' stroke='%23c9a84c' stroke-width='0.5' opacity='0.05'/%3E%3Cpath d='M30 45 L26 30 L30 18 L34 30Z' fill='none' stroke='%23c9a84c' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E\")",
+    greeting: 'أهلاً وسهلاً — Ahlan wa Sahlan!',
+    culturalBadge: '🏛️ Cradle of Civilization',
+    heroAccentStripe: '#c9a84c',
+    cardBg: '#fffefb',
+    cardBorder: '#e8dcc4',
+    sectionIconColor: '#c9a84c',
+  },
+  nigeria: {
+    name: 'Nigeria',
+    flagEmoji: '🇳🇬',
+    accent: '#008751',
+    accentDark: '#006640',
+    accentSoft: '#a7e0c9',
+    accentBg: '#e4f5ec',
+    border: '#8fd4b4',
+    stripes: ['#008751', '#ffffff'],
+    heroGradient: 'linear-gradient(135deg, #008751 0%, #006640 50%, #ffffff 100%)',
+    sectionGradient: 'linear-gradient(135deg, #008751, #006640)',
+    pageBg: '#f4faf7',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='14' fill='none' stroke='%23008751' stroke-width='0.5' opacity='0.05'/%3E%3Ccircle cx='30' cy='30' r='8' fill='none' stroke='%23008751' stroke-width='0.4' opacity='0.04'/%3E%3Cpath d='M30 16 L34 26 L30 30 L26 26Z' fill='%23008751' opacity='0.03'/%3E%3C/svg%3E\")",
+    greeting: 'E káabo!',
+    culturalBadge: '🌍 Giant of Africa',
+    heroAccentStripe: '#ffffff',
+    cardBg: '#ffffff',
+    cardBorder: '#c8e8d8',
+    sectionIconColor: '#008751',
+  },
+  turkey: {
+    name: 'Turkey',
+    flagEmoji: '🇹🇷',
+    accent: '#e30a17',
+    accentDark: '#b00812',
+    accentSoft: '#ffc4c6',
+    accentBg: '#fff1f1',
+    border: '#f5a9ab',
+    stripes: ['#e30a17', '#ffffff'],
+    heroGradient: 'linear-gradient(135deg, #e30a17 0%, #b00812 50%, #1a1a1a 100%)',
+    sectionGradient: 'linear-gradient(135deg, #e30a17, #b00812)',
+    pageBg: '#fef9f6',
+    motifSvg: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='28' cy='30' r='10' fill='none' stroke='%23e30a17' stroke-width='0.5' opacity='0.05'/%3E%3Cpath d='M36 26 L39 22 L38 28 L42 28 L37 31 L39 37 L36 33 L32 33 L35 28 L31 28Z' fill='%23e30a17' opacity='0.03'/%3E%3C/svg%3E\")",
+    greeting: 'Hoş geldiniz!',
+    culturalBadge: '🕌 Bridge of Civilizations',
+    heroAccentStripe: '#ffffff',
+    cardBg: '#ffffff',
+    cardBorder: '#f0d0d0',
+    sectionIconColor: '#e30a17',
   },
 };
 

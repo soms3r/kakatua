@@ -7,10 +7,12 @@ import {
   getGuardiansAction,
   getMyGuardianRequestsAction,
   createGuardianTicketAction,
+  replyToGuardianTicketAction,
 } from '../actions/guardians';
 import type {
   GuardianProfile,
   GuardianTicketData,
+  GuardianMessageData,
   TicketType,
 } from '../actions/guardians';
 
@@ -288,7 +290,135 @@ function AskModal({ isOpen, guardians, preselectId, onClose, onSubmit }: AskModa
   );
 }
 
-function RequestList({ tickets }: { tickets: GuardianTicketData[] }) {
+function ChatBubble({ msg, isOwn }: { msg: GuardianMessageData; isOwn: boolean }) {
+  const time = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const senderLabel = msg.sender === 'BOT' ? 'Kakatua' : msg.sender === 'MODERATOR' ? 'Moderator' : null;
+  return (
+    <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
+      {senderLabel && (
+        <span className="text-[9px] font-semibold uppercase tracking-wider text-stone-500 mb-0.5 px-1">
+          {senderLabel}
+        </span>
+      )}
+      <div
+        className={`max-w-[82%] rounded-2xl px-3 py-2 text-[11px] leading-relaxed whitespace-pre-line ${
+          isOwn
+            ? 'bg-[#2D5A27] text-white rounded-br-md'
+            : msg.sender === 'BOT'
+              ? 'bg-[#e8f2e3] text-stone-800 border border-[#c3e0b8] rounded-bl-md'
+              : 'bg-[#f7ecd8] text-stone-800 border border-[#ead9b0] rounded-bl-md'
+        }`}
+      >
+        {msg.content}
+      </div>
+      <span className="text-[8px] text-stone-400 mt-0.5 px-1">{time}</span>
+    </div>
+  );
+}
+
+function ThreadTicket({ t, userId, onReply }: { t: GuardianTicketData; userId: string; onReply: (ticketId: string, msg: string) => Promise<boolean> }) {
+  const [expanded, setExpanded] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [sending, setSending] = useState(false);
+  const threadRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when expanded or when messages change
+  useEffect(() => {
+    if (expanded && threadRef.current) {
+      threadRef.current.scrollTop = threadRef.current.scrollHeight;
+    }
+  }, [expanded, t.messages.length]);
+
+  const canReply = t.status !== 'CLOSED';
+  const msgCount = t.messages.length;
+
+  async function handleSend() {
+    if (!replyText.trim() || sending) return;
+    setSending(true);
+    const ok = await onReply(t.id, replyText.trim());
+    if (ok) setReplyText('');
+    setSending(false);
+  }
+
+  return (
+    <div className="rounded-xl border border-[#efeeea] bg-[#fbf9f5] overflow-hidden">
+      {/* Header — always visible, clickable to expand */}
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between gap-2 px-3.5 py-3 text-left hover:bg-[#f5f3ef] transition-colors"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="material-symbols-outlined text-[#2D5A27] text-base shrink-0">{TYPE_ICONS[t.type] || 'forum'}</span>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-stone-900 truncate">{t.subject}</p>
+            <p className="text-[9px] text-stone-400 mt-0.5">
+              {t.guardian ? `With ${t.guardian.name}` : 'Waiting for a guardian'} · {msgCount} message{msgCount !== 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <StatusChip status={t.status} />
+          <span className={`material-symbols-outlined text-stone-400 text-base transition-transform ${expanded ? 'rotate-180' : ''}`}>expand_more</span>
+        </div>
+      </button>
+
+      {/* Expanded thread view */}
+      {expanded && (
+        <div className="border-t border-[#efeeea]">
+          {/* Messages area */}
+          <div ref={threadRef} className="max-h-72 overflow-y-auto px-3.5 py-3 flex flex-col gap-2.5 scrollbar-none">
+            {t.messages.map((msg) => (
+              <ChatBubble key={msg.id} msg={msg} isOwn={msg.sender === 'USER'} />
+            ))}
+          </div>
+
+          {/* PENDING_MODERATION notice */}
+          {t.status === 'PENDING_MODERATION' && (
+            <div className="px-3.5 pb-2">
+              <p className="text-[10px] text-[#a26a1a] bg-[#fdf0d8] rounded-lg px-2.5 py-1.5">
+                A human moderator is reviewing this — your next reply will be saved for them to see.
+              </p>
+            </div>
+          )}
+
+          {/* Reply input */}
+          {canReply ? (
+            <div className="px-3.5 pb-3 pt-1">
+              <div className="flex items-end gap-2">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  rows={1}
+                  placeholder="Reply to Guardian…"
+                  className="flex-1 bg-white border border-[#dbdad6] rounded-xl px-3 py-2 text-[11px] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#a1d494] focus:border-transparent resize-none min-h-[34px] max-h-24 transition-all"
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={!replyText.trim() || sending}
+                  className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-[#2D5A27] text-white hover:bg-[#154212] active:scale-95 transition-all disabled:opacity-40"
+                >
+                  <span className="material-symbols-outlined text-[15px]">{sending ? 'hourglass_top' : 'send'}</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="px-3.5 pb-3">
+              <p className="text-[10px] text-stone-400 italic">This conversation is closed.</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RequestList({ tickets, userId, onReply }: { tickets: GuardianTicketData[]; userId: string; onReply: (ticketId: string, msg: string) => Promise<boolean> }) {
   if (tickets.length === 0) {
     return (
       <p className="text-[11px] text-stone-400 italic">
@@ -299,45 +429,7 @@ function RequestList({ tickets }: { tickets: GuardianTicketData[] }) {
   return (
     <div className="flex flex-col gap-2.5">
       {tickets.map((t) => (
-        <div key={t.id} className="rounded-xl border border-[#efeeea] bg-[#fbf9f5] p-3.5">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="material-symbols-outlined text-[#2D5A27] text-base shrink-0">{TYPE_ICONS[t.type] || 'forum'}</span>
-              <p className="text-[11px] font-semibold text-stone-900 truncate">{t.subject}</p>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {t.status === 'CLOSED' && <SourceBadge source={t.answerSource} />}
-              <StatusChip status={t.status} />
-            </div>
-          </div>
-          <p className="text-[11px] text-stone-600 mt-1.5 leading-relaxed">{t.message}</p>
-
-          {t.status === 'CLOSED' && t.answerText && (
-            <div className="mt-2.5 rounded-xl bg-[#f7ecd8]/80 border border-[#ead9b0] px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 mb-1">
-                {t.answerSource === 'BOT' ? 'Kakatua answered' : 'Moderator answered'}
-              </p>
-              <p className="text-[11px] text-stone-800 leading-relaxed whitespace-pre-line">{t.answerText}</p>
-              {t.answeredAt && (
-                <p className="text-[9px] text-stone-400 mt-1.5">
-                  {new Date(t.answeredAt).toLocaleString()}
-                </p>
-              )}
-            </div>
-          )}
-
-          {t.status === 'PENDING_MODERATION' && (
-            <p className="text-[10px] text-[#a26a1a] mt-2.5 bg-[#fdf0d8] rounded-lg px-2.5 py-1.5">
-              A human moderator is reviewing this — you will see their answer here.
-            </p>
-          )}
-
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-[9px] text-stone-400">
-              {t.guardian ? `With ${t.guardian.name}` : 'Waiting for a guardian'} · {TYPE_LABELS[t.type]}
-            </span>
-          </div>
-        </div>
+        <ThreadTicket key={t.id} t={t} userId={userId} onReply={onReply} />
       ))}
     </div>
   );
@@ -406,6 +498,18 @@ export default function GuardiansPage() {
       return null;
     }
     return res.error;
+  }
+
+  async function handleReply(ticketId: string, message: string): Promise<boolean> {
+    const uid = userId;
+    if (!uid) { notify('Sign in to reply.', true); return false; }
+    const res = await replyToGuardianTicketAction(uid, ticketId, message);
+    if (res.success) {
+      reload();
+      return true;
+    }
+    notify(res.error, true);
+    return false;
   }
 
   const onlineCount = guardians.filter((g) => g.isOnline).length;
@@ -483,7 +587,7 @@ export default function GuardiansPage() {
 
         {/* My requests */}
         <Section title="My Requests" icon="forum">
-          <RequestList tickets={tickets} />
+          <RequestList tickets={tickets} userId={userId || ''} onReply={handleReply} />
         </Section>
 
         <AskModal
