@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '../../actions/db';
 import bcrypt from 'bcryptjs';
 import {
@@ -17,7 +18,15 @@ const RESERVED_EMAILS = [
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password, referralCode } = body;
+    const { name, email, password, referralCode: bodyReferralCode } = body;
+
+    // Fall back to the HTTP-only cookie set by /join/[code] if the body
+    // doesn't carry a referral code (e.g. user navigated directly to /register).
+    let referralCode = bodyReferralCode || null;
+    if (!referralCode) {
+      const cookieStore = await cookies();
+      referralCode = cookieStore.get('kakatua_ref_code')?.value || null;
+    }
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -118,7 +127,8 @@ export async function POST(request: Request) {
       }
     );
 
-    return NextResponse.json(
+    // Clear the referral cookie — it has served its purpose.
+    const response = NextResponse.json(
       {
         success: true,
         message: 'Your nest has been built. Welcome to the flock.',
@@ -126,6 +136,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
+    response.cookies.set('kakatua_ref_code', '', { maxAge: 0, path: '/' });
+    return response;
   } catch (error: any) {
     console.error('=== REGISTRATION ERROR ===');
     console.error('Message:', error.message);
